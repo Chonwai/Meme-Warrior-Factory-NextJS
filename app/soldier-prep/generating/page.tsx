@@ -49,12 +49,18 @@ function GeneratingContent() {
     }, [searchParams, router]);
 
     useEffect(() => {
+        // 計算每個對話應該對應的進度百分比
+        const progressPerDialogue = 100 / (AI_DIALOGUE.length - 1);
+
         // Simulate AI generation process
         const dialogueInterval = setInterval(() => {
             setDialogueIndex((prev) => {
-                if (prev < AI_DIALOGUE.length - 1) {
-                    return prev + 1;
-                } else {
+                const newIndex = prev < AI_DIALOGUE.length - 1 ? prev + 1 : prev;
+
+                // 同步更新進度條 - 每個對話對應一個進度段
+                setProgress(Math.min(Math.round(newIndex * progressPerDialogue), 100));
+
+                if (newIndex === AI_DIALOGUE.length - 1) {
                     clearInterval(dialogueInterval);
                     // Set completion status after last dialogue
                     setTimeout(() => {
@@ -66,22 +72,10 @@ function GeneratingContent() {
                             memeSoldier: 'excited' as CharacterState,
                         });
                     }, 1500);
-                    return prev;
                 }
+                return newIndex;
             });
         }, 2000);
-
-        // Progress bar animation
-        const progressInterval = setInterval(() => {
-            setProgress((prev) => {
-                if (prev < 100) {
-                    return prev + 1;
-                } else {
-                    clearInterval(progressInterval);
-                    return 100;
-                }
-            });
-        }, 180); // About 18 seconds to complete
 
         // Update character states based on progress
         const characterUpdateInterval = setInterval(() => {
@@ -115,7 +109,6 @@ function GeneratingContent() {
         // Clear all intervals on component unmount
         return () => {
             clearInterval(dialogueInterval);
-            clearInterval(progressInterval);
             clearInterval(characterUpdateInterval);
         };
     }, [progress]);
