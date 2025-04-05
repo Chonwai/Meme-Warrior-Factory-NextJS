@@ -2,14 +2,7 @@ import Link from 'next/link';
 
 export default function Home() {
     return (
-        <main
-            className="flex min-h-screen flex-col items-center justify-between p-6 md:p-12"
-            style={{
-                backgroundColor: '#111',
-                backgroundImage:
-                    'repeating-linear-gradient(#222 0px, #222 2px, #333 2px, #333 4px)',
-            }}
-        >
+        <main className="flex min-h-screen flex-col items-center justify-between p-6 md:p-12">
             <div className="w-full max-w-4xl mx-auto text-center">
                 <h1 className="text-5xl md:text-7xl font-bold mb-6 text-yellow-300 drop-shadow-[2px_2px_0px_#000] pixel-text">
                     MemeWarriors
@@ -18,7 +11,7 @@ export default function Home() {
                     Create AI Meme Soldiers & Battle in the Pixel Arena!
                 </p>
 
-                <div className="border-4 border-gray-600 bg-gray-800/80 p-6 mb-10">
+                <div className="border-4 border-gray-600 bg-black/60 backdrop-blur-sm p-6 mb-10">
                     <h2 className="text-2xl font-semibold mb-4 text-green-400 pixel-text">
                         Welcome to MemeWarriors
                     </h2>
@@ -35,7 +28,7 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                    <div className="meme-card border-4 border-gray-700">
+                    <div className="meme-card border-4 border-gray-700 bg-black/60 backdrop-blur-sm">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xl font-semibold text-green-400 pixel-text">
                                 ACTIVE BATTLEFIELDS
@@ -48,7 +41,7 @@ export default function Home() {
                             <li className="mb-2">→ New Recruits Today: 89</li>
                         </ul>
                     </div>
-                    <div className="meme-card border-4 border-gray-700">
+                    <div className="meme-card border-4 border-gray-700 bg-black/60 backdrop-blur-sm">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xl font-semibold text-green-400 pixel-text">
                                 TOP MEME SOLDIERS
@@ -71,9 +64,15 @@ export default function Home() {
                 </Link>
 
                 <div className="mt-10 grid grid-cols-3 gap-4 text-4xl">
-                    <div className="bg-gray-800 p-4 border-4 border-gray-700">🐶</div>
-                    <div className="bg-gray-800 p-4 border-4 border-gray-700">🐸</div>
-                    <div className="bg-gray-800 p-4 border-4 border-gray-700">🧔</div>
+                    <div className="bg-black/60 backdrop-blur-sm p-4 border-4 border-gray-700">
+                        🐶
+                    </div>
+                    <div className="bg-black/60 backdrop-blur-sm p-4 border-4 border-gray-700">
+                        🐸
+                    </div>
+                    <div className="bg-black/60 backdrop-blur-sm p-4 border-4 border-gray-700">
+                        🧔
+                    </div>
                 </div>
             </div>
         </main>
