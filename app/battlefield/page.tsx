@@ -240,6 +240,17 @@ export default function BattlefieldPage() {
                                                     )}
                                                 </span>
                                             </div>
+
+                                            {/* 添加進入戰場按鈕 */}
+                                            <div className="flex justify-end mt-3">
+                                                <Link
+                                                    href={`/battlefield/${battle.id}`}
+                                                    className="battle-link minecraft-font text-xs text-yellow-400 hover:text-yellow-300"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    ENTER ARENA →
+                                                </Link>
+                                            </div>
                                         </div>
                                     ))
                                 ) : (
@@ -248,15 +259,9 @@ export default function BattlefieldPage() {
                                     </div>
                                 )}
                             </div>
-
-                            <div className="mt-4 pt-3 border-t border-gray-700">
-                                <Link
-                                    href="/soldier-prep"
-                                    className="minecraft-btn w-full text-center"
-                                >
-                                    CREATE NEW SOLDIER
-                                </Link>
-                            </div>
+                            <Link href="/soldier-prep" className="minecraft-btn w-full text-center">
+                                CREATE NEW SOLDIER
+                            </Link>
                         </div>
                     </div>
 
@@ -271,7 +276,7 @@ export default function BattlefieldPage() {
                                     src="/images/dirt-bg.png"
                                     alt="Battle Arena"
                                     fill
-                                    className="object-cover pixelated opacity-80"
+                                    className="object-cover pixelated opacity-40"
                                 />
                             </div>
 
@@ -414,6 +419,16 @@ export default function BattlefieldPage() {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* 添加查看戰鬥詳情按鈕 */}
+                                    <div className="mt-8">
+                                        <Link
+                                            href={`/battlefield/${selectedBattle.id}`}
+                                            className="minecraft-btn-red"
+                                        >
+                                            ENTER BATTLE ARENA
+                                        </Link>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -576,6 +591,62 @@ export default function BattlefieldPage() {
                     box-shadow: 1px 1px 0px #222;
                 }
 
+                .minecraft-btn-red {
+                    display: inline-block;
+                    padding: 12px 24px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    background-color: #ef4444;
+                    border: 3px solid #333;
+                    color: white;
+                    box-shadow: 3px 3px 0px #222;
+                    position: relative;
+                    transition: all 0.1s;
+                    font-family: 'Minecraft', monospace;
+                    letter-spacing: 1px;
+                    cursor: pointer;
+                }
+
+                .minecraft-btn-red:hover {
+                    background-color: #dc2626;
+                    transform: translateY(-2px);
+                }
+
+                .minecraft-btn-red:active {
+                    background-color: #b91c1c;
+                    transform: translateY(2px);
+                    box-shadow: 1px 1px 0px #222;
+                }
+
+                .minecraft-btn-sm {
+                    display: inline-block;
+                    padding: 4px 8px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    background-color: #f59e0b;
+                    border: 2px solid #333;
+                    color: white;
+                    box-shadow: 2px 2px 0px #222;
+                    position: relative;
+                    transition: all 0.1s;
+                    font-family: 'Minecraft', monospace;
+                    letter-spacing: 1px;
+                    cursor: pointer;
+                }
+
+                .minecraft-btn-sm:hover {
+                    background-color: #f97316;
+                    transform: translateY(-1px);
+                }
+
+                .minecraft-btn-sm:active {
+                    background-color: #d97706;
+                    transform: translateY(1px);
+                    box-shadow: 1px 1px 0px #222;
+                }
+
                 .pixelated {
                     image-rendering: pixelated;
                 }
@@ -587,6 +658,21 @@ export default function BattlefieldPage() {
                     border-radius: 50%;
                     box-shadow: 0 0 20px 10px rgba(255, 0, 0, 0.2);
                     animation: battle-pulse 1.5s infinite alternate;
+                }
+
+                .battle-link {
+                    position: relative;
+                    display: inline-block;
+                    transition: all 0.2s;
+                }
+
+                .battle-link:hover {
+                    text-shadow: 0 0 5px rgba(255, 200, 0, 0.5);
+                    transform: translateX(2px);
+                }
+
+                .battle-link:active {
+                    transform: translateX(0px);
                 }
 
                 @keyframes battle-pulse {
