@@ -530,10 +530,6 @@ export default function BattlefieldPage() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace !important;
-                }
-
                 .minecraft-btn {
                     display: inline-block;
                     padding: 8px 16px;

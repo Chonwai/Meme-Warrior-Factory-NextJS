@@ -10,6 +10,12 @@
     font-display: swap;
 }
 
+/* Global font class */
+.minecraft-font {
+    font-family: 'Minecraft', monospace !important;
+    letter-spacing: 1px;
+}
+
 :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;

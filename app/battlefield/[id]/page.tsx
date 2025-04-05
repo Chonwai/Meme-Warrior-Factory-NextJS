@@ -473,10 +473,6 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                     box-shadow: inset 0 0 0 4px #333;
                 }
 
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace !important;
-                }
-
                 .minecraft-btn-red {
                     display: inline-block;
                     padding: 12px 24px;

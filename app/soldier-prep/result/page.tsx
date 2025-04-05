@@ -333,10 +333,6 @@ export default function ResultPage() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace;
-                }
-
                 .teleport-pad {
                     width: 64px;
                     height: 24px;

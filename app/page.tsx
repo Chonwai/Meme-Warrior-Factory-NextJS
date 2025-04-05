@@ -32,7 +32,7 @@ export default function Home() {
                     <h2 className="text-2xl font-semibold mb-4 text-green-400 pixel-text">
                         Welcome to MemeWarriors
                     </h2>
-                    <p className="mb-6">
+                    <p className="mb-6 minecraft-font">
                         Build your meme army and conquer the pixel battlefields in this blocky
                         adventure!
                     </p>
@@ -42,7 +42,7 @@ export default function Home() {
                     >
                         {isConnected ? 'ENTER GAME' : 'CONNECT WALLET'}
                     </button>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-400 minecraft-font">
                         Requires a Celo-compatible wallet to continue
                     </p>
                 </div>
@@ -61,7 +61,7 @@ export default function Home() {
                                 className="pixelated"
                             />
                         </div>
-                        <ul className="text-left">
+                        <ul className="text-left minecraft-font">
                             <li className="mb-2">→ Active Arenas: 3</li>
                             <li className="mb-2">→ Total Soldiers: 1,234</li>
                             <li className="mb-2">→ New Recruits Today: 89</li>
@@ -80,7 +80,7 @@ export default function Home() {
                                 className="pixelated"
                             />
                         </div>
-                        <ul className="text-left">
+                        <ul className="text-left minecraft-font">
                             <li className="mb-2">→ Doge Warrior - Win Rate 78%</li>
                             <li className="mb-2">→ Pepe General - Win Rate 65%</li>
                             <li className="mb-2">→ Wojak Scout - Win Rate 62%</li>
