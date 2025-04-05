@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useWallet } from '@/lib/wallet-context';
 
 // 創意提示範例
 const PROMPT_EXAMPLES = [
@@ -13,10 +15,29 @@ const PROMPT_EXAMPLES = [
 ];
 
 export default function SoldierPrep() {
+    const router = useRouter();
+    const { isConnected } = useWallet();
     const [prompt, setPrompt] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [showExamples, setShowExamples] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // 檢查錢包連接狀態
+    useEffect(() => {
+        if (!isConnected) {
+            // 如果未連接錢包，重定向到首頁
+            router.push('/');
+        }
+    }, [isConnected, router]);
+
+    // 如果未連接錢包，顯示加載中
+    if (!isConnected) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <p className="text-xl text-gray-600">正在檢查錢包連接狀態...</p>
+            </div>
+        );
+    }
 
     // 顯示打字動畫效果
     const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -29,7 +50,7 @@ export default function SoldierPrep() {
     const handleSubmit = () => {
         if (prompt.trim()) {
             // 提交後導航到確認頁面，將prompt作為查詢參數傳遞
-            window.location.href = `/soldier-prep/confirm?prompt=${encodeURIComponent(prompt)}`;
+            router.push(`/soldier-prep/confirm?prompt=${encodeURIComponent(prompt)}`);
         }
     };
 
