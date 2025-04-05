@@ -13,9 +13,10 @@ type WalletContextType = {
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-    const [isConnected, setIsConnected] = useState<boolean>(false);
-    const [walletAddress, setWalletAddress] = useState<string | null>(null);
-    const [balance, setBalance] = useState<number>(0);
+    // 預設為已連接狀態，這樣就不需要點擊連接按鈕
+    const [isConnected, setIsConnected] = useState<boolean>(true);
+    const [walletAddress, setWalletAddress] = useState<string | null>('0x1234...5678');
+    const [balance, setBalance] = useState<number>(10.5);
 
     // 模擬錢包連接功能
     const connectWallet = async (): Promise<void> => {
