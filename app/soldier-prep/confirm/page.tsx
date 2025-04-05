@@ -314,7 +314,7 @@ export default function ConfirmPage() {
                 }
 
                 .blacksmith {
-                    background-image: url('/images/blacksmith.png');
+                    background-image: url('/images/Blacksmith.png');
                 }
 
                 /* Sprite frames for animation */

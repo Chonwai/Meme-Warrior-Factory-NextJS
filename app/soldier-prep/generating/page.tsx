@@ -354,15 +354,15 @@ export default function GeneratingPage() {
 
                 /* Character sprite images */
                 .blacksmith {
-                    background-image: url('/images/blacksmith.png');
+                    background-image: url('/images/Blacksmith.png');
                 }
 
                 .dispatcher {
-                    background-image: url('/images/dispatcher.png');
+                    background-image: url('/images/Dispatcher.png');
                 }
 
                 .meme-soldier {
-                    background-image: url('/images/meme-soldier.png');
+                    background-image: url('/images/MemeSoldier.png');
                 }
 
                 /* Sprite frames for animation */

@@ -311,11 +311,11 @@ export default function ResultPage() {
                 }
 
                 .meme-soldier {
-                    background-image: url('/images/meme-soldier.png');
+                    background-image: url('/images/MemeSoldier.png');
                 }
 
                 .dispatcher {
-                    background-image: url('/images/dispatcher.png');
+                    background-image: url('/images/Dispatcher.png');
                 }
 
                 /* Sprite frames for animation */
