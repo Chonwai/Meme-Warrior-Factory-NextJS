@@ -10,13 +10,18 @@ export default function Navbar() {
     const pathname = usePathname();
     const { isConnected, walletAddress, balance, connectWallet, disconnectWallet, networkInfo } =
         useWallet();
-    const { isWorldIDVerified, isVerifying, verifyWithWorldID } = useWorldID();
+    const { isWorldIDVerified, isVerifying, verifyWithWorldID, worldWalletAddress } = useWorldID();
 
     // Check if current path is homepage
     const isHomePage = pathname === '/';
 
     // Don't show navbar on homepage
     if (isHomePage) return null;
+
+    // Format wallet address for display
+    const formatAddress = (address: string): string => {
+        return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+    };
 
     return (
         <header className="bg-gray-800 border-b-4 border-gray-700 text-white p-3">
@@ -80,7 +85,9 @@ export default function Navbar() {
                                             d="M5 13l4 4L19 7"
                                         />
                                     </svg>
-                                    Verified with World ID
+                                    <span>
+                                        Verified{worldWalletAddress ? `: ${formatAddress(worldWalletAddress)}` : ''}
+                                    </span>
                                 </div>
                             ) : (
                                 <button

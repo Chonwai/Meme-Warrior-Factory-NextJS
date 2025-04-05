@@ -1,22 +1,16 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySiweMessage } from '@worldcoin/minikit-js';
+import { MiniAppWalletAuthSuccessPayload, verifySiweMessage } from '@worldcoin/minikit-js';
 
-interface RequestPayload {
-    payload: {
-        status: 'success';
-        message: string;
-        signature: string;
-        address: string;
-        version: number;
-    };
+interface IRequestPayload {
+    payload: MiniAppWalletAuthSuccessPayload;
     nonce: string;
 }
 
 export async function POST(req: NextRequest) {
     try {
         // Get payload from request
-        const { payload, nonce } = (await req.json()) as RequestPayload;
+        const { payload, nonce } = await req.json() as IRequestPayload;
 
         // Get stored nonce from cookies
         const storedNonce = cookies().get('siwe')?.value;
@@ -42,8 +36,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             status: 'success',
             isValid: validationResult.isValid,
+            address: payload.address
         });
     } catch (error: any) {
+        console.error('Verification error:', error);
         return NextResponse.json(
             {
                 status: 'error',

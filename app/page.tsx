@@ -8,8 +8,14 @@ import { useRouter } from 'next/navigation';
 
 export default function Home() {
     const { isConnected, connectWallet } = useWallet();
-    const { isWorldIDVerified, verifyWithWorldID } = useWorldID();
+    const { isWorldIDVerified, verifyWithWorldID, worldWalletAddress, isVerifying } = useWorldID();
     const router = useRouter();
+
+    // Format wallet address for display
+    const formatAddress = (address: string): string => {
+        if (!address) return '';
+        return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+    };
 
     // If wallet is connected, redirect to soldier prep page
     const handleWalletConnect = async () => {
@@ -50,13 +56,24 @@ export default function Home() {
                         >
                             {isConnected ? 'ENTER GAME' : 'CONNECT WALLET'}
                         </button>
-
-                        <button
-                            onClick={handleWorldIDVerify}
-                            className={`minecraft-btn text-white w-full md:hidden ${isWorldIDVerified ? 'bg-purple-700' : 'bg-purple-600 hover:bg-purple-700'}`}
-                        >
-                            {isWorldIDVerified ? 'VERIFIED WITH WORLD ID' : 'VERIFY WITH WORLD ID'}
-                        </button>
+                        
+                        {isWorldIDVerified ? (
+                            <div className="minecraft-btn bg-purple-700 text-white w-full md:hidden flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                VERIFIED
+                                {worldWalletAddress ? `: ${formatAddress(worldWalletAddress)}` : ''}
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={handleWorldIDVerify}
+                                disabled={isVerifying}
+                                className="minecraft-btn text-white w-full md:hidden bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                            >
+                                {isVerifying ? 'VERIFYING...' : 'VERIFY WITH WORLD ID'}
+                            </button>
+                        )}
                     </div>
                     <p className="text-sm text-gray-400 minecraft-font">
                         Requires a Celo-compatible wallet to continue
