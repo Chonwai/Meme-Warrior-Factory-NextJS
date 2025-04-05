@@ -30,16 +30,16 @@ export default function ConfirmPage() {
 
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-6xl mx-auto">
                 <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
                     CONFIRM SOLDIER GENERATION
                 </h1>
 
-                {/* Forge scene layout with sidebar */}
+                {/* Three-column layout */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                    {/* Left column with blacksmith dialogue */}
-                    <div className="lg:w-1/4">
-                        <div className="pixel-border bg-black/70 p-4 h-full flex flex-col">
+                    {/* Left sidebar: Blacksmith dialogue - 30% width */}
+                    <div className="lg:w-[30%] order-2 lg:order-1">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             <div className="mb-4 flex justify-center">
                                 <div className="pixel-character blacksmith w-16 h-16"></div>
                             </div>
@@ -53,86 +53,94 @@ export default function ConfirmPage() {
                         </div>
                     </div>
 
-                    {/* Center forge area */}
-                    <div className="lg:w-3/4 relative pixel-border overflow-hidden h-96">
-                        <div className="absolute inset-0">
-                            <Image
-                                src="/images/forge.png"
-                                alt="Meme Forge"
-                                fill
-                                className="object-cover pixelated"
-                            />
+                    {/* Middle column: Forge canvas - 40% width */}
+                    <div className="lg:w-[40%] order-1 lg:order-2">
+                        <div
+                            className="relative pixel-border overflow-hidden"
+                            style={{ height: '70vh' }}
+                        >
+                            <div className="absolute inset-0">
+                                <Image
+                                    src="/images/forge.png"
+                                    alt="Meme Forge"
+                                    fill
+                                    className="object-cover pixelated"
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Confirmation area */}
-                <div className="pixel-border bg-black/80 p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
-                        CONFIRM FORGING DETAILS
-                    </h2>
+                    {/* Right sidebar: Confirmation details - 30% width */}
+                    <div className="lg:w-[30%] order-3">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                            <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                CONFIRM DETAILS
+                            </h2>
 
-                    <div className="mb-6 p-4 bg-gray-800 border-2 border-gray-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 minecraft-font uppercase">
-                            YOUR CREATIVE PROMPT:
-                        </h3>
-                        <p className="text-gray-300 minecraft-font italic">&quot;{prompt}&quot;</p>
-                    </div>
+                            <div className="mb-4 p-3 bg-gray-800 border-2 border-gray-700 rounded">
+                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
+                                    YOUR PROMPT:
+                                </h3>
+                                <p className="text-gray-300 minecraft-font italic text-sm">
+                                    &quot;{prompt}&quot;
+                                </p>
+                            </div>
 
-                    <div className="mb-6 p-4 bg-yellow-900/40 border-2 border-yellow-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 minecraft-font uppercase">
-                            PLEASE NOTE:
-                        </h3>
-                        <ul className="list-none pl-0 space-y-2 text-sm text-gray-300 minecraft-font">
-                            <li className="flex items-start">
-                                <span className="text-yellow-500 mr-2">→</span>
-                                <span>
-                                    50% OF THE GENERATED TOKENS WILL BE AUTOMATICALLY DEPLOYED TO
-                                    THE BATTLEFIELD
-                                </span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-yellow-500 mr-2">→</span>
-                                <span>DEPLOYED SOLDIERS MAY BE LOST IN BATTLE</span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-yellow-500 mr-2">→</span>
-                                <span>THE REMAINING 50% WILL BE SAVED IN YOUR WALLET</span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-yellow-500 mr-2">→</span>
-                                <span>EACH GENERATION WILL CONSUME A SMALL AMOUNT OF GAS FEES</span>
-                            </li>
-                        </ul>
-                    </div>
+                            <div className="mb-6 p-3 bg-yellow-900/40 border-2 border-yellow-700 rounded">
+                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
+                                    PLEASE NOTE:
+                                </h3>
+                                <ul className="list-none pl-0 space-y-1 text-xs text-gray-300 minecraft-font">
+                                    <li className="flex items-start">
+                                        <span className="text-yellow-500 mr-2">→</span>
+                                        <span>50% OF TOKENS DEPLOYED TO BATTLEFIELD</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-yellow-500 mr-2">→</span>
+                                        <span>DEPLOYED SOLDIERS MAY BE LOST IN BATTLE</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-yellow-500 mr-2">→</span>
+                                        <span>50% SAVED IN YOUR WALLET</span>
+                                    </li>
+                                </ul>
+                            </div>
 
-                    <div className="mb-6">
-                        <label className="flex items-start cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={isAgreed}
-                                onChange={() => setIsAgreed(!isAgreed)}
-                                className="mt-1 mr-3 h-5 w-5 cursor-pointer"
-                            />
-                            <span className="text-sm text-gray-300 group-hover:text-gray-200 minecraft-font">
-                                I AGREE TO DEPLOY 50% OF THE TOKENS TO THE BATTLEFIELD AND
-                                UNDERSTAND THESE TOKENS MAY BE LOST IN BATTLE.
-                            </span>
-                        </label>
-                    </div>
+                            <div className="mb-4">
+                                <label className="flex items-start cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        checked={isAgreed}
+                                        onChange={() => setIsAgreed(!isAgreed)}
+                                        className="mt-1 mr-3 h-4 w-4 cursor-pointer"
+                                    />
+                                    <span className="text-xs text-gray-300 group-hover:text-gray-200 minecraft-font">
+                                        I AGREE TO DEPLOY 50% OF TOKENS TO BATTLEFIELD
+                                    </span>
+                                </label>
+                            </div>
 
-                    <div className="flex justify-between">
-                        <Link href="/soldier-prep" className="minecraft-btn-secondary">
-                            ← BACK TO EDIT
-                        </Link>
+                            <div className="mt-auto flex flex-col space-y-3">
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={!isAgreed}
+                                    className={
+                                        isAgreed
+                                            ? 'minecraft-btn w-full'
+                                            : 'minecraft-btn-disabled w-full'
+                                    }
+                                >
+                                    CONFIRM AND GENERATE →
+                                </button>
 
-                        <button
-                            onClick={handleConfirm}
-                            disabled={!isAgreed}
-                            className={isAgreed ? 'minecraft-btn' : 'minecraft-btn-disabled'}
-                        >
-                            CONFIRM AND GENERATE →
-                        </button>
+                                <Link
+                                    href="/soldier-prep"
+                                    className="minecraft-btn-secondary w-full text-center"
+                                >
+                                    ← BACK TO EDIT
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -170,7 +178,7 @@ export default function ConfirmPage() {
                 .minecraft-btn {
                     display: inline-block;
                     padding: 8px 16px;
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     text-transform: uppercase;
                     background-color: #4aae46;
@@ -198,7 +206,7 @@ export default function ConfirmPage() {
                 .minecraft-btn-secondary {
                     display: inline-block;
                     padding: 8px 16px;
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     text-transform: uppercase;
                     background-color: #777;
@@ -226,7 +234,7 @@ export default function ConfirmPage() {
                 .minecraft-btn-disabled {
                     display: inline-block;
                     padding: 8px 16px;
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     text-transform: uppercase;
                     background-color: #656565;

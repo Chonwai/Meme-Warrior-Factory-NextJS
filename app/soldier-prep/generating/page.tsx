@@ -74,81 +74,111 @@ export default function GeneratingPage() {
 
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-6xl mx-auto">
                 <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
                     SOLDIER FORGING IN PROGRESS
                 </h1>
 
-                {/* Forge scene layout with sidebar */}
+                {/* Three-column layout */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                    {/* Left column with AI dialogue */}
-                    <div className="lg:w-1/4">
-                        <div className="pixel-border bg-black/70 p-4 h-full flex flex-col">
+                    {/* Left sidebar: AI dialogue - 30% width */}
+                    <div className="lg:w-[30%] order-2 lg:order-1">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                            <h3 className="text-center font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                AI IS WORKING
+                            </h3>
                             <div className="chat-bubble w-full mb-4">
                                 <p className="minecraft-font text-white text-sm">
                                     {AI_DIALOGUE[dialogueIndex]}
                                 </p>
                             </div>
 
-                            {/* Pixel-style progress indication */}
                             <div className="mt-auto">
+                                <div className="mb-2 text-xs text-center text-gray-400 minecraft-font">
+                                    CREATIVE PROMPT:
+                                </div>
+                                <p className="text-gray-300 minecraft-font italic text-sm mb-4 text-center">
+                                    &quot;{prompt.substring(0, 30)}
+                                    {prompt.length > 30 ? '...' : ''}&quot;
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Middle column: Forge canvas - 40% width */}
+                    <div className="lg:w-[40%] order-1 lg:order-2">
+                        <div
+                            className="relative pixel-border overflow-hidden"
+                            style={{ height: '70vh' }}
+                        >
+                            <div className="absolute inset-0">
+                                <Image
+                                    src="/images/forge.png"
+                                    alt="Meme Forge"
+                                    fill
+                                    className="object-cover pixelated"
+                                />
+                            </div>
+
+                            {/* Forge animation */}
+                            <div className="absolute left-0 bottom-0 w-full h-full flex items-center justify-center">
+                                <div className="pixel-forge-animation"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right sidebar: Generation status - 30% width */}
+                    <div className="lg:w-[30%] order-3">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                            <h3 className="text-center font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                FORGING PROGRESS
+                            </h3>
+
+                            {/* Pixel-style progress indication */}
+                            <div className="mb-6">
                                 <div className="progress-container mb-2">
                                     <div
                                         className="progress-bar"
                                         style={{ width: `${progress}%` }}
                                     ></div>
                                 </div>
-                                <p className="text-xs text-right text-gray-400 minecraft-font">
-                                    {progress}%
+                                <div className="flex justify-between">
+                                    <span className="text-xs text-gray-400 minecraft-font">0%</span>
+                                    <span className="text-xs text-gray-400 minecraft-font">
+                                        {progress}%
+                                    </span>
+                                    <span className="text-xs text-gray-400 minecraft-font">
+                                        100%
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-800/50 p-3 rounded mb-4">
+                                <p className="text-xs text-gray-300 minecraft-font">
+                                    MINTING YOUR UNIQUE MEME SOLDIERS ON THE BLOCKCHAIN...
                                 </p>
                             </div>
+
+                            {isComplete && (
+                                <div className="mt-auto">
+                                    <button
+                                        onClick={handleContinue}
+                                        className="minecraft-btn-gold w-full"
+                                    >
+                                        VIEW YOUR SOLDIER →
+                                    </button>
+                                </div>
+                            )}
+
+                            {!isComplete && (
+                                <div className="mt-auto text-center">
+                                    <p className="text-gray-400 minecraft-font pixel-loading">
+                                        PLEASE WAIT
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
-
-                    {/* Center forge area */}
-                    <div className="lg:w-3/4 relative pixel-border overflow-hidden h-96">
-                        <div className="absolute inset-0">
-                            <Image
-                                src="/images/forge.png"
-                                alt="Meme Forge"
-                                fill
-                                className="object-cover pixelated"
-                            />
-                        </div>
-
-                        {/* Center forge animation */}
-                        <div className="absolute left-0 bottom-0 w-full h-full flex items-center justify-center">
-                            <div className="pixel-forge-animation"></div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Control area */}
-                <div className="pixel-border bg-black/80 p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
-                        FORGING IN PROGRESS
-                    </h2>
-
-                    <div className="mb-6 p-4 bg-gray-800 border-2 border-gray-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 minecraft-font uppercase">
-                            YOUR CREATIVE PROMPT:
-                        </h3>
-                        <p className="text-gray-300 minecraft-font italic">&quot;{prompt}&quot;</p>
-                    </div>
-
-                    {isComplete ? (
-                        <div className="flex justify-center">
-                            <button onClick={handleContinue} className="minecraft-btn-gold">
-                                VIEW YOUR SOLDIER →
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex justify-center">
-                            <p className="text-gray-400 minecraft-font pixel-loading">
-                                PLEASE WAIT, AI IS CREATING YOUR SOLDIER
-                            </p>
-                        </div>
-                    )}
                 </div>
             </div>
 
@@ -210,7 +240,7 @@ export default function GeneratingPage() {
                 .minecraft-btn-gold {
                     display: inline-block;
                     padding: 8px 16px;
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     text-transform: uppercase;
                     background-color: #ffaa00;

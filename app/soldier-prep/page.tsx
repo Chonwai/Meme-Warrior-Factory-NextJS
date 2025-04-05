@@ -65,108 +65,119 @@ export default function SoldierPrep() {
 
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-6xl mx-auto">
                 <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
                     CREATE YOUR MEME SOLDIER
                 </h1>
 
-                {/* Forge scene layout with sidebar */}
+                {/* Three-column layout */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                    {/* Left column with scientist dialogue */}
-                    <div className="lg:w-1/4">
-                        {showScientist && (
-                            <div className="pixel-border bg-black/70 p-4 h-full flex flex-col">
-                                <div className="mb-4 flex justify-center">
-                                    <div className="pixel-character scientist w-16 h-16"></div>
+                    {/* Left sidebar: Scientist dialogue - 30% width */}
+                    <div className="lg:w-[30%] order-1">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                            <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                YOUR SOLDIER IDEA
+                            </h2>
+
+                            <div className="mb-4 flex-grow">
+                                <textarea
+                                    value={prompt}
+                                    onChange={handlePromptChange}
+                                    className="w-full h-32 p-3 border-2 border-gray-700 rounded bg-gray-800 text-white minecraft-font"
+                                    placeholder="Describe the meme you want, e.g.: 'A dog wearing sunglasses with an explosion in the background'"
+                                />
+                            </div>
+
+                            <div className="mt-auto">
+                                <div className="flex justify-between items-center mb-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowExamples(!showExamples)}
+                                        className="text-blue-300 hover:text-blue-400 minecraft-font text-sm"
+                                    >
+                                        {showExamples ? '[ HIDE EXAMPLES ]' : '[ VIEW EXAMPLES ]'}
+                                    </button>
+
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={!prompt.trim()}
+                                        className="minecraft-btn"
+                                    >
+                                        NEXT →
+                                    </button>
                                 </div>
-                                <div
-                                    className={`minecraft-dialog w-full ${isTyping ? 'typing' : ''}`}
-                                >
-                                    <p className="minecraft-font text-white text-sm">
-                                        {isTyping
-                                            ? 'Thinking...'
-                                            : 'Please enter your meme idea! I will forge the strongest soldier for you!'}
-                                    </p>
+
+                                {/* Example prompts */}
+                                {showExamples && (
+                                    <div className="mt-2 border-t-2 border-gray-700 pt-2">
+                                        <h3 className="text-xs font-medium mb-1 text-yellow-300 minecraft-font">
+                                            EXAMPLES:
+                                        </h3>
+                                        <ul className="space-y-1 max-h-24 overflow-y-auto">
+                                            {PROMPT_EXAMPLES.map((example, index) => (
+                                                <li
+                                                    key={index}
+                                                    onClick={() => selectExample(example)}
+                                                    className="cursor-pointer p-1 hover:bg-gray-700 rounded text-white minecraft-font text-xs"
+                                                >
+                                                    → {example}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                <div className="text-center mt-3">
+                                    <Link
+                                        href="/"
+                                        className="text-gray-400 hover:text-gray-300 minecraft-font text-xs"
+                                    >
+                                        ← BACK TO HOME
+                                    </Link>
                                 </div>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Center forge area */}
-                    <div
-                        ref={containerRef}
-                        className="lg:w-3/4 relative pixel-border overflow-hidden h-96"
-                    >
-                        <div className="absolute inset-0">
-                            <Image
-                                src="/images/forge.png"
-                                alt="Meme Forge"
-                                fill
-                                className="object-cover pixelated"
-                            />
                         </div>
                     </div>
-                </div>
 
-                {/* Prompt input area */}
-                <div className="pixel-border bg-black/80 p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
-                        YOUR SOLDIER IDEA
-                    </h2>
-
-                    <div className="mb-4">
-                        <textarea
-                            value={prompt}
-                            onChange={handlePromptChange}
-                            className="w-full p-3 border-2 border-gray-700 rounded bg-gray-800 text-white minecraft-font"
-                            placeholder="Describe the meme you want, e.g.: 'A dog wearing sunglasses with an explosion in the background'"
-                            rows={4}
-                        />
+                    {/* Middle column: Forge canvas - 40% width */}
+                    <div className="lg:w-[40%] order-1 lg:order-2">
+                        <div
+                            ref={containerRef}
+                            className="relative pixel-border overflow-hidden"
+                            style={{ height: '70vh' }}
+                        >
+                            <div className="absolute inset-0">
+                                <Image
+                                    src="/images/forge.png"
+                                    alt="Meme Forge"
+                                    fill
+                                    className="object-cover pixelated"
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                        <button
-                            type="button"
-                            onClick={() => setShowExamples(!showExamples)}
-                            className="text-blue-300 hover:text-blue-400 minecraft-font"
-                        >
-                            {showExamples ? '[ HIDE EXAMPLES ]' : '[ VIEW EXAMPLE PROMPTS ]'}
-                        </button>
-
-                        <button
-                            onClick={handleSubmit}
-                            disabled={!prompt.trim()}
-                            className="minecraft-btn"
-                        >
-                            NEXT →
-                        </button>
-                    </div>
-
-                    {/* Example prompts */}
-                    {showExamples && (
-                        <div className="mt-4 border-t-2 border-gray-700 pt-4">
-                            <h3 className="text-sm font-medium mb-2 text-yellow-300 minecraft-font">
-                                CREATIVE PROMPT EXAMPLES:
-                            </h3>
-                            <ul className="space-y-2">
-                                {PROMPT_EXAMPLES.map((example, index) => (
-                                    <li
-                                        key={index}
-                                        onClick={() => selectExample(example)}
-                                        className="cursor-pointer p-2 hover:bg-gray-700 rounded text-white minecraft-font"
+                    {/* Right sidebar: Prompt input area - 30% width */}
+                    <div className="lg:w-[30%] order-2 lg:order-3">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                            {showScientist && (
+                                <>
+                                    <div className="mb-4 flex justify-center">
+                                        <div className="pixel-character scientist w-16 h-16"></div>
+                                    </div>
+                                    <div
+                                        className={`minecraft-dialog w-full ${isTyping ? 'typing' : ''}`}
                                     >
-                                        → {example}
-                                    </li>
-                                ))}
-                            </ul>
+                                        <p className="minecraft-font text-white text-sm">
+                                            {isTyping
+                                                ? 'THINKING...'
+                                                : 'PLEASE ENTER YOUR MEME IDEA! I WILL FORGE THE STRONGEST SOLDIER FOR YOU!'}
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    )}
-                </div>
-
-                <div className="flex justify-center">
-                    <Link href="/" className="text-gray-400 hover:text-gray-300 minecraft-font">
-                        ← BACK TO HOME
-                    </Link>
+                    </div>
                 </div>
             </div>
 
@@ -208,7 +219,7 @@ export default function SoldierPrep() {
                 .minecraft-btn {
                     display: inline-block;
                     padding: 8px 16px;
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     text-transform: uppercase;
                     background-color: #4aae46;

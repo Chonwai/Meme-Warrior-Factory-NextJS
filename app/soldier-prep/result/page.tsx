@@ -63,14 +63,14 @@ export default function ResultPage() {
 
                 {/* Three-column layout */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                    {/* Left sidebar: Forging result - 30% */}
-                    <div className="lg:w-3/10 order-3 lg:order-1">
+                    {/* Left sidebar: Forging result - 30% width */}
+                    <div className="lg:w-[30%] order-3 lg:order-1">
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
                                 FORGING RESULT
                             </h2>
 
-                            <div className="mb-6 p-3 bg-gray-800 border-2 border-gray-700 rounded">
+                            <div className="mb-4 p-3 bg-gray-800 border-2 border-gray-700 rounded">
                                 <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
                                     CREATIVE PROMPT:
                                 </h3>
@@ -124,9 +124,12 @@ export default function ResultPage() {
                         </div>
                     </div>
 
-                    {/* Middle column: Forge canvas - 40% */}
-                    <div className="lg:w-4/10 order-1 lg:order-2">
-                        <div className="relative pixel-border overflow-hidden h-96">
+                    {/* Middle column: Forge canvas - 40% width */}
+                    <div className="lg:w-[40%] order-1 lg:order-2">
+                        <div
+                            className="relative pixel-border overflow-hidden"
+                            style={{ height: '70vh' }}
+                        >
                             <div className="absolute inset-0">
                                 <Image
                                     src="/images/forge.png"
@@ -147,8 +150,8 @@ export default function ResultPage() {
                         </div>
                     </div>
 
-                    {/* Right sidebar: Soldier attributes - 30% */}
-                    <div className="lg:w-3/10 order-2 lg:order-3">
+                    {/* Right sidebar: Soldier attributes - 30% width */}
+                    <div className="lg:w-[30%] order-2 lg:order-3">
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             <h3 className="text-center font-bold mb-4 text-green-400 minecraft-font uppercase">
                                 YOUR MEME SOLDIER
@@ -297,7 +300,7 @@ export default function ResultPage() {
                 .minecraft-btn {
                     display: inline-block;
                     padding: 8px 16px;
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     text-transform: uppercase;
                     background-color: #4aae46;
@@ -325,7 +328,7 @@ export default function ResultPage() {
                 .minecraft-btn-red {
                     display: inline-block;
                     padding: 8px 16px;
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     text-transform: uppercase;
                     background-color: #c43c3c;
@@ -365,14 +368,6 @@ export default function ResultPage() {
 
                 .pixelated {
                     image-rendering: pixelated;
-                }
-
-                .lg\\:w-3\\/10 {
-                    width: 30%;
-                }
-
-                .lg\\:w-4\\/10 {
-                    width: 40%;
                 }
 
                 @keyframes pulse {
