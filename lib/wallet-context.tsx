@@ -18,8 +18,8 @@ type NetworkInfo = {
 
 // Define supported networks
 const SUPPORTED_NETWORKS: Record<string, NetworkInfo> = {
-    '0x221': { 
-        chainId: '0x221', 
+    '0x221': {
+        chainId: '0x221',
         chainName: 'Flow Testnet',
         icon: '/images/networks/flow.svg',
         rpcUrls: ['https://testnet.evm.nodes.onflow.org'],
@@ -28,10 +28,10 @@ const SUPPORTED_NETWORKS: Record<string, NetworkInfo> = {
             symbol: 'FLOW',
             decimals: 18,
         },
-        blockExplorerUrls: ['https://evm-testnet.flowscan.io/']
+        blockExplorerUrls: ['https://evm-testnet.flowscan.io/'],
     },
-    '0xaef3': { 
-        chainId: '0xaef3', 
+    '0xaef3': {
+        chainId: '0xaef3',
         chainName: 'Celo Alfajores Testnet',
         icon: '/images/networks/celo.svg',
         rpcUrls: ['https://alfajores-forno.celo-testnet.org', 'https://alfajores-forno.celo.org'],
@@ -40,8 +40,8 @@ const SUPPORTED_NETWORKS: Record<string, NetworkInfo> = {
             symbol: 'CELO',
             decimals: 18,
         },
-        blockExplorerUrls: ['https://alfajores.celoscan.io', 'https://explorer.celo.org/alfajores']
-    }
+        blockExplorerUrls: ['https://alfajores.celoscan.io', 'https://explorer.celo.org/alfajores'],
+    },
 };
 
 type WalletContextType = {
@@ -161,7 +161,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             try {
                 const chainId = await window.ethereum.request({ method: 'eth_chainId' });
                 console.log(`Current chainId: ${chainId}`);
-                
+
                 // Find the network info
                 const currentNetwork = SUPPORTED_NETWORKS[chainId];
                 if (currentNetwork) {
@@ -172,7 +172,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     return null;
                 }
             } catch (error) {
-                console.error("Error getting current network:", error);
+                console.error('Error getting current network:', error);
                 return null;
             }
         }
@@ -198,42 +198,43 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId }],
             });
-            
+
             // Update network info if successful
             setNetworkInfo(networkConfig);
             console.log(`Successfully switched to ${networkConfig.chainName}`);
         } catch (switchError: any) {
-            console.error("Error switching network:", switchError);
-            
+            console.error('Error switching network:', switchError);
+
             // This error code indicates that the chain has not been added to MetaMask
             if (switchError.code === 4902) {
                 try {
                     console.log(`Network not in MetaMask, adding ${networkConfig.chainName}`);
-                    
+
                     // Add the network
                     await window.ethereum.request({
                         method: 'wallet_addEthereumChain',
-                        params: [{
-                            chainId,
-                            chainName: networkConfig.chainName,
-                            nativeCurrency: networkConfig.nativeCurrency,
-                            rpcUrls: networkConfig.rpcUrls,
-                            blockExplorerUrls: networkConfig.blockExplorerUrls
-                        }],
+                        params: [
+                            {
+                                chainId,
+                                chainName: networkConfig.chainName,
+                                nativeCurrency: networkConfig.nativeCurrency,
+                                rpcUrls: networkConfig.rpcUrls,
+                                blockExplorerUrls: networkConfig.blockExplorerUrls,
+                            },
+                        ],
                     });
-                    
+
                     // Try switching again after adding
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
                         params: [{ chainId }],
                     });
-                    
+
                     // Update network info if successful
                     setNetworkInfo(networkConfig);
                     console.log(`Successfully switched to ${networkConfig.chainName} after adding`);
-                    
                 } catch (addError: any) {
-                    console.error("Error adding network:", addError);
+                    console.error('Error adding network:', addError);
                     alert(`Failed to add network: ${addError.message || 'Unknown error'}`);
                 }
             } else {
@@ -247,18 +248,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         try {
             // Switch to the selected network
             await switchNetwork(selectedNetwork);
-            
+
             // Complete the connection
             const account = accounts[0];
             setIsConnected(true);
             setWalletAddress(formatAddress(account));
             await updateBalance(account);
             setPendingAccounts([]);
-            
+
             // Hide the network modal
             setShowNetworkModal(false);
         } catch (error) {
-            console.error("Error finalizing connection:", error);
+            console.error('Error finalizing connection:', error);
             alert('Failed to complete connection. Please try again.');
             setPendingAccounts([]);
         }
@@ -274,7 +275,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
         try {
             console.log('Requesting accounts from MetaMask...');
-            
+
             // Request account access
             const accounts = await window.ethereum.request({
                 method: 'eth_requestAccounts',
@@ -282,26 +283,32 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
             if (accounts.length > 0) {
                 console.log(`Accounts received: ${accounts[0]}`);
-                
+
                 // Store the accounts but don't complete connection yet
                 setPendingAccounts(accounts);
-                
+
                 // Show network selection modal
                 setShowNetworkModal(true);
             } else {
                 console.error('No accounts returned from MetaMask');
-                alert('No accounts found. Please make sure you have at least one account in MetaMask.');
+                alert(
+                    'No accounts found. Please make sure you have at least one account in MetaMask.'
+                );
             }
         } catch (error: any) {
-            console.error("Error connecting wallet:", error);
-            
+            console.error('Error connecting wallet:', error);
+
             // Provide more detailed error messages based on common MetaMask errors
             if (error.code === 4001) {
                 // User rejected the request
-                alert('You rejected the connection request. Please approve the MetaMask connection to continue.');
+                alert(
+                    'You rejected the connection request. Please approve the MetaMask connection to continue.'
+                );
             } else if (error.code === -32002) {
                 // Request already pending
-                alert('A connection request is already pending in MetaMask. Please check your MetaMask extension.');
+                alert(
+                    'A connection request is already pending in MetaMask. Please check your MetaMask extension.'
+                );
             } else {
                 alert(`Failed to connect to MetaMask: ${error.message || 'Unknown error'}`);
             }
@@ -325,7 +332,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     const accounts = await window.ethereum.request({
                         method: 'eth_accounts',
                     });
-                    
+
                     if (accounts.length > 0) {
                         const account = accounts[0];
                         setIsConnected(true);
@@ -334,13 +341,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                         await getCurrentNetwork();
                     }
                 } catch (error) {
-                    console.error("Error checking existing connection:", error);
+                    console.error('Error checking existing connection:', error);
                 }
             }
         };
-        
+
         checkConnection();
-        
+
         // Listen for account changes
         const handleAccountsChanged = async (accounts: string[]) => {
             if (accounts.length === 0) {
@@ -356,7 +363,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         // Listen for network changes
         const handleChainChanged = async (chainId: string) => {
             console.log(`Chain changed to: ${chainId}`);
-            
+
             // Find the network info
             const newNetwork = SUPPORTED_NETWORKS[chainId];
             if (newNetwork) {
@@ -365,25 +372,25 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 setNetworkInfo(null);
                 console.warn(`Switched to unsupported network with chainId: ${chainId}`);
             }
-            
+
             // Update balance for the current account
             if (isConnected && walletAddress && window.ethereum) {
                 // Extract the original address from the formatted one
                 const originalAddress = await window.ethereum.request({
                     method: 'eth_accounts',
                 });
-                
+
                 if (originalAddress.length > 0) {
                     await updateBalance(originalAddress[0]);
                 }
             }
         };
-        
+
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
             window.ethereum.on('chainChanged', handleChainChanged);
         }
-        
+
         return () => {
             if (window.ethereum) {
                 window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
@@ -408,8 +415,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         >
             {children}
             {showNetworkModal && pendingAccounts.length > 0 && (
-                <NetworkSelectionModal 
-                    pendingAccounts={pendingAccounts} 
+                <NetworkSelectionModal
+                    pendingAccounts={pendingAccounts}
                     onSelect={finalizeConnection}
                     onCancel={() => {
                         setPendingAccounts([]);
@@ -422,36 +429,36 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 }
 
 // Network Selection Modal Component (internal to this file)
-function NetworkSelectionModal({ 
-    pendingAccounts, 
-    onSelect, 
-    onCancel 
-}: { 
-    pendingAccounts: string[], 
-    onSelect: (accounts: string[], network: string) => Promise<void>,
-    onCancel: () => void
+function NetworkSelectionModal({
+    pendingAccounts,
+    onSelect,
+    onCancel,
+}: {
+    pendingAccounts: string[];
+    onSelect: (accounts: string[], network: string) => Promise<void>;
+    onCancel: () => void;
 }) {
     const [selectedNetwork, setSelectedNetwork] = useState<string>('0xaef3'); // Default to Celo
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const networks = [
-        { 
-            chainId: '0xaef3', 
-            name: 'Celo Alfajores', 
-            icon: '/images/networks/celo.svg', 
-            description: 'Celo Alfajores Testnet' 
+        {
+            chainId: '0xaef3',
+            name: 'Celo Alfajores',
+            icon: '/images/networks/celo.svg',
+            description: 'Celo Alfajores Testnet',
         },
-        { 
-            chainId: '0x221', 
-            name: 'Flow Testnet', 
-            icon: '/images/networks/flow.svg', 
-            description: 'Flow Testnet (EVM)' 
+        {
+            chainId: '0x221',
+            name: 'Flow Testnet',
+            icon: '/images/networks/flow.svg',
+            description: 'Flow Testnet (EVM)',
         },
     ];
-    
+
     const handleConfirm = async () => {
         if (!selectedNetwork) return;
-        
+
         setIsLoading(true);
         try {
             await onSelect(pendingAccounts, selectedNetwork);
@@ -461,32 +468,32 @@ function NetworkSelectionModal({
             setIsLoading(false);
         }
     };
-    
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50">
             <div className="bg-gray-800 pixel-border p-6 w-full max-w-md rounded-lg">
                 <h2 className="text-2xl font-bold mb-4 text-center text-green-400 minecraft-font">
                     SELECT NETWORK
                 </h2>
-                
+
                 <p className="mb-6 text-center text-gray-300 minecraft-font text-sm">
                     Choose a blockchain network to connect to:
                 </p>
-                
+
                 <div className="space-y-4 mb-6">
                     {networks.map((network) => (
                         <button
                             key={network.chainId}
                             className={`w-full py-3 px-4 rounded-md flex items-center space-x-4 text-left transition-colors ${
-                                selectedNetwork === network.chainId 
-                                    ? 'bg-blue-900 border-2 border-blue-500' 
+                                selectedNetwork === network.chainId
+                                    ? 'bg-blue-900 border-2 border-blue-500'
                                     : 'bg-gray-700 hover:bg-gray-600'
                             }`}
                             onClick={() => setSelectedNetwork(network.chainId)}
                         >
                             <div className="w-8 h-8 flex-shrink-0">
-                                <img 
-                                    src={network.icon} 
+                                <img
+                                    src={network.icon}
                                     alt={network.name}
                                     className="w-full h-full rounded-full"
                                 />
@@ -497,15 +504,26 @@ function NetworkSelectionModal({
                             </div>
                             {selectedNetwork === network.chainId && (
                                 <div className="ml-auto">
-                                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    <svg
+                                        className="w-6 h-6 text-green-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M5 13l4 4L19 7"
+                                        />
                                     </svg>
                                 </div>
                             )}
                         </button>
                     ))}
                 </div>
-                
+
                 <div className="flex justify-between space-x-4">
                     <button
                         className="minecraft-btn bg-red-600 hover:bg-red-700"

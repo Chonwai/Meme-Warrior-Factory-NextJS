@@ -11,8 +11,18 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
 
     // Networks to display in the modal
     const networks = [
-        { chainId: '44787', name: 'Celo Alfajores', icon: '/images/networks/celo.svg', description: 'Celo Alfajores Testnet - EVM compatible' },
-        { chainId: '0x12', name: 'Flow Testnet', icon: '/images/networks/flow.svg', description: 'Flow Testnet for NFTs and gaming (non-EVM)' },
+        {
+            chainId: '44787',
+            name: 'Celo Alfajores',
+            icon: '/images/networks/celo.svg',
+            description: 'Celo Alfajores Testnet - EVM compatible',
+        },
+        {
+            chainId: '0x12',
+            name: 'Flow Testnet',
+            icon: '/images/networks/flow.svg',
+            description: 'Flow Testnet for NFTs and gaming (non-EVM)',
+        },
     ];
 
     // Pre-select current network if it's one of our supported networks
@@ -33,22 +43,24 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
     // Handle confirming the network choice
     const handleConfirm = async () => {
         if (!selectedNetwork) return;
-        
+
         setIsLoading(true);
-        
+
         try {
             // Flow requires special handling
             if (selectedNetwork === '0x12') {
-                alert('Flow blockchain is not directly supported by MetaMask as it is not EVM-compatible. You would need to use a Flow-specific wallet like Blocto.');
+                alert(
+                    'Flow blockchain is not directly supported by MetaMask as it is not EVM-compatible. You would need to use a Flow-specific wallet like Blocto.'
+                );
                 onClose();
                 return;
             }
-            
+
             // Switch network if not already on it
             if (networkInfo?.chainId !== selectedNetwork) {
                 await switchNetwork(selectedNetwork);
             }
-            
+
             onClose();
         } catch (error) {
             console.error('Error switching network:', error);
@@ -61,11 +73,11 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
     // Generate a network icon placeholder if the real icon is not available
     const getNetworkIcon = (networkName: string, iconPath: string) => {
         const firstLetter = networkName.charAt(0).toUpperCase();
-        
+
         return (
             <div className="relative w-8 h-8">
-                <Image 
-                    src={iconPath} 
+                <Image
+                    src={iconPath}
                     alt={networkName}
                     width={32}
                     height={32}
@@ -80,7 +92,7 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
                         }
                     }}
                 />
-                <div 
+                <div
                     className="absolute inset-0 bg-gray-700 rounded-full hidden items-center justify-center text-white text-base font-bold"
                     style={{ display: 'none' }}
                 >
@@ -96,18 +108,18 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
                 <h2 className="text-2xl font-bold mb-4 text-center text-green-400 minecraft-font">
                     SELECT NETWORK
                 </h2>
-                
+
                 <p className="mb-6 text-center text-gray-300 minecraft-font text-sm">
                     Choose a blockchain network to connect to:
                 </p>
-                
+
                 <div className="space-y-4 mb-6">
                     {networks.map((network) => (
                         <button
                             key={network.chainId}
                             className={`w-full py-3 px-4 rounded-md flex items-center space-x-4 text-left transition-colors ${
-                                selectedNetwork === network.chainId 
-                                    ? 'bg-blue-900 border-2 border-blue-500' 
+                                selectedNetwork === network.chainId
+                                    ? 'bg-blue-900 border-2 border-blue-500'
                                     : 'bg-gray-700 hover:bg-gray-600'
                             }`}
                             onClick={() => handleNetworkSelect(network.chainId)}
@@ -119,15 +131,26 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
                             </div>
                             {selectedNetwork === network.chainId && (
                                 <div className="ml-auto">
-                                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    <svg
+                                        className="w-6 h-6 text-green-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M5 13l4 4L19 7"
+                                        />
                                     </svg>
                                 </div>
                             )}
                         </button>
                     ))}
                 </div>
-                
+
                 <div className="flex justify-center space-x-4">
                     <button
                         className="minecraft-btn bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -140,4 +163,4 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
             </div>
         </div>
     );
-} 
+}

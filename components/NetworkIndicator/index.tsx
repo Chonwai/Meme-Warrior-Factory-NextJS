@@ -33,28 +33,30 @@ export default function NetworkIndicator() {
         try {
             // Set switching state to show loading
             setSwitchingNetwork(chainId);
-            
+
             await switchNetwork(chainId);
-            
+
             // Hide the dropdown after successful switch
             setShowNetworkSelector(false);
         } catch (error) {
             console.error('Failed to switch network:', error);
-            alert('Failed to switch network. Please try again or switch manually in your wallet settings.');
+            alert(
+                'Failed to switch network. Please try again or switch manually in your wallet settings.'
+            );
         } finally {
             // Clear switching state
             setSwitchingNetwork(null);
         }
     };
-    
+
     // Generate a network icon placeholder if the real icon is not available
     const getNetworkIcon = (networkName: string, iconPath: string) => {
         const firstLetter = networkName.charAt(0).toUpperCase();
-        
+
         return (
             <div className="relative w-6 h-6">
-                <Image 
-                    src={iconPath} 
+                <Image
+                    src={iconPath}
                     alt={networkName}
                     width={24}
                     height={24}
@@ -69,7 +71,7 @@ export default function NetworkIndicator() {
                         }
                     }}
                 />
-                <div 
+                <div
                     className="absolute inset-0 bg-gray-700 rounded-full hidden items-center justify-center text-white text-xs font-bold"
                     style={{ display: 'none' }}
                 >
@@ -85,22 +87,25 @@ export default function NetworkIndicator() {
 
     return (
         <div className="relative">
-            <button 
+            <button
                 onClick={toggleNetworkSelector}
                 className="flex items-center space-x-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-md text-sm minecraft-font transition-colors duration-200"
             >
                 {getNetworkIcon(networkInfo.chainName, networkInfo.icon)}
-                <span className="text-xs md:text-sm">
-                    {networkInfo.chainName}
-                </span>
-                <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className={`h-4 w-4 transition-transform duration-200 ${showNetworkSelector ? 'rotate-180' : ''}`} 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
+                <span className="text-xs md:text-sm">{networkInfo.chainName}</span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-4 w-4 transition-transform duration-200 ${showNetworkSelector ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
                     stroke="currentColor"
                 >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                    />
                 </svg>
             </button>
 
@@ -131,7 +136,7 @@ export default function NetworkIndicator() {
                                 )}
                             </button>
                         ))}
-                        
+
                         {/* Add a "Change Network" option at the bottom */}
                         <div className="border-t border-gray-700 mt-1 pt-1">
                             <button
@@ -148,4 +153,4 @@ export default function NetworkIndicator() {
             )}
         </div>
     );
-} 
+}
