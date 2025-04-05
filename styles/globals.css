@@ -2,49 +2,65 @@
 
 /* 角色精靈圖樣式 */
 .character-sprite {
-    image-rendering: pixelated;
-    background-repeat: no-repeat;
-    background-size: 400% 400%; /* 將精靈圖分為4個幀 (2x2) */
+    image-rendering: pixelated !important;
+    background-repeat: no-repeat !important;
+    background-size: 200% 200% !important; /* 將精靈圖分為4個幀 (2x2) */
     transform: scale(1);
     transition: transform 0.2s ease;
+    display: block; /* 確保元素正確顯示 */
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    background-color: transparent;
+    position: relative;
+    z-index: 10;
 }
 
 /* 角色基礎大小 */
 .sprite-sm {
-    width: 48px;
-    height: 48px;
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
 }
 
 .sprite-md {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    min-height: 80px;
 }
 
 .sprite-lg {
-    width: 96px;
-    height: 96px;
+    width: 120px;
+    height: 120px;
+    min-width: 120px;
+    min-height: 120px;
 }
 
 .sprite-xl {
-    width: 128px;
-    height: 128px;
+    width: 160px;
+    height: 160px;
+    min-width: 160px;
+    min-height: 160px;
 }
 
 /* 角色精靈圖精確定位 */
 .mad-scientist-sprite {
-    background-image: url('/images/mad-scientist.png');
+    background-image: url('/images/mad-scientist_sprite.png') !important;
 }
 
 .blacksmith-sprite {
-    background-image: url('/images/blacksmith.png');
+    background-image: url('/images/blacksmith_sprite.png') !important;
 }
 
 .dispatcher-sprite {
-    background-image: url('/images/dispatcher.png');
+    background-image: url('/images/dispatcher_sprite.png') !important;
 }
 
 .meme-soldier-sprite {
-    background-image: url('/images/meme-soldier.png');
+    background-image: url('/images/meme-soldier_sprite.png') !important;
 }
 
 /* 角色狀態 - 可用於不同動畫幀組合 */
@@ -70,15 +86,15 @@
 }
 
 .sprite-frame-1 {
-    background-position: 33.333% 0%; /* 右上 */
+    background-position: 100% 0%; /* 右上 */
 }
 
 .sprite-frame-2 {
-    background-position: 66.666% 0%; /* 左下 */
+    background-position: 0% 100%; /* 左下 */
 }
 
 .sprite-frame-3 {
-    background-position: 100% 0%; /* 右下 */
+    background-position: 100% 100%; /* 右下 */
 }
 
 /* 精靈圖幀位置 - 行走動畫(如果精靈圖有更多幀) */
@@ -101,59 +117,59 @@
 /* 精靈圖動畫效果 */
 @keyframes sprite-idle {
     0% {
-        background-position: 0% 0%;
+        background-position: 0% 0% !important;
     }
     25% {
-        background-position: 33.333% 0%;
+        background-position: 100% 0% !important;
     }
     50% {
-        background-position: 66.666% 0%;
+        background-position: 0% 100% !important;
     }
     75% {
-        background-position: 100% 0%;
+        background-position: 100% 100% !important;
     }
     100% {
-        background-position: 0% 0%;
+        background-position: 0% 0% !important;
     }
 }
 
 @keyframes sprite-active {
     0% {
-        background-position: 0% 0%;
+        background-position: 0% 0% !important;
     }
     25% {
-        background-position: 33.333% 0%;
+        background-position: 100% 0% !important;
     }
     50% {
-        background-position: 66.666% 0%;
+        background-position: 0% 100% !important;
     }
     75% {
-        background-position: 100% 0%;
+        background-position: 100% 100% !important;
     }
     100% {
-        background-position: 0% 0%;
+        background-position: 0% 0% !important;
     }
 }
 
 @keyframes sprite-excited {
     0% {
-        background-position: 0% 0%;
+        background-position: 0% 0% !important;
         transform: translateY(0);
     }
     25% {
-        background-position: 33.333% 0%;
+        background-position: 100% 0% !important;
         transform: translateY(-2px);
     }
     50% {
-        background-position: 66.666% 0%;
+        background-position: 0% 100% !important;
         transform: translateY(0);
     }
     75% {
-        background-position: 100% 0%;
+        background-position: 100% 100% !important;
         transform: translateY(-2px);
     }
     100% {
-        background-position: 0% 0%;
+        background-position: 0% 0% !important;
         transform: translateY(0);
     }
 }

@@ -73,11 +73,14 @@ export default function ConfirmPage() {
                     {/* Left sidebar: Blacksmith dialogue - 30% width */}
                     <div className="lg:w-[30%] order-2 lg:order-1">
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
-                            <div className="mb-4 flex justify-center">
-                                <div
-                                    className={`character-sprite blacksmith-sprite sprite-lg ${getBlacksmithClass()}`}
-                                    title="Blacksmith"
-                                ></div>
+                            <div className="mb-4 flex justify-center flex-col items-center">
+                                <Image
+                                    src="/images/blacksmith.png"
+                                    alt="Blacksmith"
+                                    width={120}
+                                    height={120}
+                                    className="pixelated"
+                                />
                             </div>
                             <div className={`minecraft-dialog w-full ${isAgreed ? 'active' : ''}`}>
                                 <p className="minecraft-font text-white text-sm">
@@ -105,11 +108,14 @@ export default function ConfirmPage() {
                             </div>
 
                             {/* Blacksmith in the top-right corner */}
-                            <div className="absolute top-4 right-4 z-10">
-                                <div
-                                    className={`character-sprite blacksmith-sprite sprite-md ${getBlacksmithClass()} pixel-shadow`}
-                                    title="Blacksmith"
-                                ></div>
+                            <div className="absolute top-32 right-8 z-10 z-10">
+                                <Image
+                                    src="/images/blacksmith.png"
+                                    alt="Blacksmith"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
                             </div>
 
                             {/* Animation effect when agreed */}

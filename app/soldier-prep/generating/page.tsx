@@ -205,27 +205,36 @@ export default function GeneratingPage() {
                             </div>
 
                             {/* Blacksmith in the top-right corner */}
-                            <div className="absolute top-4 right-4 z-10">
-                                <div
-                                    className={`character-sprite blacksmith-sprite sprite-md ${getBlacksmithClass()} pixel-shadow`}
-                                    title="Blacksmith"
-                                ></div>
+                            <div className="absolute top-32 right-8 z-10">
+                                <Image
+                                    src="/images/blacksmith.png"
+                                    alt="Blacksmith"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
                             </div>
 
                             {/* Dispatcher in the bottom-right corner */}
                             <div className="absolute bottom-4 right-4 z-10">
-                                <div
-                                    className={`character-sprite dispatcher-sprite sprite-md ${getDispatcherClass()} pixel-shadow`}
-                                    title="Dispatcher"
-                                ></div>
+                                <Image
+                                    src="/images/dispatcher.png"
+                                    alt="Dispatcher"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
                             </div>
 
                             {/* MemeSoldier in the bottom-left corner */}
                             <div className="absolute bottom-4 left-4 z-10">
-                                <div
-                                    className={`character-sprite meme-soldier-sprite sprite-md ${getMemeSoldierClass()} pixel-shadow`}
-                                    title="Meme Soldier"
-                                ></div>
+                                <Image
+                                    src="/images/meme-soldier.png"
+                                    alt="Meme Soldier"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
                             </div>
 
                             {/* Central forge animation */}

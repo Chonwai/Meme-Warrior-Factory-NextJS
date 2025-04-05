@@ -189,18 +189,24 @@ export default function ResultPage() {
 
                             {/* MemeSoldier in the bottom-left corner */}
                             <div className="absolute bottom-4 left-4 z-10">
-                                <div
-                                    className={`character-sprite meme-soldier-sprite sprite-md ${getMemeSoldierClass()} pixel-shadow`}
-                                    title="Meme Soldier"
-                                ></div>
+                                <Image
+                                    src="/images/meme-soldier.png"
+                                    alt="Meme Soldier"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
                             </div>
 
                             {/* Dispatcher in the bottom-right corner */}
                             <div className="absolute bottom-4 right-4 z-10">
-                                <div
-                                    className={`character-sprite dispatcher-sprite sprite-md ${getDispatcherClass()} pixel-shadow`}
-                                    title="Dispatcher"
-                                ></div>
+                                <Image
+                                    src="/images/dispatcher.png"
+                                    alt="Dispatcher"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
                             </div>
 
                             {/* Completed teleport animation */}
@@ -222,8 +228,8 @@ export default function ResultPage() {
                                     <Image
                                         src={soldierImage}
                                         alt="Meme Soldier"
-                                        width={80}
-                                        height={80}
+                                        width={64}
+                                        height={64}
                                         className="pixelated"
                                         onError={() => {
                                             // If image loading fails, use emoji instead

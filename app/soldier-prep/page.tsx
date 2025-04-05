@@ -23,6 +23,7 @@ export default function SoldierPrep() {
     const [showScientist, setShowScientist] = useState(true);
     const [scientistState, setScientistState] = useState<'idle' | 'active' | 'excited'>('idle');
     const containerRef = useRef<HTMLDivElement>(null);
+    const [imagesLoaded, setImagesLoaded] = useState(false);
 
     // Check wallet connection status
     useEffect(() => {
@@ -53,6 +54,37 @@ export default function SoldierPrep() {
             return () => clearTimeout(idleTimeout);
         }
     }, [isTyping]);
+
+    // 前置加載圖片
+    useEffect(() => {
+        const preloadImages = async () => {
+            try {
+                const imageUrls = [
+                    '/images/mad-scientist_sprite.png',
+                    '/images/blacksmith_sprite.png',
+                    '/images/dispatcher_sprite.png',
+                    '/images/meme-soldier_sprite.png',
+                ];
+
+                const promises = imageUrls.map((url) => {
+                    return new Promise((resolve, reject) => {
+                        const img = new window.Image();
+                        img.src = url;
+                        img.onload = () => resolve(url);
+                        img.onerror = () => reject(`無法加載圖片: ${url}`);
+                    });
+                });
+
+                await Promise.all(promises);
+                setImagesLoaded(true);
+                console.log('所有精靈圖加載完成');
+            } catch (error) {
+                console.error('圖片加載失敗:', error);
+            }
+        };
+
+        preloadImages();
+    }, []);
 
     // If wallet is not connected, show loading
     if (!isConnected) {
@@ -191,15 +223,19 @@ export default function SoldierPrep() {
                                     alt="Meme Forge"
                                     fill
                                     className="object-cover pixelated"
+                                    priority
                                 />
                             </div>
 
-                            {/* MadScientist in the top-left corner with new sprite system */}
-                            <div className="absolute top-4 left-4 z-10">
-                                <div
-                                    className={`character-sprite mad-scientist-sprite sprite-md ${getAnimationClass()} pixel-shadow`}
-                                    title="Mad Scientist"
-                                ></div>
+                            {/* MadScientist in the top-left corner with static image */}
+                            <div className="absolute top-32 left-28 z-10">
+                                <Image
+                                    src="/images/mad-scientist.png"
+                                    alt="Mad Scientist"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
                             </div>
                         </div>
                     </div>
@@ -209,11 +245,14 @@ export default function SoldierPrep() {
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             {showScientist && (
                                 <>
-                                    <div className="mb-4 flex justify-center">
-                                        <div
-                                            className={`character-sprite mad-scientist-sprite sprite-lg ${getAnimationClass()}`}
-                                            title="Mad Scientist"
-                                        ></div>
+                                    <div className="mb-4 flex justify-center flex-col items-center">
+                                        <Image
+                                            src="/images/mad-scientist.png"
+                                            alt="Mad Scientist"
+                                            width={120}
+                                            height={120}
+                                            className="pixelated"
+                                        />
                                     </div>
                                     <div
                                         className={`minecraft-dialog w-full ${isTyping ? 'typing' : ''} ${scientistState === 'excited' ? 'pixel-border-animated' : ''}`}
