@@ -8,6 +8,7 @@ type WorldIDContextType = {
     isVerifying: boolean;
     worldWalletAddress: string | null;
     verifyWithWorldID: () => Promise<void>;
+    isMiniKitInstalled: boolean;
 };
 
 const WorldIDContext = createContext<WorldIDContextType | undefined>(undefined);
@@ -23,6 +24,24 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
     const [isWorldIDVerified, setIsWorldIDVerified] = useState<boolean>(false);
     const [isVerifying, setIsVerifying] = useState<boolean>(false);
     const [worldWalletAddress, setWorldWalletAddress] = useState<string | null>(null);
+    const [isMiniKitInstalled, setIsMiniKitInstalled] = useState<boolean>(false);
+
+    // Check if MiniKit is installed
+    useEffect(() => {
+        const checkMiniKit = () => {
+            const isInstalled = MiniKit.isInstalled();
+            console.log('MiniKit installed (from context):', isInstalled);
+            setIsMiniKitInstalled(isInstalled);
+        };
+        
+        // Check initially
+        checkMiniKit();
+        
+        // Check again after a short delay to ensure MiniKit has time to initialize
+        const timer = setTimeout(checkMiniKit, 1000);
+        
+        return () => clearTimeout(timer);
+    }, []);
 
     // Check if verification status exists in local storage on component mount
     useEffect(() => {
@@ -40,6 +59,7 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
 
     // Implementation of Sign In With Ethereum (SIWE) using World ID
     const signInWithWallet = async () => {
+        // Make sure MiniKit is installed before proceeding
         if (!MiniKit.isInstalled()) {
             alert('World app is not installed! Please install the World app to verify.');
             return;
@@ -125,6 +145,7 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
                 isVerifying,
                 worldWalletAddress,
                 verifyWithWorldID,
+                isMiniKitInstalled,
             }}
         >
             {children}

@@ -10,7 +10,7 @@ export default function Navbar() {
     const pathname = usePathname();
     const { isConnected, walletAddress, balance, connectWallet, disconnectWallet, networkInfo } =
         useWallet();
-    const { isWorldIDVerified, isVerifying, verifyWithWorldID, worldWalletAddress } = useWorldID();
+    const { isWorldIDVerified, isVerifying, verifyWithWorldID, worldWalletAddress, isMiniKitInstalled } = useWorldID();
 
     // Check if current path is homepage
     const isHomePage = pathname === '/';
@@ -92,10 +92,11 @@ export default function Navbar() {
                             ) : (
                                 <button
                                     onClick={verifyWithWorldID}
-                                    disabled={isVerifying}
+                                    disabled={isVerifying || !isMiniKitInstalled}
                                     className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm minecraft-font mr-2 disabled:opacity-50 md:hidden"
+                                    title={!isMiniKitInstalled ? "World app not detected" : ""}
                                 >
-                                    {isVerifying ? 'Verifying...' : 'Verify with World ID'}
+                                    {isVerifying ? 'Verifying...' : isMiniKitInstalled ? 'Verify with World ID' : 'World App Not Detected'}
                                 </button>
                             )}
                             <button
@@ -109,10 +110,11 @@ export default function Navbar() {
                         <div className="flex space-x-2">
                             <button
                                 onClick={verifyWithWorldID}
-                                disabled={isVerifying}
+                                disabled={isVerifying || !isMiniKitInstalled}
                                 className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded minecraft-font disabled:opacity-50 md:hidden"
+                                title={!isMiniKitInstalled ? "World app not detected" : ""}
                             >
-                                {isVerifying ? 'Verifying...' : 'Verify with World ID'}
+                                {isVerifying ? 'Verifying...' : isMiniKitInstalled ? 'Verify with World ID' : 'World App Not Detected'}
                             </button>
                             <button
                                 onClick={connectWallet}
