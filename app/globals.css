@@ -19,7 +19,9 @@
 body {
     color: rgb(var(--foreground-rgb));
     background-image: url('/images/dirt-bg.png');
-    background-repeat: repeat;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     background-color: #111;
     font-family: 'Minecraft', 'Courier New', monospace;
     image-rendering: pixelated;
