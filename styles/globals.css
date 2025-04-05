@@ -1,3 +1,18 @@
+/* Minecraft字體導入 */
+@font-face {
+    font-family: 'Minecraft';
+    src: url('/fonts/minecraft.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* 全局字體類 */
+.minecraft-font {
+    font-family: 'Minecraft', monospace !important;
+    letter-spacing: 1px;
+}
+
 /* 添加到globals.css底部 */
 
 /* 角色精靈圖樣式 */

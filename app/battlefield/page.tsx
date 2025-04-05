@@ -242,7 +242,7 @@ export default function BattlefieldPage() {
                                             </div>
 
                                             {/* 添加進入戰場按鈕 */}
-                                            <div className="flex justify-end mt-3">
+                                            <div className="flex justify-end mt-3 minecraft-font">
                                                 <Link
                                                     href={`/battlefield/${battle.id}`}
                                                     className="battle-link minecraft-font text-xs text-yellow-400 hover:text-yellow-300"
@@ -421,10 +421,10 @@ export default function BattlefieldPage() {
                                     )}
 
                                     {/* 添加查看戰鬥詳情按鈕 */}
-                                    <div className="mt-8">
+                                    <div className="mt-8 minecraft-font">
                                         <Link
                                             href={`/battlefield/${selectedBattle.id}`}
-                                            className="minecraft-btn-red"
+                                            className="minecraft-btn-red minecraft-font"
                                         >
                                             ENTER BATTLE ARENA
                                         </Link>
@@ -531,7 +531,7 @@ export default function BattlefieldPage() {
                 }
 
                 .minecraft-font {
-                    font-family: 'Minecraft', monospace;
+                    font-family: 'Minecraft', monospace !important;
                 }
 
                 .minecraft-btn {
@@ -546,7 +546,7 @@ export default function BattlefieldPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Minecraft', monospace;
+                    font-family: 'Minecraft', monospace !important;
                     letter-spacing: 1px;
                     cursor: pointer;
                     text-align: center;
@@ -575,7 +575,7 @@ export default function BattlefieldPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Minecraft', monospace;
+                    font-family: 'Minecraft', monospace !important;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -603,7 +603,7 @@ export default function BattlefieldPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Minecraft', monospace;
+                    font-family: 'Minecraft', monospace !important;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -664,6 +664,9 @@ export default function BattlefieldPage() {
                     position: relative;
                     display: inline-block;
                     transition: all 0.2s;
+                    font-family: 'Minecraft', monospace !important;
+                    font-weight: bold;
+                    letter-spacing: 1px;
                 }
 
                 .battle-link:hover {
