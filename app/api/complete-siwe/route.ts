@@ -8,7 +8,7 @@ interface IRequestPayload {
 }
 
 export const POST = async (req: NextRequest) => {
-    const { payload, nonce } = await req.json() as IRequestPayload;
+    const { payload, nonce } = (await req.json()) as IRequestPayload;
     if (nonce != cookies().get('siwe')?.value) {
         return NextResponse.json({
             status: 'error',
@@ -20,7 +20,7 @@ export const POST = async (req: NextRequest) => {
         const validMessage = await verifySiweMessage(payload, nonce);
         // Clear the nonce cookie after verification
         cookies().delete('siwe');
-        
+
         return NextResponse.json({
             status: 'success',
             isValid: validMessage.isValid,

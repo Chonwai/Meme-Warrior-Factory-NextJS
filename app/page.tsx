@@ -8,7 +8,13 @@ import { useRouter } from 'next/navigation';
 
 export default function Home() {
     const { isConnected, connectWallet } = useWallet();
-    const { isWorldIDVerified, verifyWithWorldID, worldWalletAddress, isVerifying, isMiniKitInstalled } = useWorldID();
+    const {
+        isWorldIDVerified,
+        verifyWithWorldID,
+        worldWalletAddress,
+        isVerifying,
+        isMiniKitInstalled,
+    } = useWorldID();
     const router = useRouter();
 
     // Format wallet address for display
@@ -56,23 +62,38 @@ export default function Home() {
                         >
                             {isConnected ? 'ENTER GAME' : 'CONNECT WALLET'}
                         </button>
-                        
+
                         {isWorldIDVerified ? (
                             <div className="minecraft-btn bg-purple-700 text-white w-full md:hidden flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 mr-2"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M5 13l4 4L19 7"
+                                    />
                                 </svg>
                                 VERIFIED
                                 {worldWalletAddress ? `: ${formatAddress(worldWalletAddress)}` : ''}
                             </div>
                         ) : (
-                            <button 
+                            <button
                                 onClick={handleWorldIDVerify}
                                 disabled={isVerifying || !isMiniKitInstalled}
                                 className="minecraft-btn text-white w-full md:hidden bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
-                                title={!isMiniKitInstalled ? "World app not detected" : ""}
+                                title={!isMiniKitInstalled ? 'World app not detected' : ''}
                             >
-                                {isVerifying ? 'VERIFYING...' : isMiniKitInstalled ? 'VERIFY WITH WORLD ID' : 'WORLD APP NOT DETECTED'}
+                                {isVerifying
+                                    ? 'VERIFYING...'
+                                    : isMiniKitInstalled
+                                      ? 'VERIFY WITH WORLD ID'
+                                      : 'WORLD APP NOT DETECTED'}
                             </button>
                         )}
                     </div>

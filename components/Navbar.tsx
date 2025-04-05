@@ -10,7 +10,13 @@ export default function Navbar() {
     const pathname = usePathname();
     const { isConnected, walletAddress, balance, connectWallet, disconnectWallet, networkInfo } =
         useWallet();
-    const { isWorldIDVerified, isVerifying, verifyWithWorldID, worldWalletAddress, isMiniKitInstalled } = useWorldID();
+    const {
+        isWorldIDVerified,
+        isVerifying,
+        verifyWithWorldID,
+        worldWalletAddress,
+        isMiniKitInstalled,
+    } = useWorldID();
 
     // Check if current path is homepage
     const isHomePage = pathname === '/';
@@ -86,7 +92,10 @@ export default function Navbar() {
                                         />
                                     </svg>
                                     <span>
-                                        Verified{worldWalletAddress ? `: ${formatAddress(worldWalletAddress)}` : ''}
+                                        Verified
+                                        {worldWalletAddress
+                                            ? `: ${formatAddress(worldWalletAddress)}`
+                                            : ''}
                                     </span>
                                 </div>
                             ) : (
@@ -94,9 +103,13 @@ export default function Navbar() {
                                     onClick={verifyWithWorldID}
                                     disabled={isVerifying || !isMiniKitInstalled}
                                     className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm minecraft-font mr-2 disabled:opacity-50 md:hidden"
-                                    title={!isMiniKitInstalled ? "World app not detected" : ""}
+                                    title={!isMiniKitInstalled ? 'World app not detected' : ''}
                                 >
-                                    {isVerifying ? 'Verifying...' : isMiniKitInstalled ? 'Verify with World ID' : 'World App Not Detected'}
+                                    {isVerifying
+                                        ? 'Verifying...'
+                                        : isMiniKitInstalled
+                                          ? 'Verify with World ID'
+                                          : 'World App Not Detected'}
                                 </button>
                             )}
                             <button
@@ -112,9 +125,13 @@ export default function Navbar() {
                                 onClick={verifyWithWorldID}
                                 disabled={isVerifying || !isMiniKitInstalled}
                                 className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded minecraft-font disabled:opacity-50 md:hidden"
-                                title={!isMiniKitInstalled ? "World app not detected" : ""}
+                                title={!isMiniKitInstalled ? 'World app not detected' : ''}
                             >
-                                {isVerifying ? 'Verifying...' : isMiniKitInstalled ? 'Verify with World ID' : 'World App Not Detected'}
+                                {isVerifying
+                                    ? 'Verifying...'
+                                    : isMiniKitInstalled
+                                      ? 'Verify with World ID'
+                                      : 'World App Not Detected'}
                             </button>
                             <button
                                 onClick={connectWallet}

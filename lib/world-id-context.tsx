@@ -35,13 +35,13 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
             console.log('MiniKit installed (from context):', isInstalled);
             setIsMiniKitInstalled(isInstalled);
         };
-        
+
         // Check initially
         checkMiniKit();
-        
+
         // Check again after a short delay to ensure MiniKit has time to initialize
         const timer = setTimeout(checkMiniKit, 1000);
-        
+
         return () => clearTimeout(timer);
     }, []);
 
@@ -49,11 +49,11 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const storedVerification = localStorage.getItem('worldIDVerified');
         const storedAddress = localStorage.getItem('worldWalletAddress');
-        
+
         if (storedVerification === 'true') {
             setIsWorldIDVerified(true);
         }
-        
+
         if (storedAddress) {
             setWorldWalletAddress(storedAddress);
         }
@@ -66,30 +66,31 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
             alert('World app is not installed! Please install the World app to verify.');
             return;
         }
-        
+
         try {
             setIsVerifying(true);
-            
+
             const res = await fetch(`/api/nonce`);
             const { nonce } = await res.json();
-            
+
             console.log('Starting wallet auth with nonce:', nonce);
 
-            const { commandPayload: generateMessageResult, finalPayload } = await MiniKit.commandsAsync.walletAuth({
-                nonce: nonce,
-                requestId: '0', // Optional
-                expirationTime: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
-                notBefore: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
-                statement: 'Sign in to MemeWarriors with your World ID',
-            });
-            
+            const { commandPayload: generateMessageResult, finalPayload } =
+                await MiniKit.commandsAsync.walletAuth({
+                    nonce: nonce,
+                    requestId: '0', // Optional
+                    expirationTime: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+                    notBefore: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
+                    statement: 'Sign in to MemeWarriors with your World ID',
+                });
+
             console.log('Received wallet auth response:', finalPayload);
 
             if (finalPayload.status === 'error') {
                 console.error('World ID verification failed:', finalPayload);
                 return;
             }
-            
+
             const response = await fetch('/api/complete-siwe', {
                 method: 'POST',
                 headers: {
@@ -100,10 +101,10 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
                     nonce,
                 }),
             });
-            
+
             const result = await response.json();
             console.log('Verification result:', result);
-            
+
             if (result.isValid) {
                 // Now we can access the wallet address
                 if (MiniKit.walletAddress) {
@@ -116,22 +117,21 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
                     localStorage.setItem('worldWalletAddress', address);
                     console.log('Saved wallet address from payload:', address);
                 }
-                
+
                 setIsWorldIDVerified(true);
                 localStorage.setItem('worldIDVerified', 'true');
-                
+
                 // If you need the username
                 if (MiniKit.user && MiniKit.user.username) {
                     localStorage.setItem('worldUsername', MiniKit.user.username);
                     console.log('Saved username:', MiniKit.user.username);
                 }
-                
+
                 // Redirect to soldier-prep page after successful verification
                 console.log('Redirecting to soldier-prep page after World ID verification');
                 setTimeout(() => {
                     router.push('/soldier-prep?auth=world');
                 }, 500); // Short delay to ensure state is updated
-                
             } else {
                 console.error('Verification failed:', result);
                 alert('World ID verification failed. Please try again.');
