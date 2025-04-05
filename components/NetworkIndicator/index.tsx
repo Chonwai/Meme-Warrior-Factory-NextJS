@@ -12,6 +12,8 @@ export default function NetworkIndicator() {
     // Networks to display in the dropdown
     const networks = [
         { chainId: '0xaef3', name: 'Celo Alfajores', icon: '/images/networks/celo.svg' },
+        { chainId: '0xa4ec', name: 'Celo', icon: '/images/networks/celo.svg' },
+        { chainId: '0x3a44', name: 'World Chain', icon: '/images/networks/celo.svg' },
         { chainId: '0x221', name: 'Flow Testnet', icon: '/images/networks/flow.svg' },
     ];
 

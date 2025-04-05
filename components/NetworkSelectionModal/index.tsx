@@ -12,10 +12,22 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
     // Networks to display in the modal
     const networks = [
         {
-            chainId: '44787',
+            chainId: '0xaef3',
             name: 'Celo Alfajores',
             icon: '/images/networks/celo.svg',
             description: 'Celo Alfajores Testnet - EVM compatible',
+        },
+        {
+            chainId: '0xa4ec',
+            name: 'Celo',
+            icon: '/images/networks/celo.svg',
+            description: 'Celo Mainnet - EVM compatible blockchain',
+        },
+        {
+            chainId: '0x3a44',
+            name: 'World Chain',
+            icon: '/images/networks/celo.svg',
+            description: 'World Chain Network',
         },
         {
             chainId: '0x12',
@@ -27,7 +39,13 @@ export default function NetworkSelectionModal({ onClose }: { onClose: () => void
 
     // Pre-select current network if it's one of our supported networks
     useEffect(() => {
-        if (networkInfo && (networkInfo.chainId === '0xaef3' || networkInfo.chainId === '0x12')) {
+        if (
+            networkInfo &&
+            (networkInfo.chainId === '0xaef3' ||
+                networkInfo.chainId === '0xa4ec' ||
+                networkInfo.chainId === '0x3a44' ||
+                networkInfo.chainId === '0x12')
+        ) {
             setSelectedNetwork(networkInfo.chainId);
         } else {
             // Default to Celo if no network is selected

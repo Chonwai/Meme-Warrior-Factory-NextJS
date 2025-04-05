@@ -1,5 +1,5 @@
 import { createPublicClient, createWalletClient, custom, parseEther } from 'viem';
-import { celoAlfajores } from 'viem/chains';
+import { celoAlfajores, celo } from 'viem/chains';
 
 // 合約地址，應從環境變量獲取
 const REWARD_CONTRACT_ADDRESS =
@@ -107,6 +107,39 @@ export const createContractClients = async () => {
             // 為Celo測試網使用預定義的配置
             if (chainId === '0xaef3') {
                 return celoAlfajores;
+            }
+
+            // 為Celo主網使用預定義的配置
+            if (chainId === '0xa4ec') {
+                return celo;
+            }
+
+            // 為World Chain創建自定義配置
+            if (chainId === '0x3a44') {
+                // World Chain ID
+                return {
+                    id: parseInt(chainId, 16),
+                    name: 'World Chain',
+                    nativeCurrency: {
+                        name: 'World Chain',
+                        symbol: 'WO',
+                        decimals: 18,
+                    },
+                    rpcUrls: {
+                        default: {
+                            http: ['https://mainnet.worldchain.network'],
+                        },
+                        public: {
+                            http: ['https://mainnet.worldchain.network'],
+                        },
+                    },
+                    blockExplorers: {
+                        default: {
+                            name: 'World Chain Explorer',
+                            url: 'https://explorer.worldchain.network',
+                        },
+                    },
+                };
             }
 
             // 為Flow Testnet創建自定義配置

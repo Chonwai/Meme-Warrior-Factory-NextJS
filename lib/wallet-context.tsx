@@ -43,6 +43,30 @@ const SUPPORTED_NETWORKS: Record<string, NetworkInfo> = {
         },
         blockExplorerUrls: ['https://alfajores.celoscan.io', 'https://explorer.celo.org/alfajores'],
     },
+    '0xa4ec': {
+        chainId: '0xa4ec',
+        chainName: 'Celo',
+        icon: '/images/networks/celo.svg',
+        rpcUrls: ['https://forno.celo.org'],
+        nativeCurrency: {
+            name: 'CELO',
+            symbol: 'CELO',
+            decimals: 18,
+        },
+        blockExplorerUrls: ['https://explorer.celo.org/'],
+    },
+    '0x3a44': {
+        chainId: '0x3a44',
+        chainName: 'World Chain',
+        icon: '/images/networks/celo.svg',
+        rpcUrls: ['https://mainnet.worldchain.network'],
+        nativeCurrency: {
+            name: 'World Chain',
+            symbol: 'WO',
+            decimals: 18,
+        },
+        blockExplorerUrls: ['https://explorer.worldchain.network'],
+    },
 };
 
 type WalletContextType = {
@@ -445,6 +469,12 @@ function NetworkSelectionModal({
 
     // Available networks
     const networks = [
+        {
+            chainId: '42220',
+            name: 'Celo',
+            icon: '/images/networks/celo.svg',
+            description: 'Celo Mainnet - EVM compatible blockchain',
+        },
         {
             chainId: '0xaef3',
             name: 'Celo Alfajores',
