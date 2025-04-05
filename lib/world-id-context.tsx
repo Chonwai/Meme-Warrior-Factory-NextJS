@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { MiniKit } from '@worldcoin/minikit-js';
+import { MiniKit, MiniAppWalletAuthSuccessPayload } from '@worldcoin/minikit-js';
 
 type WorldIDContextType = {
     isWorldIDVerified: boolean;
@@ -38,7 +38,7 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Function to verify with World ID
+    // Implementation of Sign In With Ethereum (SIWE) using World ID
     const verifyWithWorldID = async (): Promise<void> => {
         // Check if World app is installed
         if (!MiniKit.isInstalled()) {
@@ -53,8 +53,10 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
             const res = await fetch(`/api/nonce`);
             const { nonce } = await res.json();
 
-            // Call World ID verification using the walletAuth command
-            const { finalPayload } = await MiniKit.commandsAsync.walletAuth({
+            console.log('Starting wallet auth with nonce:', nonce);
+            
+            // Call World ID verification using the walletAuth command with proper payload handling
+            const { commandPayload: generateMessageResult, finalPayload } = await MiniKit.commandsAsync.walletAuth({
                 nonce: nonce,
                 requestId: '0', // Optional
                 expirationTime: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
@@ -62,30 +64,36 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
                 statement: 'Sign in to MemeWarriors with your World ID',
             });
 
+            console.log('Received wallet auth response:', finalPayload);
+            
             if (finalPayload.status === 'error') {
                 console.error('World ID verification failed:', finalPayload);
                 return;
             }
 
             // Verify the response from World App in our backend
-            const response = await fetch('/api/verify-world-id', {
+            const response = await fetch('/api/complete-siwe', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    payload: finalPayload,
+                    payload: finalPayload as MiniAppWalletAuthSuccessPayload,
                     nonce,
                 }),
             });
 
             const result = await response.json();
+            console.log('Verification result:', result);
             
             if (result.isValid) {
-                // Store the wallet address from the finalPayload
-                if (finalPayload.address) {
-                    setWorldWalletAddress(finalPayload.address);
-                    localStorage.setItem('worldWalletAddress', finalPayload.address);
+                // Get wallet address from MiniKit object if available
+                const walletAddress = MiniKit.walletAddress || (finalPayload as MiniAppWalletAuthSuccessPayload).address;
+                
+                if (walletAddress) {
+                    setWorldWalletAddress(walletAddress);
+                    localStorage.setItem('worldWalletAddress', walletAddress);
+                    console.log('Saved wallet address:', walletAddress);
                 }
                 
                 setIsWorldIDVerified(true);
@@ -94,8 +102,10 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
                 // If you need the username as mentioned in docs
                 if (MiniKit.user && MiniKit.user.username) {
                     localStorage.setItem('worldUsername', MiniKit.user.username);
+                    console.log('Saved username:', MiniKit.user.username);
                 }
             } else {
+                console.error('Verification failed:', result);
                 alert('World ID verification failed. Please try again.');
             }
         } catch (error) {
