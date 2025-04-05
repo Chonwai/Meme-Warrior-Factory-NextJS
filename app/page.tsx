@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
     return (
@@ -11,7 +12,7 @@ export default function Home() {
                     Create AI Meme Soldiers & Battle in the Pixel Arena!
                 </p>
 
-                <div className="border-4 border-gray-600 bg-black/60 backdrop-blur-sm p-6 mb-10">
+                <div className="pixel-border bg-black/60 backdrop-blur-sm p-6 mb-10">
                     <h2 className="text-2xl font-semibold mb-4 text-green-400 pixel-text">
                         Welcome to MemeWarriors
                     </h2>
@@ -28,12 +29,18 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                    <div className="meme-card border-4 border-gray-700 bg-black/60 backdrop-blur-sm">
+                    <div className="pixel-border bg-black/60 backdrop-blur-sm p-4">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xl font-semibold text-green-400 pixel-text">
                                 ACTIVE BATTLEFIELDS
                             </h3>
-                            <span className="text-2xl">⚔️</span>
+                            <Image
+                                src="/images/sword-icon.png"
+                                alt="Battles"
+                                width={32}
+                                height={32}
+                                className="pixelated"
+                            />
                         </div>
                         <ul className="text-left">
                             <li className="mb-2">→ Active Arenas: 3</li>
@@ -41,12 +48,18 @@ export default function Home() {
                             <li className="mb-2">→ New Recruits Today: 89</li>
                         </ul>
                     </div>
-                    <div className="meme-card border-4 border-gray-700 bg-black/60 backdrop-blur-sm">
+                    <div className="pixel-border bg-black/60 backdrop-blur-sm p-4">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xl font-semibold text-green-400 pixel-text">
                                 TOP MEME SOLDIERS
                             </h3>
-                            <span className="text-2xl">🏆</span>
+                            <Image
+                                src="/images/trophy-icon.png"
+                                alt="Winners"
+                                width={32}
+                                height={32}
+                                className="pixelated"
+                            />
                         </div>
                         <ul className="text-left">
                             <li className="mb-2">→ Doge Warrior - Win Rate 78%</li>
@@ -64,15 +77,9 @@ export default function Home() {
                 </Link>
 
                 <div className="mt-10 grid grid-cols-3 gap-4 text-4xl">
-                    <div className="bg-black/60 backdrop-blur-sm p-4 border-4 border-gray-700">
-                        🐶
-                    </div>
-                    <div className="bg-black/60 backdrop-blur-sm p-4 border-4 border-gray-700">
-                        🐸
-                    </div>
-                    <div className="bg-black/60 backdrop-blur-sm p-4 border-4 border-gray-700">
-                        🧔
-                    </div>
+                    <div className="pixel-border bg-black/60 backdrop-blur-sm p-4">🐶</div>
+                    <div className="pixel-border bg-black/60 backdrop-blur-sm p-4">🐸</div>
+                    <div className="pixel-border bg-black/60 backdrop-blur-sm p-4">🧔</div>
                 </div>
             </div>
         </main>
