@@ -4,19 +4,25 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { createPublicClient, createWalletClient, custom, parseEther, Chain } from 'viem';
+import { celoAlfajores } from 'viem/chains';
+import { useWallet } from '../../../lib/wallet-context';
 
-// 角色狀態類型
+// Character state type
 type CharacterState = 'idle' | 'active' | 'excited';
 
-// 客戶端組件 - 使用 searchParams
+// Client component - using searchParams
 function ConfirmContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [prompt, setPrompt] = useState('');
     const [isAgreed, setIsAgreed] = useState(false);
     const [blacksmithState, setBlacksmithState] = useState<CharacterState>('idle');
+    const [isSigning, setIsSigning] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { isConnected, connectWallet, networkInfo } = useWallet();
 
-    // 處理搜索參數，只在 searchParams 變化時執行
+    // Handle search params, only execute when searchParams changes
     useEffect(() => {
         if (!searchParams) return;
 
@@ -40,16 +46,116 @@ function ConfirmContent() {
         }
     }, [isAgreed]);
 
-    const handleConfirm = () => {
-        if (isAgreed && prompt) {
-            // Brief active animation before navigating
-            setBlacksmithState('active');
+    // Create custom chain configuration
+    const createChainConfig = (networkInfo: any): Chain => {
+        // Use predefined config for Celo testnet
+        if (networkInfo.chainId === '0xaef3') {
+            return celoAlfajores;
+        }
 
-            // Wait a moment to show the animation
-            setTimeout(() => {
-                // Navigate to generation page, continuing to pass the prompt parameter
-                router.push(`/soldier-prep/generating?prompt=${encodeURIComponent(prompt)}`);
-            }, 800);
+        // Create custom config for other networks
+        return {
+            id: parseInt(networkInfo.chainId, 16),
+            name: networkInfo.chainName,
+            nativeCurrency: {
+                name: networkInfo.nativeCurrency.name,
+                symbol: networkInfo.nativeCurrency.symbol,
+                decimals: networkInfo.nativeCurrency.decimals,
+            },
+            rpcUrls: {
+                default: {
+                    http: networkInfo.rpcUrls,
+                },
+                public: {
+                    http: networkInfo.rpcUrls,
+                },
+            },
+            blockExplorers: networkInfo.blockExplorerUrls?.length
+                ? {
+                      default: {
+                          name: 'Explorer',
+                          url: networkInfo.blockExplorerUrls[0],
+                      },
+                  }
+                : undefined,
+        } as Chain;
+    };
+
+    const handleConfirm = async () => {
+        if (isAgreed && prompt) {
+            setIsSigning(true);
+            setBlacksmithState('active');
+            setError(null);
+
+            try {
+                // Check if wallet is connected, try to connect if not
+                if (!isConnected) {
+                    await connectWallet();
+                }
+
+                // Ensure ethereum object exists (MetaMask)
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask is not installed or unavailable');
+                }
+
+                // Check if network info is available
+                if (!networkInfo) {
+                    throw new Error('No network information, please ensure wallet is connected');
+                }
+
+                // Create current network configuration
+                const currentChain = createChainConfig(networkInfo);
+
+                // Prepare client using current selected chain
+                const publicClient = createPublicClient({
+                    chain: currentChain,
+                    transport: custom(window.ethereum),
+                });
+
+                const walletClient = createWalletClient({
+                    chain: currentChain,
+                    transport: custom(window.ethereum),
+                });
+
+                // Get user address
+                const [address] = await walletClient.getAddresses();
+
+                // Create contract and parameters
+                // In real scenario, these values should be from config or parameters
+                const contractAddress = process.env.NEXT_PUBLIC_WARRIOR_FACTORY_ADDRESS;
+                const mintPrice = parseEther('0.01');
+
+                // Use prompt to prepare data, like creating hash or other data for signing
+                const dataToSign = `Meme Warrior Generation: ${prompt}`;
+
+                // Execute transaction
+                const hash = await walletClient.sendTransaction({
+                    account: address,
+                    to: contractAddress as `0x${string}`,
+                    value: mintPrice,
+                    data: `0x${Buffer.from(dataToSign).toString('hex')}`,
+                });
+
+                console.log('Transaction submitted, hash:', hash);
+
+                // Wait for transaction confirmation
+                const receipt = await publicClient.waitForTransactionReceipt({ hash });
+                console.log('Transaction confirmed:', receipt);
+
+                // Keep existing animation and navigation logic
+                setTimeout(() => {
+                    // Navigate to generation page, continuing to pass the prompt parameter
+                    router.push(`/soldier-prep/generating?prompt=${encodeURIComponent(prompt)}`);
+                }, 800);
+            } catch (err) {
+                console.error('Signature or transaction error:', err);
+                setError(
+                    err instanceof Error ? err.message : 'Transaction failed, please try again'
+                );
+                setBlacksmithState('idle');
+            } finally {
+                setIsSigning(false);
+            }
         }
     };
 
@@ -83,10 +189,17 @@ function ConfirmContent() {
                         </div>
                         <div className={`minecraft-dialog w-full ${isAgreed ? 'active' : ''}`}>
                             <p className="minecraft-font text-white text-sm">
-                                {isAgreed
-                                    ? 'READY TO FORGE! PLEASE CONFIRM THE DETAILS...'
-                                    : 'ARE YOU SURE YOU WANT TO FORGE THIS SOLDIER? 50% WILL BE DEPLOYED TO THE BATTLEFIELD!'}
+                                {isSigning
+                                    ? 'PREPARING GENERATION, PLEASE CONFIRM WALLET TRANSACTION...'
+                                    : isAgreed
+                                      ? 'READY TO FORGE! PLEASE CONFIRM THE DETAILS...'
+                                      : 'ARE YOU SURE YOU WANT TO FORGE THIS SOLDIER? 50% WILL BE DEPLOYED TO THE BATTLEFIELD!'}
                             </p>
+                            {error && (
+                                <p className="minecraft-font text-red-500 text-sm mt-2">
+                                    Error: {error}
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -179,14 +292,14 @@ function ConfirmContent() {
                         <div className="mt-auto flex flex-col space-y-3">
                             <button
                                 onClick={handleConfirm}
-                                disabled={!isAgreed}
+                                disabled={!isAgreed || isSigning}
                                 className={
-                                    isAgreed
+                                    isAgreed && !isSigning
                                         ? 'minecraft-btn w-full'
                                         : 'minecraft-btn-disabled w-full'
                                 }
                             >
-                                CONFIRM AND GENERATE →
+                                {isSigning ? 'PROCESSING...' : 'CONFIRM AND GENERATE →'}
                             </button>
 
                             <Link
@@ -203,7 +316,7 @@ function ConfirmContent() {
     );
 }
 
-// 主頁面組件
+// Main page component
 export default function ConfirmPage() {
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
@@ -212,7 +325,7 @@ export default function ConfirmPage() {
                     CONFIRM SOLDIER GENERATION
                 </h1>
 
-                <Suspense fallback={<div className="text-center text-white">載入中...</div>}>
+                <Suspense fallback={<div className="text-center text-white">Loading...</div>}>
                     <ConfirmContent />
                 </Suspense>
             </div>
