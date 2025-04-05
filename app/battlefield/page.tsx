@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useWallet } from '@/lib/wallet-context';
+import VoteButton from '@/components/VoteButton';
+import { getUserVote } from '@/utils/web3';
 
 // 模擬戰鬥數據
 const MOCK_BATTLES = [
@@ -95,6 +97,30 @@ export default function BattlefieldPage() {
         }
     }, [isConnected, router]);
 
+    useEffect(() => {
+        // 模擬獲取戰鬥數據
+        setBattles(MOCK_BATTLES);
+        if (MOCK_BATTLES.length > 0) {
+            setSelectedBattle(MOCK_BATTLES[0]);
+
+            // 檢查用戶是否已投票
+            const checkUserVote = async () => {
+                try {
+                    if (isConnected) {
+                        const votedTeamId = await getUserVote(MOCK_BATTLES[0].id);
+                        if (votedTeamId > 0) {
+                            setVotedFor(votedTeamId);
+                        }
+                    }
+                } catch (error) {
+                    console.error('檢查用戶投票狀態失敗:', error);
+                }
+            };
+
+            checkUserVote();
+        }
+    }, [isConnected]);
+
     // 如果未連接錢包，顯示加載中
     if (!isConnected) {
         return (
@@ -129,8 +155,8 @@ export default function BattlefieldPage() {
     };
 
     // 處理投票
-    const handleVote = (battleId: number, participantId: number) => {
-        setVotedFor(participantId);
+    const handleVote = (battleId: number, teamId: number) => {
+        setVotedFor(teamId);
 
         // 更新投票數據
         setBattles(
@@ -139,7 +165,7 @@ export default function BattlefieldPage() {
                     return {
                         ...battle,
                         participants: battle.participants.map((p) => {
-                            if (p.id === participantId) {
+                            if (p.id === teamId) {
                                 return { ...p, votes: p.votes + 1 };
                             }
                             return p;
@@ -324,17 +350,12 @@ export default function BattlefieldPage() {
                                             </div>
 
                                             {selectedBattle.status === 'active' && !votedFor && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleVote(
-                                                            selectedBattle.id,
-                                                            selectedBattle.participants[0].id
-                                                        )
-                                                    }
-                                                    className="minecraft-btn-blue mt-3 text-xs"
-                                                >
-                                                    VOTE
-                                                </button>
+                                                <VoteButton
+                                                    battleId={selectedBattle.id}
+                                                    teamId={selectedBattle.participants[0].id}
+                                                    onVoteSuccess={handleVote}
+                                                    className="mt-3 text-xs"
+                                                />
                                             )}
                                         </div>
 
@@ -377,17 +398,12 @@ export default function BattlefieldPage() {
                                             </div>
 
                                             {selectedBattle.status === 'active' && !votedFor && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleVote(
-                                                            selectedBattle.id,
-                                                            selectedBattle.participants[1].id
-                                                        )
-                                                    }
-                                                    className="minecraft-btn-blue mt-3 text-xs"
-                                                >
-                                                    VOTE
-                                                </button>
+                                                <VoteButton
+                                                    battleId={selectedBattle.id}
+                                                    teamId={selectedBattle.participants[1].id}
+                                                    onVoteSuccess={handleVote}
+                                                    className="mt-3 text-xs"
+                                                />
                                             )}
                                         </div>
                                     </div>

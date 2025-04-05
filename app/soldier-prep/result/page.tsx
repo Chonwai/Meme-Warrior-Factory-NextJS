@@ -158,7 +158,7 @@ function ResultContent() {
                             <div className="flex flex-col space-y-3">
                                 <button
                                     onClick={handleDeploy}
-                                    className="minecraft-btn-red w-full text-sm"
+                                    className="minecraft-btn w-full text-sm"
                                 >
                                     DEPLOY TO BATTLEFIELD
                                 </button>
