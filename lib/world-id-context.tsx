@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { MiniKit, MiniAppWalletAuthSuccessPayload } from '@worldcoin/minikit-js';
+import { useRouter } from 'next/navigation';
 
 type WorldIDContextType = {
     isWorldIDVerified: boolean;
@@ -21,6 +22,7 @@ declare global {
 }
 
 export function WorldIDProvider({ children }: { children: ReactNode }) {
+    const router = useRouter();
     const [isWorldIDVerified, setIsWorldIDVerified] = useState<boolean>(false);
     const [isVerifying, setIsVerifying] = useState<boolean>(false);
     const [worldWalletAddress, setWorldWalletAddress] = useState<string | null>(null);
@@ -123,6 +125,13 @@ export function WorldIDProvider({ children }: { children: ReactNode }) {
                     localStorage.setItem('worldUsername', MiniKit.user.username);
                     console.log('Saved username:', MiniKit.user.username);
                 }
+                
+                // Redirect to soldier-prep page after successful verification
+                console.log('Redirecting to soldier-prep page after World ID verification');
+                setTimeout(() => {
+                    router.push('/soldier-prep?auth=world');
+                }, 500); // Short delay to ensure state is updated
+                
             } else {
                 console.error('Verification failed:', result);
                 alert('World ID verification failed. Please try again.');

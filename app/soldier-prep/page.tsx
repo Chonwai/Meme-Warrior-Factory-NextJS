@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useWallet } from '@/lib/wallet-context';
+import { useWorldID } from '@/lib/world-id-context';
 
 // Creative prompt examples
 const PROMPT_EXAMPLES = [
@@ -13,6 +14,47 @@ const PROMPT_EXAMPLES = [
     'A dinosaur in a suit at a meeting',
     'Pixel-style astronaut dancing on the moon',
 ];
+
+// Create a client component that will use the search params
+function WorldIDAuthBanner() {
+    const searchParams = useSearchParams();
+    const { isWorldIDVerified, worldWalletAddress } = useWorldID();
+    const [isAuthWithWorldID, setIsAuthWithWorldID] = useState(false);
+
+    // Check if user came from World ID authentication
+    useEffect(() => {
+        if (searchParams) {
+            const authParam = searchParams.get('auth');
+            if (authParam === 'world' && isWorldIDVerified) {
+                setIsAuthWithWorldID(true);
+                // Show a welcome message
+                setTimeout(() => {
+                    setIsAuthWithWorldID(false);
+                }, 5000); // Hide the message after 5 seconds
+            }
+        }
+    }, [searchParams, isWorldIDVerified]);
+
+    if (!isAuthWithWorldID) return null;
+
+    return (
+        <div className="mb-6 p-4 bg-purple-900/70 border-2 border-purple-500 rounded-lg text-center animate-pulse">
+            <div className="flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="minecraft-font text-purple-300 font-bold">
+                    AUTHENTICATED WITH WORLD ID
+                    {worldWalletAddress && (
+                        <span className="block text-xs mt-1 opacity-80">
+                            World Wallet: {worldWalletAddress.substring(0, 6)}...{worldWalletAddress.substring(worldWalletAddress.length - 4)}
+                        </span>
+                    )}
+                </span>
+            </div>
+        </div>
+    );
+}
 
 export default function SoldierPrep() {
     const router = useRouter();
@@ -140,6 +182,10 @@ export default function SoldierPrep() {
                 <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
                     CREATE YOUR MEME SOLDIER
                 </h1>
+                
+                <Suspense fallback={null}>
+                    <WorldIDAuthBanner />
+                </Suspense>
 
                 {/* Three-column layout */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">

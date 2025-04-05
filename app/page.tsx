@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Home() {
     const { isConnected, connectWallet } = useWallet();
-    const { isWorldIDVerified, verifyWithWorldID, worldWalletAddress, isVerifying } = useWorldID();
+    const { isWorldIDVerified, verifyWithWorldID, worldWalletAddress, isVerifying, isMiniKitInstalled } = useWorldID();
     const router = useRouter();
 
     // Format wallet address for display
@@ -68,15 +68,21 @@ export default function Home() {
                         ) : (
                             <button 
                                 onClick={handleWorldIDVerify}
-                                disabled={isVerifying}
+                                disabled={isVerifying || !isMiniKitInstalled}
                                 className="minecraft-btn text-white w-full md:hidden bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                                title={!isMiniKitInstalled ? "World app not detected" : ""}
                             >
-                                {isVerifying ? 'VERIFYING...' : 'VERIFY WITH WORLD ID'}
+                                {isVerifying ? 'VERIFYING...' : isMiniKitInstalled ? 'VERIFY WITH WORLD ID' : 'WORLD APP NOT DETECTED'}
                             </button>
                         )}
                     </div>
+                    {!isMiniKitInstalled && (
+                        <p className="text-sm text-yellow-400 minecraft-font mb-4">
+                            To verify with World ID, open this site in the World App.
+                        </p>
+                    )}
                     <p className="text-sm text-gray-400 minecraft-font">
-                        Requires a Celo-compatible wallet to continue
+                        Requires a Celo/Flow compatible wallet to continue
                     </p>
                 </div>
 
