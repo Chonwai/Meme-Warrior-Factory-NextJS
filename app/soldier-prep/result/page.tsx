@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,6 +20,10 @@ export default function ResultPage() {
     const [attributes, setAttributes] = useState(SOLDIER_ATTRIBUTES);
     const [tokenAmount, setTokenAmount] = useState(0);
     const [soldierImage, setSoldierImage] = useState('/images/soldier-placeholder.png');
+    const [memeSoldierFrame, setMemeSoldierFrame] = useState(0);
+    const [dispatcherFrame, setDispatcherFrame] = useState(0);
+    const memeSoldierIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const dispatcherIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
@@ -42,6 +46,21 @@ export default function ResultPage() {
             // If no prompt parameter, return to input page
             router.push('/soldier-prep');
         }
+
+        // Start slow animations for completed soldiers
+        memeSoldierIntervalRef.current = setInterval(() => {
+            setMemeSoldierFrame((prev) => (prev + 1) % 4);
+        }, 800); // Slow animation
+
+        dispatcherIntervalRef.current = setInterval(() => {
+            setDispatcherFrame((prev) => (prev + 1) % 4);
+        }, 1000); // Slow animation for dispatcher
+
+        // Clear animations on component unmount
+        return () => {
+            if (memeSoldierIntervalRef.current) clearInterval(memeSoldierIntervalRef.current);
+            if (dispatcherIntervalRef.current) clearInterval(dispatcherIntervalRef.current);
+        };
     }, [searchParams, router]);
 
     const handleDeploy = () => {
@@ -139,13 +158,23 @@ export default function ResultPage() {
                                 />
                             </div>
 
-                            {/* Deployment area animation */}
+                            {/* MemeSoldier in the bottom-left corner */}
+                            <div className="absolute bottom-4 left-4 z-10">
+                                <div
+                                    className={`pixel-character meme-soldier sprite-frame-${memeSoldierFrame}`}
+                                ></div>
+                            </div>
+
+                            {/* Dispatcher in the bottom-right corner */}
+                            <div className="absolute bottom-4 right-4 z-10">
+                                <div
+                                    className={`pixel-character dispatcher sprite-frame-${dispatcherFrame}`}
+                                ></div>
+                            </div>
+
+                            {/* Completed teleport animation */}
                             <div className="absolute right-10 bottom-40 flex items-center">
                                 <div className="teleport-pad"></div>
-                                <div className="w-12 h-12 bg-transparent ml-4">
-                                    {/* Dispatcher image */}
-                                    <div className="pixel-character dispatcher"></div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -271,6 +300,41 @@ export default function ResultPage() {
                     border: 2px solid #555;
                 }
 
+                .pixel-character {
+                    background-color: transparent;
+                    width: 64px;
+                    height: 64px;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    image-rendering: pixelated;
+                }
+
+                .meme-soldier {
+                    background-image: url('/images/meme-soldier.png');
+                }
+
+                .dispatcher {
+                    background-image: url('/images/dispatcher.png');
+                }
+
+                /* Sprite frames for animation */
+                .sprite-frame-0 {
+                    background-position: 0% 0%; /* Top-left frame */
+                }
+
+                .sprite-frame-1 {
+                    background-position: 100% 0%; /* Top-right frame */
+                }
+
+                .sprite-frame-2 {
+                    background-position: 0% 100%; /* Bottom-left frame */
+                }
+
+                .sprite-frame-3 {
+                    background-position: 100% 100%; /* Bottom-right frame */
+                }
+
                 .fallback-emoji {
                     font-size: 48px;
                     text-align: center;
@@ -351,19 +415,6 @@ export default function ResultPage() {
                     background-color: #b33030;
                     transform: translateY(2px);
                     box-shadow: 1px 1px 0px #222;
-                }
-
-                .pixel-character {
-                    background-color: transparent;
-                }
-
-                .dispatcher {
-                    background-image: url('/images/dispatcher.png');
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    width: 32px;
-                    height: 32px;
                 }
 
                 .pixelated {

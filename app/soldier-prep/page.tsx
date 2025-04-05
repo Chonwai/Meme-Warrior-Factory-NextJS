@@ -21,7 +21,9 @@ export default function SoldierPrep() {
     const [isTyping, setIsTyping] = useState(false);
     const [showExamples, setShowExamples] = useState(false);
     const [showScientist, setShowScientist] = useState(true);
+    const [currentFrame, setCurrentFrame] = useState(0); // 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right
     const containerRef = useRef<HTMLDivElement>(null);
+    const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Check wallet connection status
     useEffect(() => {
@@ -30,6 +32,42 @@ export default function SoldierPrep() {
             router.push('/');
         }
     }, [isConnected, router]);
+
+    // Animation control based on typing state
+    useEffect(() => {
+        // Clear any existing animation
+        if (animationIntervalRef.current) {
+            clearInterval(animationIntervalRef.current);
+            animationIntervalRef.current = null;
+        }
+
+        if (isTyping) {
+            // Start animation when typing
+            animationIntervalRef.current = setInterval(() => {
+                setCurrentFrame((prevFrame) => (prevFrame + 1) % 4);
+            }, 300); // Change frame every 300ms
+        } else {
+            // Create a timeout to stop animation after delay when not typing
+            const stopTimeout = setTimeout(() => {
+                if (animationIntervalRef.current) {
+                    clearInterval(animationIntervalRef.current);
+                    animationIntervalRef.current = null;
+                    // Reset to default pose when idle
+                    setCurrentFrame(0);
+                }
+            }, 2000);
+
+            return () => clearTimeout(stopTimeout);
+        }
+
+        // Clear animation interval on component unmount or when deps change
+        return () => {
+            if (animationIntervalRef.current) {
+                clearInterval(animationIntervalRef.current);
+                animationIntervalRef.current = null;
+            }
+        };
+    }, [isTyping]);
 
     // If wallet is not connected, show loading
     if (!isConnected) {
@@ -42,10 +80,11 @@ export default function SoldierPrep() {
         );
     }
 
-    // Show typing animation effect
+    // Show typing animation effect and animate scientist
     const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setPrompt(e.target.value);
         setIsTyping(true);
+
         // Brief delay before stopping typing effect
         setTimeout(() => setIsTyping(false), 1000);
     };
@@ -61,6 +100,9 @@ export default function SoldierPrep() {
     const selectExample = (example: string) => {
         setPrompt(example);
         setShowExamples(false);
+        // Trigger typing animation when example is selected
+        setIsTyping(true);
+        setTimeout(() => setIsTyping(false), 1000);
     };
 
     return (
@@ -72,7 +114,7 @@ export default function SoldierPrep() {
 
                 {/* Three-column layout */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                    {/* Left sidebar: Scientist dialogue - 30% width */}
+                    {/* Left sidebar: Prompt input area - 30% width */}
                     <div className="lg:w-[30%] order-1">
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
@@ -140,7 +182,7 @@ export default function SoldierPrep() {
                     </div>
 
                     {/* Middle column: Forge canvas - 40% width */}
-                    <div className="lg:w-[40%] order-1 lg:order-2">
+                    <div className="lg:w-[40%] order-2">
                         <div
                             ref={containerRef}
                             className="relative pixel-border overflow-hidden"
@@ -154,16 +196,25 @@ export default function SoldierPrep() {
                                     className="object-cover pixelated"
                                 />
                             </div>
+
+                            {/* MadScientist in the top-left corner */}
+                            <div className="absolute top-28 left-20 z-10">
+                                <div
+                                    className={`pixel-character mad-scientist sprite-frame-${currentFrame}`}
+                                ></div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Right sidebar: Prompt input area - 30% width */}
-                    <div className="lg:w-[30%] order-2 lg:order-3">
+                    {/* Right sidebar: Scientist dialogue - 30% width */}
+                    <div className="lg:w-[30%] order-3">
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             {showScientist && (
                                 <>
                                     <div className="mb-4 flex justify-center">
-                                        <div className="pixel-character scientist w-16 h-16"></div>
+                                        <div
+                                            className={`pixel-character scientist-portrait w-24 h-24 sprite-frame-${currentFrame}`}
+                                        ></div>
                                     </div>
                                     <div
                                         className={`minecraft-dialog w-full ${isTyping ? 'typing' : ''}`}
@@ -257,13 +308,38 @@ export default function SoldierPrep() {
 
                 .pixel-character {
                     background-color: transparent;
-                }
-
-                .scientist {
-                    background-image: url('/images/scientist.png');
+                    width: 64px;
+                    height: 64px;
                     background-size: contain;
                     background-repeat: no-repeat;
                     background-position: center;
+                    image-rendering: pixelated;
+                }
+
+                .scientist-portrait {
+                    width: 64px;
+                    height: 64px;
+                }
+
+                .mad-scientist {
+                    background-image: url('/images/MadScientist.png');
+                }
+
+                /* Sprite frames for animation */
+                .sprite-frame-0 {
+                    background-position: 0% 0%; /* Top-left frame */
+                }
+
+                .sprite-frame-1 {
+                    background-position: 100% 0%; /* Top-right frame */
+                }
+
+                .sprite-frame-2 {
+                    background-position: 0% 100%; /* Bottom-left frame */
+                }
+
+                .sprite-frame-3 {
+                    background-position: 100% 100%; /* Bottom-right frame */
                 }
 
                 @keyframes typing {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,6 +25,14 @@ export default function GeneratingPage() {
     const [dialogueIndex, setDialogueIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
+    const [blacksmithFrame, setBlacksmithFrame] = useState(0);
+    const [dispatcherFrame, setDispatcherFrame] = useState(0);
+    const [memeSoldierFrame, setMemeSoldierFrame] = useState(0);
+
+    // Animation intervals
+    const blacksmithIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const dispatcherIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const memeSoldierIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
@@ -34,6 +42,19 @@ export default function GeneratingPage() {
             // If no prompt parameter, return to input page
             router.push('/soldier-prep');
         }
+
+        // Start character animations
+        blacksmithIntervalRef.current = setInterval(() => {
+            setBlacksmithFrame((prev) => (prev + 1) % 4);
+        }, 350); // Different speed for each character
+
+        dispatcherIntervalRef.current = setInterval(() => {
+            setDispatcherFrame((prev) => (prev + 1) % 4);
+        }, 400);
+
+        memeSoldierIntervalRef.current = setInterval(() => {
+            setMemeSoldierFrame((prev) => (prev + 1) % 4);
+        }, 450);
 
         // Simulate AI generation process
         const dialogueInterval = setInterval(() => {
@@ -61,11 +82,42 @@ export default function GeneratingPage() {
             });
         }, 180); // About 18 seconds to complete
 
+        // Clear all intervals on component unmount
         return () => {
             clearInterval(dialogueInterval);
             clearInterval(progressInterval);
+            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
+            if (dispatcherIntervalRef.current) clearInterval(dispatcherIntervalRef.current);
+            if (memeSoldierIntervalRef.current) clearInterval(memeSoldierIntervalRef.current);
         };
     }, [searchParams, router]);
+
+    // Stop animations when generation is complete
+    useEffect(() => {
+        if (isComplete) {
+            // Slow down animations but don't stop completely
+            if (blacksmithIntervalRef.current) {
+                clearInterval(blacksmithIntervalRef.current);
+                blacksmithIntervalRef.current = setInterval(() => {
+                    setBlacksmithFrame((prev) => (prev + 1) % 4);
+                }, 800); // Slower animation when complete
+            }
+
+            if (dispatcherIntervalRef.current) {
+                clearInterval(dispatcherIntervalRef.current);
+                dispatcherIntervalRef.current = setInterval(() => {
+                    setDispatcherFrame((prev) => (prev + 1) % 4);
+                }, 900);
+            }
+
+            if (memeSoldierIntervalRef.current) {
+                clearInterval(memeSoldierIntervalRef.current);
+                memeSoldierIntervalRef.current = setInterval(() => {
+                    setMemeSoldierFrame((prev) => (prev + 1) % 4);
+                }, 1000);
+            }
+        }
+    }, [isComplete]);
 
     const handleContinue = () => {
         // After completion, navigate to result page
@@ -120,7 +172,28 @@ export default function GeneratingPage() {
                                 />
                             </div>
 
-                            {/* Forge animation */}
+                            {/* Blacksmith in the top-right corner */}
+                            <div className="absolute top-32 right-4 z-10">
+                                <div
+                                    className={`pixel-character blacksmith sprite-frame-${blacksmithFrame}`}
+                                ></div>
+                            </div>
+
+                            {/* Dispatcher in the bottom-right corner */}
+                            <div className="absolute bottom-4 right-4 z-10">
+                                <div
+                                    className={`pixel-character dispatcher sprite-frame-${dispatcherFrame}`}
+                                ></div>
+                            </div>
+
+                            {/* MemeSoldier in the bottom-left corner */}
+                            <div className="absolute bottom-4 left-4 z-10">
+                                <div
+                                    className={`pixel-character meme-soldier sprite-frame-${memeSoldierFrame}`}
+                                ></div>
+                            </div>
+
+                            {/* Central forge animation */}
                             <div className="absolute left-0 bottom-0 w-full h-full flex items-center justify-center">
                                 <div className="pixel-forge-animation"></div>
                             </div>
@@ -222,6 +295,16 @@ export default function GeneratingPage() {
                     background-color: rgba(59, 130, 246, 0.1);
                 }
 
+                .pixel-character {
+                    background-color: transparent;
+                    width: 64px;
+                    height: 64px;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    image-rendering: pixelated;
+                }
+
                 .pixel-forge-animation {
                     width: 64px;
                     height: 64px;
@@ -267,6 +350,36 @@ export default function GeneratingPage() {
 
                 .pixelated {
                     image-rendering: pixelated;
+                }
+
+                /* Character sprite images */
+                .blacksmith {
+                    background-image: url('/images/blacksmith.png');
+                }
+
+                .dispatcher {
+                    background-image: url('/images/dispatcher.png');
+                }
+
+                .meme-soldier {
+                    background-image: url('/images/meme-soldier.png');
+                }
+
+                /* Sprite frames for animation */
+                .sprite-frame-0 {
+                    background-position: 0% 0%; /* Top-left frame */
+                }
+
+                .sprite-frame-1 {
+                    background-position: 100% 0%; /* Top-right frame */
+                }
+
+                .sprite-frame-2 {
+                    background-position: 0% 100%; /* Bottom-left frame */
+                }
+
+                .sprite-frame-3 {
+                    background-position: 100% 100%; /* Bottom-right frame */
                 }
 
                 @keyframes forge {

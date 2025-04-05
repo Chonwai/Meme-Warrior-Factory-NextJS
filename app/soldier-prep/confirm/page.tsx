@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,6 +10,8 @@ export default function ConfirmPage() {
     const router = useRouter();
     const [prompt, setPrompt] = useState('');
     const [isAgreed, setIsAgreed] = useState(false);
+    const [blacksmithFrame, setBlacksmithFrame] = useState(0);
+    const blacksmithIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
@@ -19,7 +21,31 @@ export default function ConfirmPage() {
             // If no prompt parameter, return to input page
             router.push('/soldier-prep');
         }
+
+        // Clear interval on component unmount
+        return () => {
+            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
+        };
     }, [searchParams, router]);
+
+    // Animate blacksmith when user agrees to terms
+    useEffect(() => {
+        if (isAgreed) {
+            // Start or speed up animation when agreed
+            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
+
+            blacksmithIntervalRef.current = setInterval(() => {
+                setBlacksmithFrame((prev) => (prev + 1) % 4);
+            }, 300); // Faster animation when user agrees
+        } else {
+            // Slower animation or stop when not agreed
+            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
+
+            blacksmithIntervalRef.current = setInterval(() => {
+                setBlacksmithFrame((prev) => (prev + 1) % 4);
+            }, 800); // Slower animation when idle
+        }
+    }, [isAgreed]);
 
     const handleConfirm = () => {
         if (isAgreed && prompt) {
@@ -41,7 +67,9 @@ export default function ConfirmPage() {
                     <div className="lg:w-[30%] order-2 lg:order-1">
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             <div className="mb-4 flex justify-center">
-                                <div className="pixel-character blacksmith w-16 h-16"></div>
+                                <div
+                                    className={`pixel-character blacksmith-portrait w-24 h-24 sprite-frame-${blacksmithFrame}`}
+                                ></div>
                             </div>
                             <div className={`minecraft-dialog w-full ${isAgreed ? 'active' : ''}`}>
                                 <p className="minecraft-font text-white text-sm">
@@ -67,6 +95,20 @@ export default function ConfirmPage() {
                                     className="object-cover pixelated"
                                 />
                             </div>
+
+                            {/* Blacksmith in the top-right corner */}
+                            <div className="absolute top-32 right-4 z-10">
+                                <div
+                                    className={`pixel-character blacksmith sprite-frame-${blacksmithFrame}`}
+                                ></div>
+                            </div>
+
+                            {/* Animation effect when agreed */}
+                            {isAgreed && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="forge-prepare-animation"></div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -175,6 +217,11 @@ export default function ConfirmPage() {
                     position: relative;
                 }
 
+                .minecraft-dialog.active {
+                    border-color: #10b981;
+                    box-shadow: 0 0 8px #10b981;
+                }
+
                 .minecraft-btn {
                     display: inline-block;
                     padding: 8px 16px;
@@ -253,13 +300,58 @@ export default function ConfirmPage() {
 
                 .pixel-character {
                     background-color: transparent;
+                    width: 64px;
+                    height: 64px;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    image-rendering: pixelated;
+                }
+
+                .blacksmith-portrait {
+                    width: 96px;
+                    height: 96px;
                 }
 
                 .blacksmith {
                     background-image: url('/images/blacksmith.png');
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
+                }
+
+                /* Sprite frames for animation */
+                .sprite-frame-0 {
+                    background-position: 0% 0%; /* Top-left frame */
+                }
+
+                .sprite-frame-1 {
+                    background-position: 100% 0%; /* Top-right frame */
+                }
+
+                .sprite-frame-2 {
+                    background-position: 0% 100%; /* Bottom-left frame */
+                }
+
+                .sprite-frame-3 {
+                    background-position: 100% 100%; /* Bottom-right frame */
+                }
+
+                .forge-prepare-animation {
+                    width: 128px;
+                    height: 128px;
+                    background-color: rgba(255, 102, 0, 0.2);
+                    border-radius: 50%;
+                    box-shadow: 0 0 30px 15px rgba(255, 102, 0, 0.3);
+                    animation: prepare-forge 1.5s infinite alternate;
+                }
+
+                @keyframes prepare-forge {
+                    0% {
+                        opacity: 0.4;
+                        transform: scale(0.8);
+                    }
+                    100% {
+                        opacity: 0.8;
+                        transform: scale(1.2);
+                    }
                 }
             `}</style>
         </div>
