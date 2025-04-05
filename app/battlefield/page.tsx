@@ -503,7 +503,7 @@ export default function BattlefieldPage() {
                             <div className="mt-4 pt-3 border-t border-gray-700">
                                 <Link
                                     href="/"
-                                    className="text-center block text-gray-400 hover:text-gray-300 minecraft-font text-xs"
+                                    className="text-center block text-gray-400 hover:text-gray-300 minecraft-btn"
                                 >
                                     ← BACK TO HOME
                                 </Link>

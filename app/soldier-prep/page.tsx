@@ -201,7 +201,7 @@ export default function SoldierPrep() {
                                 <div className="text-center mt-3">
                                     <Link
                                         href="/"
-                                        className="text-gray-400 hover:text-gray-300 minecraft-font text-xs"
+                                        className="text-gray-400 hover:text-gray-300 minecraft-btn"
                                     >
                                         ← BACK TO HOME
                                     </Link>

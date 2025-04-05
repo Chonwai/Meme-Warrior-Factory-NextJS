@@ -66,6 +66,10 @@ export default function BattlePage({ params }: { params: { id: string } }) {
     const [fighter2Style, setFighter2Style] = useState({});
     const [showHitEffect, setShowHitEffect] = useState(false);
     const [hitPosition, setHitPosition] = useState({ x: 0, y: 0 });
+    const [fighter1HP, setFighter1HP] = useState(100);
+    const [fighter2HP, setFighter2HP] = useState(100);
+    const [currentRound, setCurrentRound] = useState(0);
+    const [battleEnded, setBattleEnded] = useState(false);
 
     useEffect(() => {
         if (!isConnected) {
@@ -77,6 +81,9 @@ export default function BattlePage({ params }: { params: { id: string } }) {
         const battleData = MOCK_BATTLES.find((b) => b.id === parseInt(params.id));
         if (battleData) {
             setBattle(battleData);
+            // 初始化HP
+            setFighter1HP(battleData.participants[0].hp);
+            setFighter2HP(battleData.participants[1].hp);
         }
 
         // 開場動畫
@@ -92,14 +99,12 @@ export default function BattlePage({ params }: { params: { id: string } }) {
         }
     }, [isConnected, params.id, router, showIntro]);
 
-    // 增強戰鬥動畫
-    const startBattle = () => {
-        setBattleStarted(true);
-        setBattlePhase('ready');
+    // 執行單回合攻擊
+    const executeAttackRound = (round: number) => {
+        const baseDelay = 1000; // 固定每回合基礎延遲為1秒，不再累加
 
-        // 預備姿勢
+        // 跳躍階段
         setTimeout(() => {
-            // 跳躍階段
             setBattlePhase('jump');
             setFighter1Style({
                 transform: 'translateY(-50px) rotate(-5deg)',
@@ -109,7 +114,7 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                 transform: 'translateY(-50px) scaleX(-1) rotate(5deg)',
                 transition: 'all 0.4s ease-out',
             });
-        }, 500);
+        }, baseDelay);
 
         // 攻擊階段
         setTimeout(() => {
@@ -123,13 +128,44 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                     'translateX(-80px) translateY(-20px) scaleX(-1) rotate(10deg) scale(1.1)',
                 transition: 'all 0.3s ease-in-out',
             });
-        }, 1200);
+        }, baseDelay + 600);
 
-        // 碰撞效果
+        // 碰撞效果和傷害計算
         setTimeout(() => {
             setBattlePhase('hit');
             setShowHitEffect(true);
             setHitPosition({ x: 0, y: -40 });
+
+            // 隨機傷害計算 (隨回合數增加而增加，但不讓雙方同時歸零)
+            const baseDamage = 15 + round * 5; // 基礎傷害隨回合增加
+            const variance = 10 + round * 2; // 傷害浮動範圍也隨回合增加
+
+            let damage1 = Math.floor(Math.random() * variance) + baseDamage;
+            let damage2 = Math.floor(Math.random() * variance) + baseDamage;
+
+            // 確保最後一擊不會導致雙方同時歸零
+            setFighter1HP((prev) => {
+                const newHP1 = Math.max(0, prev - damage2);
+
+                // 如果兩邊都會歸零，確保至少一方有1點血
+                setFighter2HP((prev2) => {
+                    const newHP2 = Math.max(0, prev2 - damage1);
+
+                    if (newHP1 === 0 && newHP2 === 0) {
+                        // 隨機選擇一方保留1點HP
+                        if (Math.random() > 0.5) {
+                            return 1; // fighter2保留1點HP
+                        } else {
+                            setTimeout(() => setFighter1HP(1), 0); // fighter1保留1點HP
+                            return 0;
+                        }
+                    }
+
+                    return newHP2;
+                });
+
+                return newHP1;
+            });
 
             // 衝擊波動畫
             setTimeout(() => setShowHitEffect(false), 400);
@@ -143,84 +179,104 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                 transform: 'translateX(30px) translateY(0) scaleX(-1) rotate(-5deg)',
                 transition: 'all 0.2s ease-in',
             });
-        }, 1500);
+        }, baseDelay + 900);
 
-        // 第二次攻擊
+        // 回合結束，檢查HP
         setTimeout(() => {
-            setBattlePhase('attack');
-            setFighter1Style({
-                transform: 'translateX(100px) translateY(-10px) rotate(-15deg) scale(1.15)',
-                transition: 'all 0.25s ease-in-out',
-            });
-            setFighter2Style({
-                transform:
-                    'translateX(-100px) translateY(-10px) scaleX(-1) rotate(15deg) scale(1.15)',
-                transition: 'all 0.25s ease-in-out',
-            });
-        }, 2200);
-
-        // 第二次碰撞
-        setTimeout(() => {
-            setBattlePhase('hit');
-            setShowHitEffect(true);
-            setHitPosition({ x: 0, y: -30 });
-
-            // 衝擊波動畫
-            setTimeout(() => setShowHitEffect(false), 400);
-
-            // 角色大幅後退
-            setFighter1Style({
-                transform: 'translateX(-50px) translateY(10px) rotate(10deg)',
-                transition: 'all 0.3s ease-in',
-            });
-            setFighter2Style({
-                transform: 'translateX(50px) translateY(10px) scaleX(-1) rotate(-10deg)',
-                transition: 'all 0.3s ease-in',
-            });
-        }, 2500);
-
-        // 結束階段
-        setTimeout(() => {
-            setBattlePhase('finish');
-            // 重置位置
-            setFighter1Style({
-                transform: 'translateX(0) translateY(0)',
-                transition: 'all 0.5s ease-out',
-            });
-            setFighter2Style({
-                transform: 'translateX(0) translateY(0) scaleX(-1)',
-                transition: 'all 0.5s ease-out',
-            });
-
-            // 隨機選擇勝利者
-            const randomWinner = Math.random() > 0.5 ? 0 : 1;
-            setWinner(randomWinner);
-
-            // 勝利者動畫
-            if (randomWinner === 0) {
-                setFighter1Style({
-                    transform: 'translateY(-20px) scale(1.1)',
-                    transition: 'all 0.3s ease-in-out',
-                    filter: 'brightness(1.3)',
+            // 使用回調函數形式獲取最新的HP值進行判斷
+            setFighter1HP((currentHP1) => {
+                setFighter2HP((currentHP2) => {
+                    if (currentHP1 <= 0 || currentHP2 <= 0) {
+                        // 至少一方HP歸零，結束戰鬥
+                        setTimeout(() => finishBattle(), 0);
+                    } else if (round < 5) {
+                        // 還有回合，繼續下一回合
+                        setCurrentRound(round + 1);
+                        setTimeout(() => executeAttackRound(round + 1), 500);
+                    } else {
+                        // 達到最大回合數，結束戰鬥
+                        setTimeout(() => finishBattle(), 0);
+                    }
+                    return currentHP2;
                 });
-                setFighter2Style({
-                    transform: 'translateY(20px) scaleX(-1) rotate(20deg)',
-                    transition: 'all 0.3s ease-in-out',
-                    filter: 'brightness(0.7)',
-                });
-            } else {
-                setFighter1Style({
-                    transform: 'translateY(20px) rotate(-20deg)',
-                    transition: 'all 0.3s ease-in-out',
-                    filter: 'brightness(0.7)',
-                });
-                setFighter2Style({
-                    transform: 'translateY(-20px) scaleX(-1) scale(1.1)',
-                    transition: 'all 0.3s ease-in-out',
-                    filter: 'brightness(1.3)',
-                });
-            }
-        }, 4000);
+                return currentHP1;
+            });
+        }, baseDelay + 1800);
+    };
+
+    // 結束戰鬥
+    const finishBattle = () => {
+        setBattlePhase('finish');
+        setBattleEnded(true);
+
+        // 重置位置
+        setFighter1Style({
+            transform: 'translateX(0) translateY(0)',
+            transition: 'all 0.5s ease-out',
+        });
+        setFighter2Style({
+            transform: 'translateX(0) translateY(0) scaleX(-1)',
+            transition: 'all 0.5s ease-out',
+        });
+
+        // 決定勝利者 - 使用函數形式獲取最新狀態
+        setFighter1HP((hp1) => {
+            setFighter2HP((hp2) => {
+                let battleWinner;
+
+                if (hp1 <= 0 && hp2 <= 0) {
+                    // 這種情況不應該發生，因為我們已經在傷害計算時處理了
+                    battleWinner = Math.random() > 0.5 ? 0 : 1;
+                } else if (hp1 <= 0) {
+                    battleWinner = 1;
+                } else if (hp2 <= 0) {
+                    battleWinner = 0;
+                } else {
+                    // 如果雙方都還有HP，選擇HP較高的一方
+                    battleWinner = hp1 > hp2 ? 0 : 1;
+                }
+
+                setWinner(battleWinner);
+
+                // 勝利者動畫
+                if (battleWinner === 0) {
+                    setFighter1Style({
+                        transform: 'translateY(-20px) scale(1.1)',
+                        transition: 'all 0.3s ease-in-out',
+                        filter: 'brightness(1.3)',
+                    });
+                    setFighter2Style({
+                        transform: 'translateY(20px) scaleX(-1) rotate(20deg)',
+                        transition: 'all 0.3s ease-in-out',
+                        filter: 'brightness(0.7)',
+                    });
+                } else {
+                    setFighter1Style({
+                        transform: 'translateY(20px) rotate(-20deg)',
+                        transition: 'all 0.3s ease-in-out',
+                        filter: 'brightness(0.7)',
+                    });
+                    setFighter2Style({
+                        transform: 'translateY(-20px) scaleX(-1) scale(1.1)',
+                        transition: 'all 0.3s ease-in-out',
+                        filter: 'brightness(1.3)',
+                    });
+                }
+
+                return hp2;
+            });
+            return hp1;
+        });
+    };
+
+    // 增強戰鬥動畫
+    const startBattle = () => {
+        setBattleStarted(true);
+        setBattlePhase('ready');
+        setCurrentRound(1);
+
+        // 開始第一回合攻擊
+        executeAttackRound(1);
     };
 
     if (!battle) {
@@ -265,6 +321,14 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                 style={{ height: 'calc(100vh - 100px)' }}
             >
                 <div className="w-full max-w-6xl mx-auto px-4">
+                    <div className="text-center mb-8">
+                        {battleStarted && !battleEnded && (
+                            <div className="text-xl text-white minecraft-font mt-2">
+                                ROUND {currentRound}
+                            </div>
+                        )}
+                    </div>
+
                     {/* 戰鬥者狀態欄 */}
                     <div className="flex justify-between mb-8">
                         {/* 左側戰鬥者 */}
@@ -273,14 +337,16 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                 <span className="text-white minecraft-font">
                                     {battle.participants[0].name}
                                 </span>
-                                <span className="text-yellow-300 minecraft-font">
-                                    HP: {battle.participants[0].hp}
+                                <span
+                                    className={`minecraft-font ${fighter1HP <= 30 ? 'text-red-500' : 'text-yellow-300'}`}
+                                >
+                                    HP: {fighter1HP}
                                 </span>
                             </div>
                             <div className="w-full bg-gray-700 h-3 pixel-border">
                                 <div
-                                    className="bg-green-500 h-full"
-                                    style={{ width: `${battle.participants[0].hp}%` }}
+                                    className={`h-full transition-all duration-300 ${fighter1HP <= 30 ? 'bg-red-500' : 'bg-green-500'}`}
+                                    style={{ width: `${fighter1HP}%` }}
                                 ></div>
                             </div>
                         </div>
@@ -291,14 +357,16 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                 <span className="text-white minecraft-font">
                                     {battle.participants[1].name}
                                 </span>
-                                <span className="text-yellow-300 minecraft-font">
-                                    HP: {battle.participants[1].hp}
+                                <span
+                                    className={`minecraft-font ${fighter2HP <= 30 ? 'text-red-500' : 'text-yellow-300'}`}
+                                >
+                                    HP: {fighter2HP}
                                 </span>
                             </div>
                             <div className="w-full bg-gray-700 h-3 pixel-border">
                                 <div
-                                    className="bg-green-500 h-full"
-                                    style={{ width: `${battle.participants[1].hp}%` }}
+                                    className={`h-full transition-all duration-300 ${fighter2HP <= 30 ? 'bg-red-500' : 'bg-green-500'}`}
+                                    style={{ width: `${fighter2HP}%` }}
                                 ></div>
                             </div>
                         </div>
@@ -324,6 +392,13 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                     className={`pixelated ${battleStarted && battlePhase !== 'finish' ? 'battle-shake' : ''}`}
                                 />
                             </div>
+                            {battleStarted && fighter1HP <= 0 && (
+                                <div className="absolute top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center">
+                                    <span className="text-red-500 minecraft-font text-xl">
+                                        K.O.
+                                    </span>
+                                </div>
+                            )}
                         </div>
 
                         {/* VS或勝利提示 */}
@@ -380,6 +455,13 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                     className={`pixelated ${battleStarted && battlePhase !== 'finish' ? 'battle-shake' : ''}`}
                                 />
                             </div>
+                            {battleStarted && fighter2HP <= 0 && (
+                                <div className="absolute top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center">
+                                    <span className="text-red-500 minecraft-font text-xl">
+                                        K.O.
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
