@@ -88,6 +88,7 @@ export default function BattlefieldPage() {
     const [activeTab, setActiveTab] = useState('active'); // 'active', 'upcoming', 'completed'
     const [selectedBattle, setSelectedBattle] = useState(MOCK_BATTLES[0]);
     const [votedFor, setVotedFor] = useState<number | null>(null);
+    const [recentVotedTeam, setRecentVotedTeam] = useState<number | null>(null);
 
     // 檢查錢包連接狀態
     useEffect(() => {
@@ -157,6 +158,14 @@ export default function BattlefieldPage() {
     // 處理投票
     const handleVote = (battleId: number, teamId: number) => {
         setVotedFor(teamId);
+
+        // 設置最近投票的隊伍以顯示動畫
+        setRecentVotedTeam(teamId);
+
+        // 2秒後清除動畫效果
+        setTimeout(() => {
+            setRecentVotedTeam(null);
+        }, 2000);
 
         // 更新投票數據
         setBattles(
@@ -412,11 +421,23 @@ export default function BattlefieldPage() {
                                     {selectedBattle.status === 'active' && (
                                         <div className="w-4/5 mt-8">
                                             <div className="flex justify-between text-sm mb-1">
-                                                <span className="text-blue-300 minecraft-font">
+                                                <span className="text-blue-300 minecraft-font relative">
                                                     {selectedBattle.participants[0].votes} VOTES
+                                                    {recentVotedTeam ===
+                                                        selectedBattle.participants[0].id && (
+                                                        <span className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-yellow-300 vote-animation">
+                                                            +1
+                                                        </span>
+                                                    )}
                                                 </span>
-                                                <span className="text-green-300 minecraft-font">
+                                                <span className="text-green-300 minecraft-font relative">
                                                     {selectedBattle.participants[1].votes} VOTES
+                                                    {recentVotedTeam ===
+                                                        selectedBattle.participants[1].id && (
+                                                        <span className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-yellow-300 vote-animation">
+                                                            +1
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </div>
                                             <div className="relative h-6 bg-gray-800 border-2 border-gray-600">
@@ -698,6 +719,36 @@ export default function BattlefieldPage() {
                     100% {
                         opacity: 1;
                         transform: scale(1.2);
+                    }
+                }
+
+                .vote-animation {
+                    top: -20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    animation: vote-pulse 2s ease-out forwards;
+                    font-weight: bold;
+                    text-shadow: 0 0 4px rgba(255, 255, 0, 0.8);
+                    font-size: 16px;
+                    color: #ffd700;
+                }
+
+                @keyframes vote-pulse {
+                    0% {
+                        opacity: 0;
+                        transform: translateX(-50%) scale(0.8);
+                    }
+                    20% {
+                        opacity: 1;
+                        transform: translateX(-50%) scale(1.2);
+                    }
+                    80% {
+                        opacity: 0.8;
+                        transform: translateX(-50%) translateY(-25px) scale(1);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translateX(-50%) translateY(-40px) scale(0.8);
                     }
                 }
             `}</style>

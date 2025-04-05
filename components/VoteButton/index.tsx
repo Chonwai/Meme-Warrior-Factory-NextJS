@@ -18,6 +18,7 @@ export default function VoteButton({
     onVoteSuccess,
 }: VoteButtonProps) {
     const [isVoting, setIsVoting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { isConnected, connectWallet } = useWallet();
 
@@ -34,10 +35,18 @@ export default function VoteButton({
             // 執行投票交易
             await voteForTeam(battleId, teamId);
 
+            // 設置成功狀態並顯示短暫確認信息
+            setIsSuccess(true);
+
             // 投票成功，觸發回調
             if (onVoteSuccess) {
                 onVoteSuccess(battleId, teamId);
             }
+
+            // 2秒後重置按鈕狀態
+            setTimeout(() => {
+                setIsSuccess(false);
+            }, 2000);
         } catch (err) {
             console.error('投票出錯：', err);
             setError(err instanceof Error ? err.message : '投票失敗，請重試');
@@ -53,10 +62,15 @@ export default function VoteButton({
         <div className="relative">
             <button
                 onClick={handleVote}
-                disabled={isVoting}
-                className={`${baseClassName} ${className} ${isVoting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                disabled={isVoting || isSuccess}
+                className={`
+                    ${baseClassName} 
+                    ${className} 
+                    ${isVoting ? 'opacity-70 cursor-not-allowed' : ''} 
+                    ${isSuccess ? 'bg-green-600 border-green-800' : ''}
+                `}
             >
-                {isVoting ? 'Voting...' : 'VOTE'}
+                {isVoting ? 'Voting...' : isSuccess ? 'VOTED!' : 'VOTE'}
             </button>
 
             {error && (
