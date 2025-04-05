@@ -287,10 +287,6 @@ export default function SoldierPrep() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace;
-                }
-
                 .minecraft-dialog {
                     background-color: rgba(0, 0, 0, 0.7);
                     border: 2px solid #555;

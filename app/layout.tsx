@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import NextAuthProvider from '@/components/next-auth-provider';
 import { WalletProvider } from '@/lib/wallet-context';
+import { WorldIDProvider } from '@/lib/world-id-context';
 import Navbar from '@/components/Navbar';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -22,8 +23,10 @@ export default function RootLayout({
             <body className={inter.className}>
                 <NextAuthProvider>
                     <WalletProvider>
-                        <Navbar />
-                        {children}
+                        <WorldIDProvider>
+                            <Navbar />
+                            {children}
+                        </WorldIDProvider>
                     </WalletProvider>
                 </NextAuthProvider>
             </body>

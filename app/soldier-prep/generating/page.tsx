@@ -333,10 +333,6 @@ export default function GeneratingPage() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace;
-                }
-
                 .progress-container {
                     height: 24px;
                     background-color: #222;

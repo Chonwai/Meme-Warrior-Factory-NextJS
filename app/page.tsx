@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useWallet } from '@/lib/wallet-context';
+import { useWorldID } from '@/lib/world-id-context';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
     const { isConnected, connectWallet } = useWallet();
+    const { isWorldIDVerified, verifyWithWorldID } = useWorldID();
     const router = useRouter();
 
     // If wallet is connected, redirect to soldier prep page
@@ -16,6 +18,11 @@ export default function Home() {
         } else {
             router.push('/soldier-prep');
         }
+    };
+
+    // Handle World ID verification
+    const handleWorldIDVerify = async () => {
+        await verifyWithWorldID();
     };
 
     return (
@@ -32,17 +39,26 @@ export default function Home() {
                     <h2 className="text-2xl font-semibold mb-4 text-green-400 pixel-text">
                         Welcome to MemeWarriors
                     </h2>
-                    <p className="mb-6">
+                    <p className="mb-6 minecraft-font">
                         Build your meme army and conquer the pixel battlefields in this blocky
                         adventure!
                     </p>
-                    <button
-                        onClick={handleWalletConnect}
-                        className="minecraft-btn text-white mb-4 mx-auto block"
-                    >
-                        {isConnected ? 'ENTER GAME' : 'CONNECT WALLET'}
-                    </button>
-                    <p className="text-sm text-gray-400">
+                    <div className="flex flex-col md:flex-row items-center justify-center space-y-3 md:space-y-0 md:space-x-3 mb-4">
+                        <button
+                            onClick={handleWalletConnect}
+                            className="minecraft-btn text-white w-full md:w-auto"
+                        >
+                            {isConnected ? 'ENTER GAME' : 'CONNECT WALLET'}
+                        </button>
+
+                        <button
+                            onClick={handleWorldIDVerify}
+                            className={`minecraft-btn text-white w-full md:hidden ${isWorldIDVerified ? 'bg-purple-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                        >
+                            {isWorldIDVerified ? 'VERIFIED WITH WORLD ID' : 'VERIFY WITH WORLD ID'}
+                        </button>
+                    </div>
+                    <p className="text-sm text-gray-400 minecraft-font">
                         Requires a Celo-compatible wallet to continue
                     </p>
                 </div>
@@ -61,7 +77,7 @@ export default function Home() {
                                 className="pixelated"
                             />
                         </div>
-                        <ul className="text-left">
+                        <ul className="text-left minecraft-font">
                             <li className="mb-2">→ Active Arenas: 3</li>
                             <li className="mb-2">→ Total Soldiers: 1,234</li>
                             <li className="mb-2">→ New Recruits Today: 89</li>
@@ -80,7 +96,7 @@ export default function Home() {
                                 className="pixelated"
                             />
                         </div>
-                        <ul className="text-left">
+                        <ul className="text-left minecraft-font">
                             <li className="mb-2">→ Doge Warrior - Win Rate 78%</li>
                             <li className="mb-2">→ Pepe General - Win Rate 65%</li>
                             <li className="mb-2">→ Wojak Scout - Win Rate 62%</li>

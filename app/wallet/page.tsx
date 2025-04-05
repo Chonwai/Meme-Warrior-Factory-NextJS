@@ -246,10 +246,6 @@ export default function WalletPage() {
                     box-shadow: inset 0 0 0 1px #333;
                 }
 
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace !important;
-                }
-
                 .minecraft-btn {
                     display: inline-block;
                     padding: 8px 16px;

@@ -439,8 +439,9 @@ function NetworkSelectionModal({
     onSelect: (accounts: string[], network: string) => Promise<void>;
     onCancel: () => void;
 }) {
-    const [selectedNetwork, setSelectedNetwork] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [selectedNetwork, setSelectedNetwork] = useState<string>('0xaef3'); // Default to Celo
+    const [isLoading, setIsLoading] = useState(false);
+    const [showWorldError, setShowWorldError] = useState(false);
 
     // Available networks
     const networks = [
@@ -456,10 +457,28 @@ function NetworkSelectionModal({
             icon: '/images/networks/flow.svg',
             description: 'Flow Testnet (EVM)',
         },
+        {
+            chainId: 'world',
+            name: 'World Chain',
+            icon: '/images/networks/celo.svg', // You can replace with World icon if available
+            description: 'World Chain Network',
+            disabled: true,
+        },
     ];
 
+    const handleNetworkSelection = (chainId: string) => {
+        if (chainId === 'world') {
+            setShowWorldError(true);
+            setTimeout(() => {
+                setShowWorldError(false);
+            }, 3000);
+            return;
+        }
+        setSelectedNetwork(chainId);
+    };
+
     const handleConfirm = async () => {
-        if (!selectedNetwork) return;
+        if (!selectedNetwork || selectedNetwork === 'world') return;
 
         setIsLoading(true);
         try {
@@ -482,6 +501,12 @@ function NetworkSelectionModal({
                     Choose a blockchain network to connect to:
                 </p>
 
+                {showWorldError && (
+                    <div className="mb-4 p-2 bg-red-500/20 border border-red-500 rounded text-center text-red-300 minecraft-font text-sm">
+                        Not supporting World Chain now. Please switch to Celo or Flow network.
+                    </div>
+                )}
+
                 <div className="space-y-4 mb-6">
                     {networks.map((network) => (
                         <button
@@ -489,9 +514,11 @@ function NetworkSelectionModal({
                             className={`w-full py-3 px-4 rounded-md flex items-center space-x-4 text-left transition-colors ${
                                 selectedNetwork === network.chainId
                                     ? 'bg-blue-900 border-2 border-blue-500'
-                                    : 'bg-gray-700 hover:bg-gray-600'
+                                    : network.disabled
+                                      ? 'bg-gray-700 opacity-70 cursor-not-allowed'
+                                      : 'bg-gray-700 hover:bg-gray-600'
                             }`}
-                            onClick={() => setSelectedNetwork(network.chainId)}
+                            onClick={() => handleNetworkSelection(network.chainId)}
                         >
                             <div className="w-8 h-8 flex-shrink-0 relative">
                                 <Image
@@ -506,7 +533,7 @@ function NetworkSelectionModal({
                                 <div className="font-bold minecraft-font">{network.name}</div>
                                 <div className="text-sm text-gray-300">{network.description}</div>
                             </div>
-                            {selectedNetwork === network.chainId && (
+                            {selectedNetwork === network.chainId && !network.disabled && (
                                 <div className="ml-auto">
                                     <svg
                                         className="w-6 h-6 text-green-400"
@@ -538,7 +565,7 @@ function NetworkSelectionModal({
                     <button
                         className="minecraft-btn bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={handleConfirm}
-                        disabled={isLoading || !selectedNetwork}
+                        disabled={isLoading || !selectedNetwork || selectedNetwork === 'world'}
                     >
                         {isLoading ? 'CONNECTING...' : 'CONFIRM'}
                     </button>
