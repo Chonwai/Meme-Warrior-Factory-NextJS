@@ -7,15 +7,15 @@ import Link from 'next/link';
 
 // Simulated AI dialogue
 const AI_DIALOGUE = [
-    'Analyzing your creative prompt...',
-    'I see it! This meme has great potential!',
-    'Conceptualizing the best form of expression...',
-    'Preparing visual elements...',
-    'Adjusting humor and visual impact...',
-    'Generating pixel soldier image...',
-    'Assigning battle attributes...',
-    'Final touches...',
-    'Complete! Your Meme Soldier is born!',
+    'ANALYZING YOUR CREATIVE PROMPT...',
+    'I SEE IT! THIS MEME HAS GREAT POTENTIAL!',
+    'CONCEPTUALIZING THE BEST FORM OF EXPRESSION...',
+    'PREPARING VISUAL ELEMENTS...',
+    'ADJUSTING HUMOR AND VISUAL IMPACT...',
+    'GENERATING PIXEL SOLDIER IMAGE...',
+    'ASSIGNING BATTLE ATTRIBUTES...',
+    'FINAL TOUCHES...',
+    'COMPLETE! YOUR MEME SOLDIER IS BORN!',
 ];
 
 export default function GeneratingPage() {
@@ -74,62 +74,64 @@ export default function GeneratingPage() {
 
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center drop-shadow-[2px_2px_0px_#000] pixel-text">
-                    Soldier Forging in Progress
+            <div className="max-w-5xl mx-auto">
+                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
+                    SOLDIER FORGING IN PROGRESS
                 </h1>
 
-                {/* Pokemon style factory scene */}
-                <div className="relative w-full h-96 pixel-border overflow-hidden mb-8">
-                    <div className="absolute inset-0">
-                        <Image
-                            src="/images/forge.png"
-                            alt="Meme Forge"
-                            fill
-                            className="object-cover pixelated"
-                        />
-                    </div>
-
-                    {/* Training ground animation */}
-                    <div className="absolute left-0 bottom-0 w-full h-full flex items-center justify-center">
-                        <div className="pixel-forge-animation"></div>
-                    </div>
-
-                    {/* Center display of current generation progress */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-6">
-                        <div className="pixel-border bg-black/80 w-full max-w-md p-6">
-                            <h3 className="font-bold mb-3 text-center text-green-400 pixel-text">
-                                AI is Forging
-                            </h3>
-                            <div className="chat-bubble mb-4">
-                                <p className="minecraft-font text-white">
+                {/* Forge scene layout with sidebar */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                    {/* Left column with AI dialogue */}
+                    <div className="lg:w-1/4">
+                        <div className="pixel-border bg-black/70 p-4 h-full flex flex-col">
+                            <div className="chat-bubble w-full mb-4">
+                                <p className="minecraft-font text-white text-sm">
                                     {AI_DIALOGUE[dialogueIndex]}
                                 </p>
                             </div>
 
-                            {/* Pixel-style progress bar */}
-                            <div className="progress-container mb-2">
-                                <div
-                                    className="progress-bar"
-                                    style={{ width: `${progress}%` }}
-                                ></div>
+                            {/* Pixel-style progress indication */}
+                            <div className="mt-auto">
+                                <div className="progress-container mb-2">
+                                    <div
+                                        className="progress-bar"
+                                        style={{ width: `${progress}%` }}
+                                    ></div>
+                                </div>
+                                <p className="text-xs text-right text-gray-400 minecraft-font">
+                                    {progress}%
+                                </p>
                             </div>
-                            <p className="text-xs text-right text-gray-400 minecraft-font">
-                                {progress}%
-                            </p>
+                        </div>
+                    </div>
+
+                    {/* Center forge area */}
+                    <div className="lg:w-3/4 relative pixel-border overflow-hidden h-96">
+                        <div className="absolute inset-0">
+                            <Image
+                                src="/images/forge.png"
+                                alt="Meme Forge"
+                                fill
+                                className="object-cover pixelated"
+                            />
+                        </div>
+
+                        {/* Center forge animation */}
+                        <div className="absolute left-0 bottom-0 w-full h-full flex items-center justify-center">
+                            <div className="pixel-forge-animation"></div>
                         </div>
                     </div>
                 </div>
 
                 {/* Control area */}
-                <div className="pixel-border bg-black/70 backdrop-blur-sm p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4 text-green-400 pixel-text">
-                        Forging in Progress
+                <div className="pixel-border bg-black/80 p-6 mb-6">
+                    <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                        FORGING IN PROGRESS
                     </h2>
 
                     <div className="mb-6 p-4 bg-gray-800 border-2 border-gray-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 pixel-text">
-                            Your Creative Prompt:
+                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 minecraft-font uppercase">
+                            YOUR CREATIVE PROMPT:
                         </h3>
                         <p className="text-gray-300 minecraft-font italic">&quot;{prompt}&quot;</p>
                     </div>
@@ -137,13 +139,13 @@ export default function GeneratingPage() {
                     {isComplete ? (
                         <div className="flex justify-center">
                             <button onClick={handleContinue} className="minecraft-btn-gold">
-                                View Your Soldier →
+                                VIEW YOUR SOLDIER →
                             </button>
                         </div>
                     ) : (
                         <div className="flex justify-center">
                             <p className="text-gray-400 minecraft-font pixel-loading">
-                                Please wait, AI is creating your soldier
+                                PLEASE WAIT, AI IS CREATING YOUR SOLDIER
                             </p>
                         </div>
                     )}
@@ -167,11 +169,6 @@ export default function GeneratingPage() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .pixel-text {
-                    font-family: 'Press Start 2P', monospace;
-                    letter-spacing: 1px;
-                }
-
                 .minecraft-font {
                     font-family: 'Minecraft', monospace;
                 }
@@ -193,7 +190,6 @@ export default function GeneratingPage() {
                     border-left: 3px solid #3b82f6;
                     padding: 8px 12px;
                     background-color: rgba(59, 130, 246, 0.1);
-                    margin-bottom: 16px;
                 }
 
                 .pixel-forge-animation {
@@ -223,7 +219,7 @@ export default function GeneratingPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Press Start 2P', monospace;
+                    font-family: 'Minecraft', monospace;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }

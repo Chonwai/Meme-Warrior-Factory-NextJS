@@ -56,152 +56,151 @@ export default function ResultPage() {
 
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center drop-shadow-[2px_2px_0px_#000] pixel-text">
-                    Soldier Forged Successfully!
+            <div className="max-w-5xl mx-auto">
+                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
+                    SOLDIER FORGED SUCCESSFULLY!
                 </h1>
 
-                {/* Pokemon style factory scene - deployment center */}
-                <div className="relative w-full h-96 pixel-border overflow-hidden mb-8">
-                    <div className="absolute inset-0">
-                        <Image
-                            src="/images/forge.png"
-                            alt="Meme Forge"
-                            fill
-                            className="object-cover pixelated"
-                        />
-                    </div>
+                {/* Forge scene layout with sidebar */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                    {/* Left column with soldier stats */}
+                    <div className="lg:w-1/4">
+                        <div className="pixel-border bg-black/70 p-4 h-full flex flex-col">
+                            <h3 className="text-center font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                YOUR MEME SOLDIER
+                            </h3>
 
-                    {/* Deployment area animation */}
-                    <div className="absolute right-10 bottom-40 flex items-center">
-                        <div className="teleport-pad"></div>
-                        <div className="w-12 h-12 bg-transparent ml-4">
-                            {/* Dispatcher image */}
-                            <div className="pixel-character dispatcher"></div>
+                            <div className="mb-6">
+                                <div className="pixel-soldier w-full h-32 flex items-center justify-center mb-4">
+                                    <Image
+                                        src={soldierImage}
+                                        alt="Meme Soldier"
+                                        width={100}
+                                        height={100}
+                                        className="pixelated"
+                                        onError={() => {
+                                            // If image loading fails, use emoji instead
+                                            const element =
+                                                document.querySelector('.pixel-soldier');
+                                            if (element) {
+                                                element.innerHTML =
+                                                    '<div class="fallback-emoji">🐶</div>';
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="soldier-stats">
+                                <div className="stat-bar">
+                                    <span className="minecraft-font text-white">HUMOR</span>
+                                    <div className="bar-container">
+                                        <div
+                                            className="bar-fill"
+                                            style={{ width: `${attributes.humor}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="minecraft-font text-white">
+                                        {attributes.humor}
+                                    </span>
+                                </div>
+                                <div className="stat-bar">
+                                    <span className="minecraft-font text-white">VIRALITY</span>
+                                    <div className="bar-container">
+                                        <div
+                                            className="bar-fill"
+                                            style={{ width: `${attributes.virality}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="minecraft-font text-white">
+                                        {attributes.virality}
+                                    </span>
+                                </div>
+                                <div className="stat-bar">
+                                    <span className="minecraft-font text-white">ORIGINALITY</span>
+                                    <div className="bar-container">
+                                        <div
+                                            className="bar-fill"
+                                            style={{ width: `${attributes.originality}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="minecraft-font text-white">
+                                        {attributes.originality}
+                                    </span>
+                                </div>
+                                <div className="stat-bar">
+                                    <span className="minecraft-font text-white">STRENGTH</span>
+                                    <div className="bar-container">
+                                        <div
+                                            className="bar-fill"
+                                            style={{ width: `${attributes.strength}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="minecraft-font text-white">
+                                        {attributes.strength}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Center display of generated soldier */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <div className="soldier-container pixel-border bg-black/70 backdrop-blur-sm p-6">
-                            <div className="flex flex-col md:flex-row">
-                                <div className="soldier-image-container mb-4 md:mb-0 md:mr-6">
-                                    {/* In an actual project, this would be the dynamically generated soldier image */}
-                                    <div className="pixel-soldier">
-                                        <Image
-                                            src={soldierImage}
-                                            alt="Meme Soldier"
-                                            width={120}
-                                            height={120}
-                                            className="pixelated"
-                                            onError={() => {
-                                                // If image loading fails, use emoji instead
-                                                const element =
-                                                    document.querySelector('.pixel-soldier');
-                                                if (element) {
-                                                    element.innerHTML =
-                                                        '<div class="fallback-emoji">🐶</div>';
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                </div>
+                    {/* Center forge area */}
+                    <div className="lg:w-3/4 relative pixel-border overflow-hidden h-96">
+                        <div className="absolute inset-0">
+                            <Image
+                                src="/images/forge.png"
+                                alt="Meme Forge"
+                                fill
+                                className="object-cover pixelated"
+                            />
+                        </div>
 
-                                <div className="soldier-stats">
-                                    <h3 className="text-center font-bold mb-2 text-green-400 pixel-text">
-                                        Your Meme Soldier
-                                    </h3>
-                                    <div className="stat-bar">
-                                        <span className="minecraft-font text-white">Humor</span>
-                                        <div className="bar-container">
-                                            <div
-                                                className="bar-fill"
-                                                style={{ width: `${attributes.humor}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="minecraft-font text-white">
-                                            {attributes.humor}
-                                        </span>
-                                    </div>
-                                    <div className="stat-bar">
-                                        <span className="minecraft-font text-white">Virality</span>
-                                        <div className="bar-container">
-                                            <div
-                                                className="bar-fill"
-                                                style={{ width: `${attributes.virality}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="minecraft-font text-white">
-                                            {attributes.virality}
-                                        </span>
-                                    </div>
-                                    <div className="stat-bar">
-                                        <span className="minecraft-font text-white">
-                                            Originality
-                                        </span>
-                                        <div className="bar-container">
-                                            <div
-                                                className="bar-fill"
-                                                style={{ width: `${attributes.originality}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="minecraft-font text-white">
-                                            {attributes.originality}
-                                        </span>
-                                    </div>
-                                    <div className="stat-bar">
-                                        <span className="minecraft-font text-white">Strength</span>
-                                        <div className="bar-container">
-                                            <div
-                                                className="bar-fill"
-                                                style={{ width: `${attributes.strength}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="minecraft-font text-white">
-                                            {attributes.strength}
-                                        </span>
-                                    </div>
-                                </div>
+                        {/* Deployment area animation */}
+                        <div className="absolute right-10 bottom-40 flex items-center">
+                            <div className="teleport-pad"></div>
+                            <div className="w-12 h-12 bg-transparent ml-4">
+                                {/* Dispatcher image */}
+                                <div className="pixel-character dispatcher"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Control area */}
-                <div className="pixel-border bg-black/70 backdrop-blur-sm p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4 text-green-400 pixel-text">
-                        Forging Result
+                <div className="pixel-border bg-black/80 p-6 mb-6">
+                    <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                        FORGING RESULT
                     </h2>
 
                     <div className="mb-6 p-4 bg-gray-800 border-2 border-gray-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 pixel-text">
-                            Creative Prompt:
+                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 minecraft-font uppercase">
+                            CREATIVE PROMPT:
                         </h3>
                         <p className="text-gray-300 minecraft-font italic">&quot;{prompt}&quot;</p>
                     </div>
 
                     <div className="mb-6 p-4 bg-green-900/40 border-2 border-green-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-green-400 pixel-text">
-                            Generation Result:
+                        <h3 className="text-sm font-semibold mb-2 text-green-400 minecraft-font uppercase">
+                            GENERATION RESULT:
                         </h3>
                         <p className="text-gray-300 minecraft-font">
-                            Successfully forged{' '}
-                            <span className="text-yellow-300 font-bold">{tokenAmount}</span> Meme
-                            token soldiers!
+                            SUCCESSFULLY FORGED{' '}
+                            <span className="text-yellow-300 font-bold">{tokenAmount}</span> MEME
+                            TOKEN SOLDIERS!
                         </p>
                         <div className="mt-3 space-y-2">
                             <p className="text-gray-300 minecraft-font flex items-center">
                                 <span className="text-yellow-500 mr-2">→</span>
                                 <span>
-                                    {Math.floor(tokenAmount / 2)} soldiers ready to deploy to
-                                    battlefield
+                                    {Math.floor(tokenAmount / 2)} SOLDIERS READY TO DEPLOY TO
+                                    BATTLEFIELD
                                 </span>
                             </p>
                             <p className="text-gray-300 minecraft-font flex items-center">
                                 <span className="text-yellow-500 mr-2">→</span>
                                 <span>
-                                    {Math.ceil(tokenAmount / 2)} soldiers can be saved in your
-                                    wallet
+                                    {Math.ceil(tokenAmount / 2)} SOLDIERS CAN BE SAVED IN YOUR
+                                    WALLET
                                 </span>
                             </p>
                         </div>
@@ -209,11 +208,11 @@ export default function ResultPage() {
 
                     <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                         <button onClick={handleDeploy} className="minecraft-btn-red">
-                            Deploy to Battlefield
+                            DEPLOY TO BATTLEFIELD
                         </button>
 
                         <button onClick={handleKeep} className="minecraft-btn">
-                            View My Wallet
+                            VIEW MY WALLET
                         </button>
                     </div>
                 </div>
@@ -236,11 +235,6 @@ export default function ResultPage() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .pixel-text {
-                    font-family: 'Press Start 2P', monospace;
-                    letter-spacing: 1px;
-                }
-
                 .minecraft-font {
                     font-family: 'Minecraft', monospace;
                 }
@@ -254,21 +248,7 @@ export default function ResultPage() {
                     box-shadow: 0 0 15px 5px #3b82f6;
                 }
 
-                .soldier-container {
-                    max-width: 90%;
-                }
-
-                .soldier-image-container {
-                    width: 120px;
-                    height: 120px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
                 .pixel-soldier {
-                    width: 100%;
-                    height: 100%;
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -279,10 +259,6 @@ export default function ResultPage() {
                 .fallback-emoji {
                     font-size: 64px;
                     text-align: center;
-                }
-
-                .soldier-stats {
-                    flex: 1;
                 }
 
                 .stat-bar {
@@ -318,7 +294,7 @@ export default function ResultPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Press Start 2P', monospace;
+                    font-family: 'Minecraft', monospace;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -346,7 +322,7 @@ export default function ResultPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Press Start 2P', monospace;
+                    font-family: 'Minecraft', monospace;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -363,8 +339,6 @@ export default function ResultPage() {
                 }
 
                 .pixel-character {
-                    width: 32px;
-                    height: 32px;
                     background-color: transparent;
                 }
 
@@ -373,6 +347,8 @@ export default function ResultPage() {
                     background-size: contain;
                     background-repeat: no-repeat;
                     background-position: center;
+                    width: 32px;
+                    height: 32px;
                 }
 
                 .pixelated {

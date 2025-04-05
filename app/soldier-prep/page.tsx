@@ -34,8 +34,10 @@ export default function SoldierPrep() {
     // If wallet is not connected, show loading
     if (!isConnected) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                <p className="text-xl text-gray-600">Checking wallet connection status...</p>
+            <div className="flex items-center justify-center min-h-screen bg-gray-900">
+                <p className="minecraft-font text-xl text-gray-300">
+                    Checking wallet connection status...
+                </p>
             </div>
         );
     }
@@ -63,47 +65,53 @@ export default function SoldierPrep() {
 
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center drop-shadow-[2px_2px_0px_#000] pixel-text">
-                    Create Your Meme Soldier
+            <div className="max-w-5xl mx-auto">
+                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
+                    CREATE YOUR MEME SOLDIER
                 </h1>
 
-                {/* Pokemon style factory scene */}
-                <div
-                    ref={containerRef}
-                    className="relative w-full h-96 pixel-border overflow-hidden mb-8"
-                >
-                    <div className="absolute inset-0">
-                        <Image
-                            src="/images/forge.png"
-                            alt="Meme Forge"
-                            fill
-                            className="object-cover pixelated"
-                        />
+                {/* Forge scene layout with sidebar */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                    {/* Left column with scientist dialogue */}
+                    <div className="lg:w-1/4">
+                        {showScientist && (
+                            <div className="pixel-border bg-black/70 p-4 h-full flex flex-col">
+                                <div className="mb-4 flex justify-center">
+                                    <div className="pixel-character scientist w-16 h-16"></div>
+                                </div>
+                                <div
+                                    className={`minecraft-dialog w-full ${isTyping ? 'typing' : ''}`}
+                                >
+                                    <p className="minecraft-font text-white text-sm">
+                                        {isTyping
+                                            ? 'Thinking...'
+                                            : 'Please enter your meme idea! I will forge the strongest soldier for you!'}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Scientist and dialog box in the top left */}
-                    {showScientist && (
-                        <div className="absolute left-6 top-12 flex items-start">
-                            <div className="w-12 h-12 bg-transparent mr-2">
-                                {/* Scientist image here */}
-                                <div className="pixel-character scientist"></div>
-                            </div>
-                            <div className={`minecraft-dialog ${isTyping ? 'typing' : ''}`}>
-                                <p className="text-sm">
-                                    {isTyping
-                                        ? 'Thinking...'
-                                        : 'Please enter your meme idea! I will forge the strongest soldier for you!'}
-                                </p>
-                            </div>
+                    {/* Center forge area */}
+                    <div
+                        ref={containerRef}
+                        className="lg:w-3/4 relative pixel-border overflow-hidden h-96"
+                    >
+                        <div className="absolute inset-0">
+                            <Image
+                                src="/images/forge.png"
+                                alt="Meme Forge"
+                                fill
+                                className="object-cover pixelated"
+                            />
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* Prompt input area */}
-                <div className="pixel-border bg-black/70 backdrop-blur-sm p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4 text-green-400 pixel-text">
-                        Your Soldier Idea
+                <div className="pixel-border bg-black/80 p-6 mb-6">
+                    <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                        YOUR SOLDIER IDEA
                     </h2>
 
                     <div className="mb-4">
@@ -120,9 +128,9 @@ export default function SoldierPrep() {
                         <button
                             type="button"
                             onClick={() => setShowExamples(!showExamples)}
-                            className="text-blue-300 hover:text-blue-400 pixel-text"
+                            className="text-blue-300 hover:text-blue-400 minecraft-font"
                         >
-                            {showExamples ? '[ Hide Examples ]' : '[ View Example Prompts ]'}
+                            {showExamples ? '[ HIDE EXAMPLES ]' : '[ VIEW EXAMPLE PROMPTS ]'}
                         </button>
 
                         <button
@@ -130,15 +138,15 @@ export default function SoldierPrep() {
                             disabled={!prompt.trim()}
                             className="minecraft-btn"
                         >
-                            Next →
+                            NEXT →
                         </button>
                     </div>
 
                     {/* Example prompts */}
                     {showExamples && (
                         <div className="mt-4 border-t-2 border-gray-700 pt-4">
-                            <h3 className="text-sm font-medium mb-2 text-yellow-300 pixel-text">
-                                Creative Prompt Examples:
+                            <h3 className="text-sm font-medium mb-2 text-yellow-300 minecraft-font">
+                                CREATIVE PROMPT EXAMPLES:
                             </h3>
                             <ul className="space-y-2">
                                 {PROMPT_EXAMPLES.map((example, index) => (
@@ -156,8 +164,8 @@ export default function SoldierPrep() {
                 </div>
 
                 <div className="flex justify-center">
-                    <Link href="/" className="text-gray-400 hover:text-gray-300 pixel-text">
-                        ← Back to Home
+                    <Link href="/" className="text-gray-400 hover:text-gray-300 minecraft-font">
+                        ← BACK TO HOME
                     </Link>
                 </div>
             </div>
@@ -179,9 +187,8 @@ export default function SoldierPrep() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .pixel-text {
-                    font-family: 'Press Start 2P', monospace;
-                    letter-spacing: 1px;
+                .minecraft-font {
+                    font-family: 'Minecraft', monospace;
                 }
 
                 .minecraft-dialog {
@@ -191,17 +198,6 @@ export default function SoldierPrep() {
                     border-radius: 2px;
                     color: white;
                     position: relative;
-                    max-width: 250px;
-                }
-
-                .minecraft-dialog:before {
-                    content: '';
-                    position: absolute;
-                    left: -8px;
-                    top: 10px;
-                    border-top: 6px solid transparent;
-                    border-bottom: 6px solid transparent;
-                    border-right: 8px solid #555;
                 }
 
                 .minecraft-dialog.typing:after {
@@ -221,7 +217,7 @@ export default function SoldierPrep() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Press Start 2P', monospace;
+                    font-family: 'Minecraft', monospace;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -244,17 +240,11 @@ export default function SoldierPrep() {
                     transform: none;
                 }
 
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace;
-                }
-
                 .pixelated {
                     image-rendering: pixelated;
                 }
 
                 .pixel-character {
-                    width: 32px;
-                    height: 32px;
                     background-color: transparent;
                 }
 

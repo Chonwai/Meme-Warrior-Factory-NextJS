@@ -30,74 +30,78 @@ export default function ConfirmPage() {
 
     return (
         <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center drop-shadow-[2px_2px_0px_#000] pixel-text">
-                    Confirm Soldier Generation
+            <div className="max-w-5xl mx-auto">
+                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center minecraft-font uppercase tracking-wide">
+                    CONFIRM SOLDIER GENERATION
                 </h1>
 
-                {/* Pokemon style factory scene - forge furnace */}
-                <div className="relative w-full h-96 pixel-border overflow-hidden mb-8">
-                    <div className="absolute inset-0">
-                        <Image
-                            src="/images/forge.png"
-                            alt="Meme Forge"
-                            fill
-                            className="object-cover pixelated"
-                        />
+                {/* Forge scene layout with sidebar */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                    {/* Left column with blacksmith dialogue */}
+                    <div className="lg:w-1/4">
+                        <div className="pixel-border bg-black/70 p-4 h-full flex flex-col">
+                            <div className="mb-4 flex justify-center">
+                                <div className="pixel-character blacksmith w-16 h-16"></div>
+                            </div>
+                            <div className={`minecraft-dialog w-full ${isAgreed ? 'active' : ''}`}>
+                                <p className="minecraft-font text-white text-sm">
+                                    {isAgreed
+                                        ? 'READY TO FORGE! PLEASE CONFIRM THE DETAILS...'
+                                        : 'ARE YOU SURE YOU WANT TO FORGE THIS SOLDIER? 50% WILL BE DEPLOYED TO THE BATTLEFIELD!'}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Blacksmith and dialog box */}
-                    <div className="absolute right-6 top-12 flex items-start">
-                        <div className={`minecraft-dialog ${isAgreed ? 'active' : ''}`}>
-                            <p className="text-sm">
-                                {isAgreed
-                                    ? 'Ready to forge! Please confirm the details...'
-                                    : 'Are you sure you want to forge this soldier? 50% will be deployed to the battlefield!'}
-                            </p>
-                        </div>
-                        <div className="w-12 h-12 bg-transparent ml-2">
-                            {/* Blacksmith image */}
-                            <div className="pixel-character blacksmith"></div>
+                    {/* Center forge area */}
+                    <div className="lg:w-3/4 relative pixel-border overflow-hidden h-96">
+                        <div className="absolute inset-0">
+                            <Image
+                                src="/images/forge.png"
+                                alt="Meme Forge"
+                                fill
+                                className="object-cover pixelated"
+                            />
                         </div>
                     </div>
                 </div>
 
                 {/* Confirmation area */}
-                <div className="pixel-border bg-black/70 backdrop-blur-sm p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4 text-green-400 pixel-text">
-                        Confirm Forging Details
+                <div className="pixel-border bg-black/80 p-6 mb-6">
+                    <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                        CONFIRM FORGING DETAILS
                     </h2>
 
                     <div className="mb-6 p-4 bg-gray-800 border-2 border-gray-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 pixel-text">
-                            Your Creative Prompt:
+                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 minecraft-font uppercase">
+                            YOUR CREATIVE PROMPT:
                         </h3>
                         <p className="text-gray-300 minecraft-font italic">&quot;{prompt}&quot;</p>
                     </div>
 
                     <div className="mb-6 p-4 bg-yellow-900/40 border-2 border-yellow-700 rounded">
-                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 pixel-text">
-                            Please Note:
+                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 minecraft-font uppercase">
+                            PLEASE NOTE:
                         </h3>
                         <ul className="list-none pl-0 space-y-2 text-sm text-gray-300 minecraft-font">
                             <li className="flex items-start">
                                 <span className="text-yellow-500 mr-2">→</span>
                                 <span>
-                                    50% of the generated tokens will be automatically deployed to
-                                    the battlefield
+                                    50% OF THE GENERATED TOKENS WILL BE AUTOMATICALLY DEPLOYED TO
+                                    THE BATTLEFIELD
                                 </span>
                             </li>
                             <li className="flex items-start">
                                 <span className="text-yellow-500 mr-2">→</span>
-                                <span>Deployed soldiers may be lost in battle</span>
+                                <span>DEPLOYED SOLDIERS MAY BE LOST IN BATTLE</span>
                             </li>
                             <li className="flex items-start">
                                 <span className="text-yellow-500 mr-2">→</span>
-                                <span>The remaining 50% will be saved in your wallet</span>
+                                <span>THE REMAINING 50% WILL BE SAVED IN YOUR WALLET</span>
                             </li>
                             <li className="flex items-start">
                                 <span className="text-yellow-500 mr-2">→</span>
-                                <span>Each generation will consume a small amount of gas fees</span>
+                                <span>EACH GENERATION WILL CONSUME A SMALL AMOUNT OF GAS FEES</span>
                             </li>
                         </ul>
                     </div>
@@ -111,15 +115,15 @@ export default function ConfirmPage() {
                                 className="mt-1 mr-3 h-5 w-5 cursor-pointer"
                             />
                             <span className="text-sm text-gray-300 group-hover:text-gray-200 minecraft-font">
-                                I agree to deploy 50% of the tokens to the battlefield and
-                                understand these tokens may be lost in battle.
+                                I AGREE TO DEPLOY 50% OF THE TOKENS TO THE BATTLEFIELD AND
+                                UNDERSTAND THESE TOKENS MAY BE LOST IN BATTLE.
                             </span>
                         </label>
                     </div>
 
                     <div className="flex justify-between">
                         <Link href="/soldier-prep" className="minecraft-btn-secondary">
-                            ← Back to Edit
+                            ← BACK TO EDIT
                         </Link>
 
                         <button
@@ -127,7 +131,7 @@ export default function ConfirmPage() {
                             disabled={!isAgreed}
                             className={isAgreed ? 'minecraft-btn' : 'minecraft-btn-disabled'}
                         >
-                            Confirm and Generate →
+                            CONFIRM AND GENERATE →
                         </button>
                     </div>
                 </div>
@@ -150,9 +154,8 @@ export default function ConfirmPage() {
                     background-color: rgba(0, 0, 0, 0.7);
                 }
 
-                .pixel-text {
-                    font-family: 'Press Start 2P', monospace;
-                    letter-spacing: 1px;
+                .minecraft-font {
+                    font-family: 'Minecraft', monospace;
                 }
 
                 .minecraft-dialog {
@@ -162,17 +165,6 @@ export default function ConfirmPage() {
                     border-radius: 2px;
                     color: white;
                     position: relative;
-                    max-width: 250px;
-                }
-
-                .minecraft-dialog:after {
-                    content: '';
-                    position: absolute;
-                    right: -8px;
-                    top: 10px;
-                    border-top: 6px solid transparent;
-                    border-bottom: 6px solid transparent;
-                    border-left: 8px solid #555;
                 }
 
                 .minecraft-btn {
@@ -187,7 +179,7 @@ export default function ConfirmPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Press Start 2P', monospace;
+                    font-family: 'Minecraft', monospace;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -215,7 +207,7 @@ export default function ConfirmPage() {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Press Start 2P', monospace;
+                    font-family: 'Minecraft', monospace;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -242,13 +234,9 @@ export default function ConfirmPage() {
                     color: #999;
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
-                    font-family: 'Press Start 2P', monospace;
+                    font-family: 'Minecraft', monospace;
                     letter-spacing: 1px;
                     cursor: not-allowed;
-                }
-
-                .minecraft-font {
-                    font-family: 'Minecraft', monospace;
                 }
 
                 .pixelated {
@@ -256,8 +244,6 @@ export default function ConfirmPage() {
                 }
 
                 .pixel-character {
-                    width: 32px;
-                    height: 32px;
                     background-color: transparent;
                 }
 
