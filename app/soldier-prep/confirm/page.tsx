@@ -5,13 +5,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// 角色狀態類型
+type CharacterState = 'idle' | 'active' | 'excited';
+
 export default function ConfirmPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [prompt, setPrompt] = useState('');
     const [isAgreed, setIsAgreed] = useState(false);
-    const [blacksmithFrame, setBlacksmithFrame] = useState(0);
-    const blacksmithIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [blacksmithState, setBlacksmithState] = useState<CharacterState>('idle');
 
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
@@ -21,36 +23,41 @@ export default function ConfirmPage() {
             // If no prompt parameter, return to input page
             router.push('/soldier-prep');
         }
-
-        // Clear interval on component unmount
-        return () => {
-            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
-        };
     }, [searchParams, router]);
 
     // Animate blacksmith when user agrees to terms
     useEffect(() => {
         if (isAgreed) {
-            // Start or speed up animation when agreed
-            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
-
-            blacksmithIntervalRef.current = setInterval(() => {
-                setBlacksmithFrame((prev) => (prev + 1) % 4);
-            }, 300); // Faster animation when user agrees
+            // Excited animation when user agrees
+            setBlacksmithState('excited');
         } else {
-            // Slower animation or stop when not agreed
-            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
-
-            blacksmithIntervalRef.current = setInterval(() => {
-                setBlacksmithFrame((prev) => (prev + 1) % 4);
-            }, 800); // Slower animation when idle
+            // Idle animation when not agreed yet
+            setBlacksmithState('idle');
         }
     }, [isAgreed]);
 
     const handleConfirm = () => {
         if (isAgreed && prompt) {
-            // Navigate to generation page, continuing to pass the prompt parameter
-            router.push(`/soldier-prep/generating?prompt=${encodeURIComponent(prompt)}`);
+            // Brief active animation before navigating
+            setBlacksmithState('active');
+
+            // Wait a moment to show the animation
+            setTimeout(() => {
+                // Navigate to generation page, continuing to pass the prompt parameter
+                router.push(`/soldier-prep/generating?prompt=${encodeURIComponent(prompt)}`);
+            }, 800);
+        }
+    };
+
+    // Get the correct animation class based on blacksmith state
+    const getBlacksmithClass = () => {
+        switch (blacksmithState) {
+            case 'excited':
+                return 'sprite-excited';
+            case 'active':
+                return 'sprite-active';
+            default:
+                return 'sprite-idle';
         }
     };
 
@@ -68,7 +75,8 @@ export default function ConfirmPage() {
                         <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
                             <div className="mb-4 flex justify-center">
                                 <div
-                                    className={`pixel-character blacksmith-portrait w-24 h-24 sprite-frame-${blacksmithFrame}`}
+                                    className={`character-sprite blacksmith-sprite sprite-lg ${getBlacksmithClass()}`}
+                                    title="Blacksmith"
                                 ></div>
                             </div>
                             <div className={`minecraft-dialog w-full ${isAgreed ? 'active' : ''}`}>
@@ -97,9 +105,10 @@ export default function ConfirmPage() {
                             </div>
 
                             {/* Blacksmith in the top-right corner */}
-                            <div className="absolute top-32 right-4 z-10">
+                            <div className="absolute top-4 right-4 z-10">
                                 <div
-                                    className={`pixel-character blacksmith sprite-frame-${blacksmithFrame}`}
+                                    className={`character-sprite blacksmith-sprite sprite-md ${getBlacksmithClass()} pixel-shadow`}
+                                    title="Blacksmith"
                                 ></div>
                             </div>
 
@@ -296,42 +305,6 @@ export default function ConfirmPage() {
 
                 .pixelated {
                     image-rendering: pixelated;
-                }
-
-                .pixel-character {
-                    background-color: transparent;
-                    width: 64px;
-                    height: 64px;
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    image-rendering: pixelated;
-                }
-
-                .blacksmith-portrait {
-                    width: 96px;
-                    height: 96px;
-                }
-
-                .blacksmith {
-                    background-image: url('/images/Blacksmith.png');
-                }
-
-                /* Sprite frames for animation */
-                .sprite-frame-0 {
-                    background-position: 0% 0%; /* Top-left frame */
-                }
-
-                .sprite-frame-1 {
-                    background-position: 100% 0%; /* Top-right frame */
-                }
-
-                .sprite-frame-2 {
-                    background-position: 0% 100%; /* Bottom-left frame */
-                }
-
-                .sprite-frame-3 {
-                    background-position: 100% 100%; /* Bottom-right frame */
                 }
 
                 .forge-prepare-animation {

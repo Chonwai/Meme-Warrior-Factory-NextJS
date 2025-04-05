@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// 角色狀態類型
+type CharacterState = 'idle' | 'active' | 'excited';
+
 // Simulated soldier attributes
 const SOLDIER_ATTRIBUTES = {
     humor: 0,
@@ -20,10 +23,10 @@ export default function ResultPage() {
     const [attributes, setAttributes] = useState(SOLDIER_ATTRIBUTES);
     const [tokenAmount, setTokenAmount] = useState(0);
     const [soldierImage, setSoldierImage] = useState('/images/soldier-placeholder.png');
-    const [memeSoldierFrame, setMemeSoldierFrame] = useState(0);
-    const [dispatcherFrame, setDispatcherFrame] = useState(0);
-    const memeSoldierIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const dispatcherIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [characterStates, setCharacterStates] = useState({
+        memeSoldier: 'excited' as CharacterState,
+        dispatcher: 'active' as CharacterState,
+    });
 
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
@@ -47,19 +50,22 @@ export default function ResultPage() {
             router.push('/soldier-prep');
         }
 
-        // Start slow animations for completed soldiers
-        memeSoldierIntervalRef.current = setInterval(() => {
-            setMemeSoldierFrame((prev) => (prev + 1) % 4);
-        }, 800); // Slow animation
+        // Occasionally change character states to create more dynamic animations
+        const animationInterval = setInterval(() => {
+            setCharacterStates((prev) => {
+                const memeSoldierState = Math.random() > 0.7 ? 'excited' : 'active';
+                const dispatcherState = Math.random() > 0.7 ? 'active' : 'idle';
 
-        dispatcherIntervalRef.current = setInterval(() => {
-            setDispatcherFrame((prev) => (prev + 1) % 4);
-        }, 1000); // Slow animation for dispatcher
+                return {
+                    memeSoldier: memeSoldierState as CharacterState,
+                    dispatcher: dispatcherState as CharacterState,
+                };
+            });
+        }, 3000);
 
         // Clear animations on component unmount
         return () => {
-            if (memeSoldierIntervalRef.current) clearInterval(memeSoldierIntervalRef.current);
-            if (dispatcherIntervalRef.current) clearInterval(dispatcherIntervalRef.current);
+            clearInterval(animationInterval);
         };
     }, [searchParams, router]);
 
@@ -71,6 +77,29 @@ export default function ResultPage() {
     const handleKeep = () => {
         // Save to wallet (should call smart contract in actual project)
         router.push('/wallet');
+    };
+
+    // Helper functions to get animation classes
+    const getMemeSoldierClass = () => {
+        switch (characterStates.memeSoldier) {
+            case 'excited':
+                return 'sprite-excited';
+            case 'active':
+                return 'sprite-active';
+            default:
+                return 'sprite-idle';
+        }
+    };
+
+    const getDispatcherClass = () => {
+        switch (characterStates.dispatcher) {
+            case 'excited':
+                return 'sprite-excited';
+            case 'active':
+                return 'sprite-active';
+            default:
+                return 'sprite-idle';
+        }
     };
 
     return (
@@ -161,14 +190,16 @@ export default function ResultPage() {
                             {/* MemeSoldier in the bottom-left corner */}
                             <div className="absolute bottom-4 left-4 z-10">
                                 <div
-                                    className={`pixel-character meme-soldier sprite-frame-${memeSoldierFrame}`}
+                                    className={`character-sprite meme-soldier-sprite sprite-md ${getMemeSoldierClass()} pixel-shadow`}
+                                    title="Meme Soldier"
                                 ></div>
                             </div>
 
                             {/* Dispatcher in the bottom-right corner */}
                             <div className="absolute bottom-4 right-4 z-10">
                                 <div
-                                    className={`pixel-character dispatcher sprite-frame-${dispatcherFrame}`}
+                                    className={`character-sprite dispatcher-sprite sprite-md ${getDispatcherClass()} pixel-shadow`}
+                                    title="Dispatcher"
                                 ></div>
                             </div>
 
@@ -298,41 +329,6 @@ export default function ResultPage() {
                     align-items: center;
                     background-color: rgba(0, 0, 0, 0.3);
                     border: 2px solid #555;
-                }
-
-                .pixel-character {
-                    background-color: transparent;
-                    width: 64px;
-                    height: 64px;
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    image-rendering: pixelated;
-                }
-
-                .meme-soldier {
-                    background-image: url('/images/MemeSoldier.png');
-                }
-
-                .dispatcher {
-                    background-image: url('/images/Dispatcher.png');
-                }
-
-                /* Sprite frames for animation */
-                .sprite-frame-0 {
-                    background-position: 0% 0%; /* Top-left frame */
-                }
-
-                .sprite-frame-1 {
-                    background-position: 100% 0%; /* Top-right frame */
-                }
-
-                .sprite-frame-2 {
-                    background-position: 0% 100%; /* Bottom-left frame */
-                }
-
-                .sprite-frame-3 {
-                    background-position: 100% 100%; /* Bottom-right frame */
                 }
 
                 .fallback-emoji {

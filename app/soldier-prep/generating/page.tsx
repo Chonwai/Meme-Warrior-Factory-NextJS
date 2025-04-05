@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// 角色狀態類型
+type CharacterState = 'idle' | 'active' | 'excited';
+
 // Simulated AI dialogue
 const AI_DIALOGUE = [
     'ANALYZING YOUR CREATIVE PROMPT...',
@@ -25,14 +28,11 @@ export default function GeneratingPage() {
     const [dialogueIndex, setDialogueIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
-    const [blacksmithFrame, setBlacksmithFrame] = useState(0);
-    const [dispatcherFrame, setDispatcherFrame] = useState(0);
-    const [memeSoldierFrame, setMemeSoldierFrame] = useState(0);
-
-    // Animation intervals
-    const blacksmithIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const dispatcherIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const memeSoldierIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [characterStates, setCharacterStates] = useState({
+        blacksmith: 'active' as CharacterState,
+        dispatcher: 'active' as CharacterState,
+        memeSoldier: 'idle' as CharacterState,
+    });
 
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
@@ -43,19 +43,6 @@ export default function GeneratingPage() {
             router.push('/soldier-prep');
         }
 
-        // Start character animations
-        blacksmithIntervalRef.current = setInterval(() => {
-            setBlacksmithFrame((prev) => (prev + 1) % 4);
-        }, 350); // Different speed for each character
-
-        dispatcherIntervalRef.current = setInterval(() => {
-            setDispatcherFrame((prev) => (prev + 1) % 4);
-        }, 400);
-
-        memeSoldierIntervalRef.current = setInterval(() => {
-            setMemeSoldierFrame((prev) => (prev + 1) % 4);
-        }, 450);
-
         // Simulate AI generation process
         const dialogueInterval = setInterval(() => {
             setDialogueIndex((prev) => {
@@ -64,7 +51,15 @@ export default function GeneratingPage() {
                 } else {
                     clearInterval(dialogueInterval);
                     // Set completion status after last dialogue
-                    setTimeout(() => setIsComplete(true), 1500);
+                    setTimeout(() => {
+                        setIsComplete(true);
+                        // Change character states when complete
+                        setCharacterStates({
+                            blacksmith: 'idle' as CharacterState,
+                            dispatcher: 'active' as CharacterState,
+                            memeSoldier: 'excited' as CharacterState,
+                        });
+                    }, 1500);
                     return prev;
                 }
             });
@@ -82,46 +77,83 @@ export default function GeneratingPage() {
             });
         }, 180); // About 18 seconds to complete
 
+        // Update character states based on progress
+        const characterUpdateInterval = setInterval(() => {
+            if (progress < 30) {
+                setCharacterStates({
+                    blacksmith: 'active' as CharacterState,
+                    dispatcher: 'idle' as CharacterState,
+                    memeSoldier: 'idle' as CharacterState,
+                });
+            } else if (progress < 60) {
+                setCharacterStates({
+                    blacksmith: 'excited' as CharacterState,
+                    dispatcher: 'active' as CharacterState,
+                    memeSoldier: 'idle' as CharacterState,
+                });
+            } else if (progress < 90) {
+                setCharacterStates({
+                    blacksmith: 'active' as CharacterState,
+                    dispatcher: 'excited' as CharacterState,
+                    memeSoldier: 'active' as CharacterState,
+                });
+            } else {
+                setCharacterStates({
+                    blacksmith: 'idle' as CharacterState,
+                    dispatcher: 'active' as CharacterState,
+                    memeSoldier: 'excited' as CharacterState,
+                });
+            }
+        }, 5000); // Update character states every 5 seconds
+
         // Clear all intervals on component unmount
         return () => {
             clearInterval(dialogueInterval);
             clearInterval(progressInterval);
-            if (blacksmithIntervalRef.current) clearInterval(blacksmithIntervalRef.current);
-            if (dispatcherIntervalRef.current) clearInterval(dispatcherIntervalRef.current);
-            if (memeSoldierIntervalRef.current) clearInterval(memeSoldierIntervalRef.current);
+            clearInterval(characterUpdateInterval);
         };
-    }, [searchParams, router]);
-
-    // Stop animations when generation is complete
-    useEffect(() => {
-        if (isComplete) {
-            // Slow down animations but don't stop completely
-            if (blacksmithIntervalRef.current) {
-                clearInterval(blacksmithIntervalRef.current);
-                blacksmithIntervalRef.current = setInterval(() => {
-                    setBlacksmithFrame((prev) => (prev + 1) % 4);
-                }, 800); // Slower animation when complete
-            }
-
-            if (dispatcherIntervalRef.current) {
-                clearInterval(dispatcherIntervalRef.current);
-                dispatcherIntervalRef.current = setInterval(() => {
-                    setDispatcherFrame((prev) => (prev + 1) % 4);
-                }, 900);
-            }
-
-            if (memeSoldierIntervalRef.current) {
-                clearInterval(memeSoldierIntervalRef.current);
-                memeSoldierIntervalRef.current = setInterval(() => {
-                    setMemeSoldierFrame((prev) => (prev + 1) % 4);
-                }, 1000);
-            }
-        }
-    }, [isComplete]);
+    }, [searchParams, router, progress]);
 
     const handleContinue = () => {
         // After completion, navigate to result page
         router.push(`/soldier-prep/result?prompt=${encodeURIComponent(prompt)}`);
+    };
+
+    // Helper functions to get animation classes
+    const getBlacksmithClass = () => {
+        if (isComplete) return 'sprite-slow';
+        switch (characterStates.blacksmith) {
+            case 'excited':
+                return 'sprite-excited';
+            case 'active':
+                return 'sprite-active';
+            default:
+                return 'sprite-idle';
+        }
+    };
+
+    const getDispatcherClass = () => {
+        if (isComplete) return 'sprite-slow';
+        switch (characterStates.dispatcher) {
+            case 'excited':
+                return 'sprite-excited';
+            case 'active':
+                return 'sprite-active';
+            default:
+                return 'sprite-idle';
+        }
+    };
+
+    const getMemeSoldierClass = () => {
+        if (isComplete) return 'sprite-slow';
+        switch (characterStates.memeSoldier) {
+            case 'excited':
+                return 'sprite-excited';
+            case 'active':
+                return 'sprite-active';
+            default:
+                return 'sprite-idle';
+        }
     };
 
     return (
@@ -173,29 +205,34 @@ export default function GeneratingPage() {
                             </div>
 
                             {/* Blacksmith in the top-right corner */}
-                            <div className="absolute top-32 right-4 z-10">
+                            <div className="absolute top-4 right-4 z-10">
                                 <div
-                                    className={`pixel-character blacksmith sprite-frame-${blacksmithFrame}`}
+                                    className={`character-sprite blacksmith-sprite sprite-md ${getBlacksmithClass()} pixel-shadow`}
+                                    title="Blacksmith"
                                 ></div>
                             </div>
 
                             {/* Dispatcher in the bottom-right corner */}
                             <div className="absolute bottom-4 right-4 z-10">
                                 <div
-                                    className={`pixel-character dispatcher sprite-frame-${dispatcherFrame}`}
+                                    className={`character-sprite dispatcher-sprite sprite-md ${getDispatcherClass()} pixel-shadow`}
+                                    title="Dispatcher"
                                 ></div>
                             </div>
 
                             {/* MemeSoldier in the bottom-left corner */}
                             <div className="absolute bottom-4 left-4 z-10">
                                 <div
-                                    className={`pixel-character meme-soldier sprite-frame-${memeSoldierFrame}`}
+                                    className={`character-sprite meme-soldier-sprite sprite-md ${getMemeSoldierClass()} pixel-shadow`}
+                                    title="Meme Soldier"
                                 ></div>
                             </div>
 
                             {/* Central forge animation */}
                             <div className="absolute left-0 bottom-0 w-full h-full flex items-center justify-center">
-                                <div className="pixel-forge-animation"></div>
+                                <div
+                                    className={`pixel-forge-animation ${isComplete ? 'forge-complete' : ''}`}
+                                ></div>
                             </div>
                         </div>
                     </div>
@@ -295,16 +332,6 @@ export default function GeneratingPage() {
                     background-color: rgba(59, 130, 246, 0.1);
                 }
 
-                .pixel-character {
-                    background-color: transparent;
-                    width: 64px;
-                    height: 64px;
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    image-rendering: pixelated;
-                }
-
                 .pixel-forge-animation {
                     width: 64px;
                     height: 64px;
@@ -313,6 +340,13 @@ export default function GeneratingPage() {
                     border-radius: 50%;
                     box-shadow: 0 0 30px 15px #ff6600;
                     animation: forge 1.5s infinite alternate;
+                }
+
+                .forge-complete {
+                    width: 96px;
+                    height: 96px;
+                    background-color: #22ddff;
+                    box-shadow: 0 0 40px 20px #22ddff;
                 }
 
                 .pixel-loading:after {
@@ -350,36 +384,6 @@ export default function GeneratingPage() {
 
                 .pixelated {
                     image-rendering: pixelated;
-                }
-
-                /* Character sprite images */
-                .blacksmith {
-                    background-image: url('/images/Blacksmith.png');
-                }
-
-                .dispatcher {
-                    background-image: url('/images/Dispatcher.png');
-                }
-
-                .meme-soldier {
-                    background-image: url('/images/MemeSoldier.png');
-                }
-
-                /* Sprite frames for animation */
-                .sprite-frame-0 {
-                    background-position: 0% 0%; /* Top-left frame */
-                }
-
-                .sprite-frame-1 {
-                    background-position: 100% 0%; /* Top-right frame */
-                }
-
-                .sprite-frame-2 {
-                    background-position: 0% 100%; /* Bottom-left frame */
-                }
-
-                .sprite-frame-3 {
-                    background-position: 100% 100%; /* Bottom-right frame */
                 }
 
                 @keyframes forge {

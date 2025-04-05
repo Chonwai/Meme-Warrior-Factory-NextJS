@@ -21,9 +21,8 @@ export default function SoldierPrep() {
     const [isTyping, setIsTyping] = useState(false);
     const [showExamples, setShowExamples] = useState(false);
     const [showScientist, setShowScientist] = useState(true);
-    const [currentFrame, setCurrentFrame] = useState(0); // 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right
+    const [scientistState, setScientistState] = useState<'idle' | 'active' | 'excited'>('idle');
     const containerRef = useRef<HTMLDivElement>(null);
-    const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Check wallet connection status
     useEffect(() => {
@@ -35,38 +34,24 @@ export default function SoldierPrep() {
 
     // Animation control based on typing state
     useEffect(() => {
-        // Clear any existing animation
-        if (animationIntervalRef.current) {
-            clearInterval(animationIntervalRef.current);
-            animationIntervalRef.current = null;
-        }
-
         if (isTyping) {
-            // Start animation when typing
-            animationIntervalRef.current = setInterval(() => {
-                setCurrentFrame((prevFrame) => (prevFrame + 1) % 4);
-            }, 300); // Change frame every 300ms
+            // Excited animation when typing
+            setScientistState('excited');
+
+            // Return to active state after typing stops
+            const timeout = setTimeout(() => {
+                setScientistState('active');
+            }, 1000);
+
+            return () => clearTimeout(timeout);
         } else {
-            // Create a timeout to stop animation after delay when not typing
-            const stopTimeout = setTimeout(() => {
-                if (animationIntervalRef.current) {
-                    clearInterval(animationIntervalRef.current);
-                    animationIntervalRef.current = null;
-                    // Reset to default pose when idle
-                    setCurrentFrame(0);
-                }
+            // After brief delay, return to idle state if not typing
+            const idleTimeout = setTimeout(() => {
+                setScientistState('idle');
             }, 2000);
 
-            return () => clearTimeout(stopTimeout);
+            return () => clearTimeout(idleTimeout);
         }
-
-        // Clear animation interval on component unmount or when deps change
-        return () => {
-            if (animationIntervalRef.current) {
-                clearInterval(animationIntervalRef.current);
-                animationIntervalRef.current = null;
-            }
-        };
     }, [isTyping]);
 
     // If wallet is not connected, show loading
@@ -103,6 +88,18 @@ export default function SoldierPrep() {
         // Trigger typing animation when example is selected
         setIsTyping(true);
         setTimeout(() => setIsTyping(false), 1000);
+    };
+
+    // Get the correct animation class based on scientist state
+    const getAnimationClass = () => {
+        switch (scientistState) {
+            case 'active':
+                return 'sprite-active';
+            case 'excited':
+                return 'sprite-excited';
+            default:
+                return 'sprite-idle';
+        }
     };
 
     return (
@@ -197,10 +194,11 @@ export default function SoldierPrep() {
                                 />
                             </div>
 
-                            {/* MadScientist in the top-left corner */}
-                            <div className="absolute top-28 left-20 z-10">
+                            {/* MadScientist in the top-left corner with new sprite system */}
+                            <div className="absolute top-4 left-4 z-10">
                                 <div
-                                    className={`pixel-character mad-scientist sprite-frame-${currentFrame}`}
+                                    className={`character-sprite mad-scientist-sprite sprite-md ${getAnimationClass()} pixel-shadow`}
+                                    title="Mad Scientist"
                                 ></div>
                             </div>
                         </div>
@@ -213,11 +211,12 @@ export default function SoldierPrep() {
                                 <>
                                     <div className="mb-4 flex justify-center">
                                         <div
-                                            className={`pixel-character scientist-portrait w-24 h-24 sprite-frame-${currentFrame}`}
+                                            className={`character-sprite mad-scientist-sprite sprite-lg ${getAnimationClass()}`}
+                                            title="Mad Scientist"
                                         ></div>
                                     </div>
                                     <div
-                                        className={`minecraft-dialog w-full ${isTyping ? 'typing' : ''}`}
+                                        className={`minecraft-dialog w-full ${isTyping ? 'typing' : ''} ${scientistState === 'excited' ? 'pixel-border-animated' : ''}`}
                                     >
                                         <p className="minecraft-font text-white text-sm">
                                             {isTyping
@@ -304,42 +303,6 @@ export default function SoldierPrep() {
 
                 .pixelated {
                     image-rendering: pixelated;
-                }
-
-                .pixel-character {
-                    background-color: transparent;
-                    width: 64px;
-                    height: 64px;
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    image-rendering: pixelated;
-                }
-
-                .scientist-portrait {
-                    width: 64px;
-                    height: 64px;
-                }
-
-                .mad-scientist {
-                    background-image: url('/images/MadScientist.png');
-                }
-
-                /* Sprite frames for animation */
-                .sprite-frame-0 {
-                    background-position: 0% 0%; /* Top-left frame */
-                }
-
-                .sprite-frame-1 {
-                    background-position: 100% 0%; /* Top-right frame */
-                }
-
-                .sprite-frame-2 {
-                    background-position: 0% 100%; /* Bottom-left frame */
-                }
-
-                .sprite-frame-3 {
-                    background-position: 100% 100%; /* Bottom-right frame */
                 }
 
                 @keyframes typing {
