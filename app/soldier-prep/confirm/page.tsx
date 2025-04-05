@@ -289,7 +289,7 @@ function ConfirmContent() {
                             </label>
                         </div>
 
-                        <div className="mt-auto flex flex-col space-y-3">
+                        <div className="mt-auto flex flex-col space-y-3 minecraft-font">
                             <button
                                 onClick={handleConfirm}
                                 disabled={!isAgreed || isSigning}

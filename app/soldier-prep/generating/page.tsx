@@ -79,19 +79,21 @@ function GeneratingContent() {
 
         // Update character states based on progress
         const characterUpdateInterval = setInterval(() => {
-            if (progress < 30) {
+            const currentProgress = Math.min(dialogueIndex * progressPerDialogue, 100);
+
+            if (currentProgress < 30) {
                 setCharacterStates({
                     blacksmith: 'active' as CharacterState,
                     dispatcher: 'idle' as CharacterState,
                     memeSoldier: 'idle' as CharacterState,
                 });
-            } else if (progress < 60) {
+            } else if (currentProgress < 60) {
                 setCharacterStates({
                     blacksmith: 'excited' as CharacterState,
                     dispatcher: 'active' as CharacterState,
                     memeSoldier: 'idle' as CharacterState,
                 });
-            } else if (progress < 90) {
+            } else if (currentProgress < 90) {
                 setCharacterStates({
                     blacksmith: 'active' as CharacterState,
                     dispatcher: 'excited' as CharacterState,
@@ -111,7 +113,7 @@ function GeneratingContent() {
             clearInterval(dialogueInterval);
             clearInterval(characterUpdateInterval);
         };
-    }, [progress]);
+    }, []);
 
     const handleContinue = () => {
         // After completion, navigate to result page
@@ -255,11 +257,13 @@ function GeneratingContent() {
                                     style={{ width: `${progress}%` }}
                                 ></div>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between items-center">
                                 <span className="text-xs text-gray-400 minecraft-font">0%</span>
-                                <span className="text-xs text-gray-400 minecraft-font">
-                                    {progress}%
-                                </span>
+                                <div className="bg-gray-800 px-3 py-1 rounded-md border border-gray-700">
+                                    <span className="text-sm font-bold text-green-400 minecraft-font">
+                                        {progress}%
+                                    </span>
+                                </div>
                                 <span className="text-xs text-gray-400 minecraft-font">100%</span>
                             </div>
                         </div>
@@ -272,10 +276,7 @@ function GeneratingContent() {
 
                         {isComplete && (
                             <div className="mt-auto">
-                                <button
-                                    onClick={handleContinue}
-                                    className="minecraft-btn-gold w-full"
-                                >
+                                <button onClick={handleContinue} className="minecraft-btn w-full">
                                     VIEW YOUR SOLDIER →
                                 </button>
                             </div>
@@ -331,12 +332,41 @@ export default function GeneratingPage() {
                     background-color: #222;
                     border: 2px solid #555;
                     padding: 4px;
+                    position: relative;
+                    overflow: hidden;
                 }
 
                 .progress-bar {
                     height: 100%;
                     background: linear-gradient(to right, #3b82f6, #10b981);
-                    transition: width 0.3s ease-out;
+                    transition: width 0.5s ease-out;
+                    position: relative;
+                    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+                }
+
+                .progress-bar::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: linear-gradient(
+                        to right,
+                        rgba(255, 255, 255, 0) 0%,
+                        rgba(255, 255, 255, 0.3) 50%,
+                        rgba(255, 255, 255, 0) 100%
+                    );
+                    animation: progress-shine 1.5s infinite;
+                }
+
+                @keyframes progress-shine {
+                    0% {
+                        transform: translateX(-100%);
+                    }
+                    100% {
+                        transform: translateX(100%);
+                    }
                 }
 
                 .chat-bubble {
