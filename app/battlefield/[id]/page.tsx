@@ -59,6 +59,13 @@ export default function BattlePage({ params }: { params: { id: string } }) {
     const [winner, setWinner] = useState<number | null>(null);
     const [fighter1Pos, setFighter1Pos] = useState({ x: -100, opacity: 0 });
     const [fighter2Pos, setFighter2Pos] = useState({ x: 100, opacity: 0 });
+    const [battlePhase, setBattlePhase] = useState<'ready' | 'jump' | 'attack' | 'hit' | 'finish'>(
+        'ready'
+    );
+    const [fighter1Style, setFighter1Style] = useState({});
+    const [fighter2Style, setFighter2Style] = useState({});
+    const [showHitEffect, setShowHitEffect] = useState(false);
+    const [hitPosition, setHitPosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
         if (!isConnected) {
@@ -85,14 +92,135 @@ export default function BattlePage({ params }: { params: { id: string } }) {
         }
     }, [isConnected, params.id, router, showIntro]);
 
-    // 開始戰鬥動畫
+    // 增強戰鬥動畫
     const startBattle = () => {
         setBattleStarted(true);
-        // 模擬戰鬥結果
+        setBattlePhase('ready');
+
+        // 預備姿勢
         setTimeout(() => {
+            // 跳躍階段
+            setBattlePhase('jump');
+            setFighter1Style({
+                transform: 'translateY(-50px) rotate(-5deg)',
+                transition: 'all 0.4s ease-out',
+            });
+            setFighter2Style({
+                transform: 'translateY(-50px) scaleX(-1) rotate(5deg)',
+                transition: 'all 0.4s ease-out',
+            });
+        }, 500);
+
+        // 攻擊階段
+        setTimeout(() => {
+            setBattlePhase('attack');
+            setFighter1Style({
+                transform: 'translateX(80px) translateY(-20px) rotate(-10deg) scale(1.1)',
+                transition: 'all 0.3s ease-in-out',
+            });
+            setFighter2Style({
+                transform:
+                    'translateX(-80px) translateY(-20px) scaleX(-1) rotate(10deg) scale(1.1)',
+                transition: 'all 0.3s ease-in-out',
+            });
+        }, 1200);
+
+        // 碰撞效果
+        setTimeout(() => {
+            setBattlePhase('hit');
+            setShowHitEffect(true);
+            setHitPosition({ x: 0, y: -40 });
+
+            // 衝擊波動畫
+            setTimeout(() => setShowHitEffect(false), 400);
+
+            // 角色後退
+            setFighter1Style({
+                transform: 'translateX(-30px) translateY(0) rotate(5deg)',
+                transition: 'all 0.2s ease-in',
+            });
+            setFighter2Style({
+                transform: 'translateX(30px) translateY(0) scaleX(-1) rotate(-5deg)',
+                transition: 'all 0.2s ease-in',
+            });
+        }, 1500);
+
+        // 第二次攻擊
+        setTimeout(() => {
+            setBattlePhase('attack');
+            setFighter1Style({
+                transform: 'translateX(100px) translateY(-10px) rotate(-15deg) scale(1.15)',
+                transition: 'all 0.25s ease-in-out',
+            });
+            setFighter2Style({
+                transform:
+                    'translateX(-100px) translateY(-10px) scaleX(-1) rotate(15deg) scale(1.15)',
+                transition: 'all 0.25s ease-in-out',
+            });
+        }, 2200);
+
+        // 第二次碰撞
+        setTimeout(() => {
+            setBattlePhase('hit');
+            setShowHitEffect(true);
+            setHitPosition({ x: 0, y: -30 });
+
+            // 衝擊波動畫
+            setTimeout(() => setShowHitEffect(false), 400);
+
+            // 角色大幅後退
+            setFighter1Style({
+                transform: 'translateX(-50px) translateY(10px) rotate(10deg)',
+                transition: 'all 0.3s ease-in',
+            });
+            setFighter2Style({
+                transform: 'translateX(50px) translateY(10px) scaleX(-1) rotate(-10deg)',
+                transition: 'all 0.3s ease-in',
+            });
+        }, 2500);
+
+        // 結束階段
+        setTimeout(() => {
+            setBattlePhase('finish');
+            // 重置位置
+            setFighter1Style({
+                transform: 'translateX(0) translateY(0)',
+                transition: 'all 0.5s ease-out',
+            });
+            setFighter2Style({
+                transform: 'translateX(0) translateY(0) scaleX(-1)',
+                transition: 'all 0.5s ease-out',
+            });
+
+            // 隨機選擇勝利者
             const randomWinner = Math.random() > 0.5 ? 0 : 1;
             setWinner(randomWinner);
-        }, 5000);
+
+            // 勝利者動畫
+            if (randomWinner === 0) {
+                setFighter1Style({
+                    transform: 'translateY(-20px) scale(1.1)',
+                    transition: 'all 0.3s ease-in-out',
+                    filter: 'brightness(1.3)',
+                });
+                setFighter2Style({
+                    transform: 'translateY(20px) scaleX(-1) rotate(20deg)',
+                    transition: 'all 0.3s ease-in-out',
+                    filter: 'brightness(0.7)',
+                });
+            } else {
+                setFighter1Style({
+                    transform: 'translateY(20px) rotate(-20deg)',
+                    transition: 'all 0.3s ease-in-out',
+                    filter: 'brightness(0.7)',
+                });
+                setFighter2Style({
+                    transform: 'translateY(-20px) scaleX(-1) scale(1.1)',
+                    transition: 'all 0.3s ease-in-out',
+                    filter: 'brightness(1.3)',
+                });
+            }
+        }, 4000);
     };
 
     if (!battle) {
@@ -120,8 +248,8 @@ export default function BattlePage({ params }: { params: { id: string } }) {
             <div className="relative z-10 p-4">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex justify-between items-center">
-                        <Link href="/battlefield" className="minecraft-btn-blue">
-                            ← BACK
+                        <Link href="/battlefield" className="minecraft-btn">
+                            BACK
                         </Link>
                         <h1 className="text-2xl font-bold text-yellow-300 minecraft-font">
                             {battle.name}
@@ -184,6 +312,7 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                             style={{
                                 transform: `translateX(${fighter1Pos.x}px)`,
                                 opacity: fighter1Pos.opacity,
+                                ...fighter1Style,
                             }}
                         >
                             <div className="pixel-border overflow-hidden w-full h-full">
@@ -192,7 +321,7 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                     alt={battle.participants[0].name}
                                     width={192}
                                     height={192}
-                                    className={`pixelated ${battleStarted ? 'battle-shake' : ''}`}
+                                    className={`pixelated ${battleStarted && battlePhase !== 'finish' ? 'battle-shake' : ''}`}
                                 />
                             </div>
                         </div>
@@ -204,7 +333,10 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                     VS
                                 </div>
                             ) : !battleStarted ? (
-                                <button onClick={startBattle} className="minecraft-btn-red text-xl">
+                                <button
+                                    onClick={startBattle}
+                                    className="minecraft-btn-red text-xl minecraft-font"
+                                >
                                     START BATTLE!
                                 </button>
                             ) : winner !== null ? (
@@ -218,12 +350,25 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                             )}
                         </div>
 
+                        {/* 碰撞特效 */}
+                        {showHitEffect && (
+                            <div
+                                className="absolute hit-effect"
+                                style={{
+                                    left: '50%',
+                                    top: '50%',
+                                    transform: `translate(-50%, -50%) translate(${hitPosition.x}px, ${hitPosition.y}px)`,
+                                }}
+                            ></div>
+                        )}
+
                         {/* 右側戰鬥者 */}
                         <div
                             className="w-48 h-48 transition-all duration-1000 transform"
                             style={{
                                 transform: `translateX(${fighter2Pos.x}px) scaleX(-1)`,
                                 opacity: fighter2Pos.opacity,
+                                ...fighter2Style,
                             }}
                         >
                             <div className="pixel-border overflow-hidden w-full h-full">
@@ -232,7 +377,7 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                     alt={battle.participants[1].name}
                                     width={192}
                                     height={192}
-                                    className={`pixelated ${battleStarted ? 'battle-shake' : ''}`}
+                                    className={`pixelated ${battleStarted && battlePhase !== 'finish' ? 'battle-shake' : ''}`}
                                 />
                             </div>
                         </div>
@@ -244,6 +389,10 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                 .pixel-border {
                     border: 4px solid #555;
                     box-shadow: inset 0 0 0 4px #333;
+                }
+
+                .minecraft-font {
+                    font-family: 'Minecraft', monospace !important;
                 }
 
                 .minecraft-btn-red {
@@ -258,7 +407,7 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                     box-shadow: 3px 3px 0px #222;
                     position: relative;
                     transition: all 0.1s;
-                    font-family: 'Minecraft', monospace;
+                    font-family: 'Minecraft', monospace !important;
                     letter-spacing: 1px;
                     cursor: pointer;
                 }
@@ -272,6 +421,34 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                     background-color: #b91c1c;
                     transform: translateY(2px);
                     box-shadow: 1px 1px 0px #222;
+                }
+
+                .hit-effect {
+                    width: 100px;
+                    height: 100px;
+                    background: radial-gradient(
+                        circle,
+                        rgba(255, 255, 255, 0.9) 0%,
+                        rgba(255, 200, 0, 0.6) 40%,
+                        rgba(255, 0, 0, 0) 70%
+                    );
+                    border-radius: 50%;
+                    animation: hit-animation 0.4s ease-out forwards;
+                    mix-blend-mode: screen;
+                }
+
+                @keyframes hit-animation {
+                    0% {
+                        transform: translate(-50%, -50%) scale(0.2);
+                        opacity: 0.8;
+                    }
+                    60% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translate(-50%, -50%) scale(1.5);
+                        opacity: 0;
+                    }
                 }
 
                 @keyframes battle-pulse {
