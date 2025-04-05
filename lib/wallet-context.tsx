@@ -25,9 +25,16 @@ declare global {
 }
 
 export function WalletProvider({ children }: { children: ReactNode }) {
+    // METAMASK IMPLEMENTATION
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
     const [balance, setBalance] = useState<number>(0);
+
+    // SIMULATION CODE (COMMENTED OUT)
+    // // 預設為已連接狀態，這樣就不需要點擊連接按鈕
+    // const [isConnected, setIsConnected] = useState<boolean>(true);
+    // const [walletAddress, setWalletAddress] = useState<string | null>('0x1234...5678');
+    // const [balance, setBalance] = useState<number>(10.5);
 
     // Check if wallet is already connected on component mount
     useEffect(() => {
@@ -101,6 +108,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
     // Connect to MetaMask wallet
     const connectWallet = async (): Promise<void> => {
+        // METAMASK IMPLEMENTATION
         if (typeof window === 'undefined' || !window.ethereum) {
             alert('MetaMask is not installed! Please install MetaMask to connect your wallet.');
             return;
@@ -122,6 +130,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             console.error("Error connecting wallet:", error);
             alert('Failed to connect to MetaMask. Please try again.');
         }
+
+        // SIMULATION CODE (COMMENTED OUT)
+        // // 模擬錢包連接功能
+        // // 在真實項目中，這裡應該調用MetaMask或其他錢包提供商的API
+        // // 目前是硬編碼模擬
+        // setTimeout(() => {
+        //     setIsConnected(true);
+        //     setWalletAddress('0x1234...5678');
+        //     setBalance(10.5); // 模擬10.5 CELO
+        // }, 1000);
     };
 
     const disconnectWallet = () => {
