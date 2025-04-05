@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useWallet } from '@/lib/wallet-context';
+import NetworkIndicator from '@/components/NetworkIndicator';
 
 export default function Navbar() {
     const pathname = usePathname();
-    const { isConnected, walletAddress, balance, connectWallet, disconnectWallet } = useWallet();
+    const { isConnected, walletAddress, balance, connectWallet, disconnectWallet, networkInfo } = useWallet();
 
     // Check if current path is homepage
     const isHomePage = pathname === '/';
@@ -47,11 +48,15 @@ export default function Navbar() {
                     </nav>
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex items-center space-x-3">
+                    {isConnected && <NetworkIndicator />}
+                    
                     {isConnected ? (
                         <div className="flex items-center">
                             <div className="mr-3 text-sm font-['Minecraft']">
-                                <div className="text-yellow-300">{balance} CELO</div>
+                                <div className="text-yellow-300">
+                                    {balance} {networkInfo?.nativeCurrency?.symbol || (networkInfo?.chainId === '0x221' ? 'FLOW' : 'CELO')}
+                                </div>
                                 <div className="text-gray-400 text-xs">{walletAddress}</div>
                             </div>
                             <button
