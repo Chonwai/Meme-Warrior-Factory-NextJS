@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function ConfirmPage() {
@@ -15,111 +16,256 @@ export default function ConfirmPage() {
         if (promptParam) {
             setPrompt(decodeURIComponent(promptParam));
         } else {
-            // 如果沒有提示詞參數，返回輸入頁面
+            // If no prompt parameter, return to input page
             router.push('/soldier-prep');
         }
     }, [searchParams, router]);
 
     const handleConfirm = () => {
         if (isAgreed && prompt) {
-            // 導航到生成頁面，繼續傳遞prompt參數
+            // Navigate to generation page, continuing to pass the prompt parameter
             router.push(`/soldier-prep/generating?prompt=${encodeURIComponent(prompt)}`);
         }
     };
 
     return (
-        <div className="flex flex-col items-center min-h-screen p-4 bg-gray-100">
-            {/* Pokemon風格的工廠場景 - 中左區域：鑄造熔爐 */}
-            <div className="relative w-full max-w-2xl h-96 bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-                <div className="absolute inset-0 bg-gray-200">
-                    {/* 這裡將來放置Pokemon風格的工廠背景圖 */}
-                    <div className="absolute left-1/2 top-0 w-1/2 h-1/2 border-l border-b border-gray-300 p-2">
-                        {/* 右上角: 鑄造熔爐 */}
-                        <div className="flex items-end h-full">
-                            <div className="pixel-character blacksmith"></div>
-                            <div className="speech-bubble">準備好鑄造你的士兵了嗎？</div>
+        <div className="min-h-screen bg-gray-900 py-10 px-4 pixel-bg">
+            <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl font-bold mb-6 text-yellow-300 text-center drop-shadow-[2px_2px_0px_#000] pixel-text">
+                    Confirm Soldier Generation
+                </h1>
+
+                {/* Pokemon style factory scene - forge furnace */}
+                <div className="relative w-full h-96 pixel-border overflow-hidden mb-8">
+                    <div className="absolute inset-0">
+                        <Image
+                            src="/images/forge.png"
+                            alt="Meme Forge"
+                            fill
+                            className="object-cover pixelated"
+                        />
+                    </div>
+
+                    {/* Blacksmith and dialog box */}
+                    <div className="absolute right-6 top-12 flex items-start">
+                        <div className={`minecraft-dialog ${isAgreed ? 'active' : ''}`}>
+                            <p className="text-sm">
+                                {isAgreed
+                                    ? 'Ready to forge! Please confirm the details...'
+                                    : 'Are you sure you want to forge this soldier? 50% will be deployed to the battlefield!'}
+                            </p>
                         </div>
+                        <div className="w-12 h-12 bg-transparent ml-2">
+                            {/* Blacksmith image */}
+                            <div className="pixel-character blacksmith"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Confirmation area */}
+                <div className="pixel-border bg-black/70 backdrop-blur-sm p-6 mb-6">
+                    <h2 className="text-xl font-bold mb-4 text-green-400 pixel-text">
+                        Confirm Forging Details
+                    </h2>
+
+                    <div className="mb-6 p-4 bg-gray-800 border-2 border-gray-700 rounded">
+                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 pixel-text">
+                            Your Creative Prompt:
+                        </h3>
+                        <p className="text-gray-300 minecraft-font italic">&quot;{prompt}&quot;</p>
+                    </div>
+
+                    <div className="mb-6 p-4 bg-yellow-900/40 border-2 border-yellow-700 rounded">
+                        <h3 className="text-sm font-semibold mb-2 text-yellow-300 pixel-text">
+                            Please Note:
+                        </h3>
+                        <ul className="list-none pl-0 space-y-2 text-sm text-gray-300 minecraft-font">
+                            <li className="flex items-start">
+                                <span className="text-yellow-500 mr-2">→</span>
+                                <span>
+                                    50% of the generated tokens will be automatically deployed to
+                                    the battlefield
+                                </span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-yellow-500 mr-2">→</span>
+                                <span>Deployed soldiers may be lost in battle</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-yellow-500 mr-2">→</span>
+                                <span>The remaining 50% will be saved in your wallet</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-yellow-500 mr-2">→</span>
+                                <span>Each generation will consume a small amount of gas fees</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="mb-6">
+                        <label className="flex items-start cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                checked={isAgreed}
+                                onChange={() => setIsAgreed(!isAgreed)}
+                                className="mt-1 mr-3 h-5 w-5 cursor-pointer"
+                            />
+                            <span className="text-sm text-gray-300 group-hover:text-gray-200 minecraft-font">
+                                I agree to deploy 50% of the tokens to the battlefield and
+                                understand these tokens may be lost in battle.
+                            </span>
+                        </label>
+                    </div>
+
+                    <div className="flex justify-between">
+                        <Link href="/soldier-prep" className="minecraft-btn-secondary">
+                            ← Back to Edit
+                        </Link>
+
+                        <button
+                            onClick={handleConfirm}
+                            disabled={!isAgreed}
+                            className={isAgreed ? 'minecraft-btn' : 'minecraft-btn-disabled'}
+                        >
+                            Confirm and Generate →
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* 確認區域 */}
-            <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4 text-center">確認你的Meme士兵創建</h2>
-
-                <div className="mb-6 p-4 bg-gray-50 rounded border border-gray-200">
-                    <h3 className="text-sm font-semibold mb-2">你的創意提示詞:</h3>
-                    <p className="italic">"{prompt}"</p>
-                </div>
-
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
-                    <h3 className="text-sm font-semibold mb-2">請注意:</h3>
-                    <ul className="list-disc pl-5 space-y-1 text-sm">
-                        <li>50%的生成代幣將自動部署到戰場</li>
-                        <li>部署的士兵可能在戰鬥中損失</li>
-                        <li>剩餘50%將保存在你的錢包中</li>
-                        <li>每次生成將消耗少量gas費</li>
-                    </ul>
-                </div>
-
-                <div className="mb-6">
-                    <label className="flex items-start">
-                        <input
-                            type="checkbox"
-                            checked={isAgreed}
-                            onChange={() => setIsAgreed(!isAgreed)}
-                            className="mt-1 mr-2"
-                        />
-                        <span className="text-sm">
-                            我同意將50%的代幣部署到戰場，並了解這些代幣可能在戰鬥中損失。
-                        </span>
-                    </label>
-                </div>
-
-                <div className="flex justify-between">
-                    <Link
-                        href="/soldier-prep"
-                        className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                    >
-                        返回修改
-                    </Link>
-
-                    <button
-                        onClick={handleConfirm}
-                        disabled={!isAgreed}
-                        className={`px-4 py-2 rounded-md ${isAgreed ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-                    >
-                        確認並生成
-                    </button>
-                </div>
-            </div>
-
             <style jsx>{`
+                .pixel-bg {
+                    background-color: #111;
+                    background-image: repeating-linear-gradient(
+                        #222 0px,
+                        #222 2px,
+                        #333 2px,
+                        #333 4px
+                    );
+                }
+
+                .pixel-border {
+                    border: 4px solid #555;
+                    box-shadow: inset 0 0 0 4px #333;
+                    background-color: rgba(0, 0, 0, 0.7);
+                }
+
+                .pixel-text {
+                    font-family: 'Press Start 2P', monospace;
+                    letter-spacing: 1px;
+                }
+
+                .minecraft-dialog {
+                    background-color: rgba(0, 0, 0, 0.7);
+                    border: 2px solid #555;
+                    padding: 8px 12px;
+                    border-radius: 2px;
+                    color: white;
+                    position: relative;
+                    max-width: 250px;
+                }
+
+                .minecraft-dialog:after {
+                    content: '';
+                    position: absolute;
+                    right: -8px;
+                    top: 10px;
+                    border-top: 6px solid transparent;
+                    border-bottom: 6px solid transparent;
+                    border-left: 8px solid #555;
+                }
+
+                .minecraft-btn {
+                    display: inline-block;
+                    padding: 8px 16px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    background-color: #4aae46;
+                    border: 3px solid #333;
+                    color: white;
+                    box-shadow: 3px 3px 0px #222;
+                    position: relative;
+                    transition: all 0.1s;
+                    font-family: 'Press Start 2P', monospace;
+                    letter-spacing: 1px;
+                    cursor: pointer;
+                }
+
+                .minecraft-btn:hover {
+                    background-color: #5bbf56;
+                    transform: translateY(-2px);
+                }
+
+                .minecraft-btn:active {
+                    background-color: #3a9d36;
+                    transform: translateY(2px);
+                    box-shadow: 1px 1px 0px #222;
+                }
+
+                .minecraft-btn-secondary {
+                    display: inline-block;
+                    padding: 8px 16px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    background-color: #777;
+                    border: 3px solid #333;
+                    color: white;
+                    box-shadow: 3px 3px 0px #222;
+                    position: relative;
+                    transition: all 0.1s;
+                    font-family: 'Press Start 2P', monospace;
+                    letter-spacing: 1px;
+                    cursor: pointer;
+                }
+
+                .minecraft-btn-secondary:hover {
+                    background-color: #888;
+                    transform: translateY(-2px);
+                }
+
+                .minecraft-btn-secondary:active {
+                    background-color: #666;
+                    transform: translateY(2px);
+                    box-shadow: 1px 1px 0px #222;
+                }
+
+                .minecraft-btn-disabled {
+                    display: inline-block;
+                    padding: 8px 16px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    background-color: #656565;
+                    border: 3px solid #333;
+                    color: #999;
+                    box-shadow: 3px 3px 0px #222;
+                    position: relative;
+                    font-family: 'Press Start 2P', monospace;
+                    letter-spacing: 1px;
+                    cursor: not-allowed;
+                }
+
+                .minecraft-font {
+                    font-family: 'Minecraft', monospace;
+                }
+
+                .pixelated {
+                    image-rendering: pixelated;
+                }
+
                 .pixel-character {
                     width: 32px;
                     height: 32px;
-                    background-color: #555;
+                    background-color: transparent;
                 }
+
                 .blacksmith {
-                    /* 臨時佔位，後續替換為實際的鑄幣師角色 */
-                }
-                .speech-bubble {
-                    padding: 8px 12px;
-                    background: white;
-                    border: 2px solid #333;
-                    border-radius: 12px;
-                    position: relative;
-                    margin-left: 8px;
-                }
-                .speech-bubble:before {
-                    content: '';
-                    position: absolute;
-                    left: -10px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    border-top: 8px solid transparent;
-                    border-bottom: 8px solid transparent;
-                    border-right: 10px solid white;
+                    background-image: url('/images/blacksmith.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
                 }
             `}</style>
         </div>
