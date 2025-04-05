@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useWallet } from '@/lib/wallet-context';
+import { useWorldID } from '@/lib/world-id-context';
 import NetworkIndicator from '@/components/NetworkIndicator';
 
 export default function Navbar() {
     const pathname = usePathname();
     const { isConnected, walletAddress, balance, connectWallet, disconnectWallet, networkInfo } =
         useWallet();
+    const { isWorldIDVerified, isVerifying, verifyWithWorldID } = useWorldID();
 
     // Check if current path is homepage
     const isHomePage = pathname === '/';
@@ -62,6 +64,33 @@ export default function Navbar() {
                                 </div>
                                 <div className="text-gray-400 text-xs">{walletAddress}</div>
                             </div>
+                            {isWorldIDVerified ? (
+                                <div className="bg-purple-600 px-3 py-1 rounded text-sm minecraft-font flex items-center mr-2 md:hidden">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-4 w-4 mr-1"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>
+                                    Verified with World ID
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={verifyWithWorldID}
+                                    disabled={isVerifying}
+                                    className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm minecraft-font mr-2 disabled:opacity-50 md:hidden"
+                                >
+                                    {isVerifying ? 'Verifying...' : 'Verify with World ID'}
+                                </button>
+                            )}
                             <button
                                 onClick={disconnectWallet}
                                 className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm minecraft-font"
@@ -70,12 +99,21 @@ export default function Navbar() {
                             </button>
                         </div>
                     ) : (
-                        <button
-                            onClick={connectWallet}
-                            className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded minecraft-font"
-                        >
-                            Connect Wallet
-                        </button>
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={verifyWithWorldID}
+                                disabled={isVerifying}
+                                className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded minecraft-font disabled:opacity-50 md:hidden"
+                            >
+                                {isVerifying ? 'Verifying...' : 'Verify with World ID'}
+                            </button>
+                            <button
+                                onClick={connectWallet}
+                                className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded minecraft-font"
+                            >
+                                Connect Wallet
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
