@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import Image from 'next/image';
 
 // Network type definition
 type NetworkInfo = {
@@ -438,9 +439,10 @@ function NetworkSelectionModal({
     onSelect: (accounts: string[], network: string) => Promise<void>;
     onCancel: () => void;
 }) {
-    const [selectedNetwork, setSelectedNetwork] = useState<string>('0xaef3'); // Default to Celo
-    const [isLoading, setIsLoading] = useState(false);
+    const [selectedNetwork, setSelectedNetwork] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    // Available networks
     const networks = [
         {
             chainId: '0xaef3',
@@ -491,11 +493,13 @@ function NetworkSelectionModal({
                             }`}
                             onClick={() => setSelectedNetwork(network.chainId)}
                         >
-                            <div className="w-8 h-8 flex-shrink-0">
-                                <img
+                            <div className="w-8 h-8 flex-shrink-0 relative">
+                                <Image
                                     src={network.icon}
                                     alt={network.name}
-                                    className="w-full h-full rounded-full"
+                                    className="rounded-full"
+                                    fill
+                                    sizes="32px"
                                 />
                             </div>
                             <div>

@@ -60,10 +60,10 @@ export default function SoldierPrep() {
         const preloadImages = async () => {
             try {
                 const imageUrls = [
-                    '/images/mad-scientist_sprite.png',
-                    '/images/blacksmith_sprite.png',
-                    '/images/dispatcher_sprite.png',
-                    '/images/meme-soldier_sprite.png',
+                    '/images/mad-scientist.png',
+                    '/images/blacksmith.png',
+                    '/images/dispatcher.png',
+                    '/images/meme-soldier.png',
                 ];
 
                 const promises = imageUrls.map((url) => {
