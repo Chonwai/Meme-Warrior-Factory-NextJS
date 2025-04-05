@@ -85,6 +85,53 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     // const [walletAddress, setWalletAddress] = useState<string | null>('0x1234...5678');
     // const [balance, setBalance] = useState<number>(10.5);
 
+    // Check if wallet is already connected on component mount
+    useEffect(() => {
+        const checkConnection = async () => {
+            if (typeof window !== 'undefined' && window.ethereum) {
+                try {
+                    // Get connected accounts
+                    const accounts = await window.ethereum.request({
+                        method: 'eth_accounts',
+                    });
+
+                    if (accounts.length > 0) {
+                        const account = accounts[0];
+                        setIsConnected(true);
+                        setWalletAddress(formatAddress(account));
+                        await updateBalance(account);
+                    }
+                } catch (error) {
+                    console.error('Error checking existing connection:', error);
+                }
+            }
+        };
+
+        checkConnection();
+
+        // Listen for account changes
+        const handleAccountsChanged = async (accounts: string[]) => {
+            if (accounts.length === 0) {
+                // User disconnected their wallet
+                disconnectWallet();
+            } else {
+                setIsConnected(true);
+                setWalletAddress(formatAddress(accounts[0]));
+                await updateBalance(accounts[0]);
+            }
+        };
+
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+        }
+
+        return () => {
+            if (window.ethereum) {
+                window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+            }
+        };
+    }, []);
+
     // Helper function to format address for display
     const formatAddress = (address: string): string => {
         return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
@@ -98,13 +145,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     method: 'eth_getBalance',
                     params: [address, 'latest'],
                 });
-                
+
                 // Convert balance from wei to ETH
                 const ethBalance = parseInt(balance, 16) / 1e18;
                 setBalance(parseFloat(ethBalance.toFixed(4)));
             }
         } catch (error) {
-            console.error("Error getting balance:", error);
+            console.error('Error getting balance:', error);
         }
     };
 
@@ -224,7 +271,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             alert('MetaMask is not installed! Please install MetaMask to connect your wallet.');
             return;
         }
-        
+
         try {
             console.log('Requesting accounts from MetaMask...');
             
@@ -232,7 +279,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             const accounts = await window.ethereum.request({
                 method: 'eth_requestAccounts',
             });
-            
+
             if (accounts.length > 0) {
                 console.log(`Accounts received: ${accounts[0]}`);
                 
