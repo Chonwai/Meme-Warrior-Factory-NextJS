@@ -21,6 +21,7 @@ const MOCK_BATTLES = [
                 prompt: 'A dog wearing sunglasses with an explosion in the background',
                 votes: 157,
                 image: '/images/meme-soldier.png',
+                burned: 0,
             },
             {
                 id: 102,
@@ -28,6 +29,7 @@ const MOCK_BATTLES = [
                 prompt: 'A frog wearing military uniform with a commander stick',
                 votes: 143,
                 image: '/images/dispatcher.png',
+                burned: 0,
             },
         ],
         startTime: '2023-04-05T12:00:00Z',
@@ -44,6 +46,7 @@ const MOCK_BATTLES = [
                 prompt: 'A sad man wearing camouflage uniform',
                 votes: 98,
                 image: '/images/blacksmith.png',
+                burned: 0,
             },
             {
                 id: 202,
@@ -51,6 +54,7 @@ const MOCK_BATTLES = [
                 prompt: 'A crying cat wearing a crown',
                 votes: 124,
                 image: '/images/mad-scientist.png',
+                burned: 0,
             },
         ],
         startTime: '2023-04-05T14:30:00Z',
@@ -67,6 +71,7 @@ const MOCK_BATTLES = [
                 prompt: 'Pixel-style astronaut dancing on the moon',
                 votes: 0,
                 image: '/images/meme-soldier.png',
+                burned: 0,
             },
             {
                 id: 302,
@@ -74,10 +79,37 @@ const MOCK_BATTLES = [
                 prompt: 'A dinosaur in a suit at a meeting',
                 votes: 0,
                 image: '/images/blacksmith.png',
+                burned: 0,
             },
         ],
         startTime: '2023-04-05T22:00:00Z',
         endTime: '2023-04-06T04:00:00Z',
+    },
+    {
+        id: 4,
+        name: 'PIXEL SHOWDOWN #4',
+        status: 'completed',
+        participants: [
+            {
+                id: 401,
+                name: 'LASER CAT',
+                prompt: 'A cat shooting lasers from its eyes',
+                votes: 203,
+                image: '/images/meme-soldier.png',
+                burned: 12,
+            },
+            {
+                id: 402,
+                name: 'ZOMBIE PEPE',
+                prompt: 'A zombie frog with glowing eyes',
+                votes: 178,
+                image: '/images/dispatcher.png',
+                burned: 25,
+            },
+        ],
+        startTime: '2023-04-03T10:00:00Z',
+        endTime: '2023-04-04T10:00:00Z',
+        winner: 401,
     },
 ];
 
@@ -89,6 +121,7 @@ export default function BattlefieldPage() {
     const [selectedBattle, setSelectedBattle] = useState(MOCK_BATTLES[0]);
     const [votedFor, setVotedFor] = useState<number | null>(null);
     const [recentVotedTeam, setRecentVotedTeam] = useState<number | null>(null);
+    const [showBurnAnimation, setShowBurnAnimation] = useState(false);
 
     // 檢查錢包連接狀態
     useEffect(() => {
@@ -121,6 +154,63 @@ export default function BattlefieldPage() {
             checkUserVote();
         }
     }, [isConnected]);
+
+    // 生成隨機燃燒值，確保輸方燃燒值始終大於贏方
+    const generateBurnValues = (battle: any) => {
+        if (battle.status !== 'completed') {
+            // 如果戰鬥不是已完成狀態，則將戰鬥標記為已完成並設置贏家和燃燒值
+            const winner =
+                battle.participants[0].votes > battle.participants[1].votes
+                    ? battle.participants[0].id
+                    : battle.participants[1].id;
+
+            // 找出贏家和輸家
+            const winnerIndex = battle.participants.findIndex((p: any) => p.id === winner);
+            const loserIndex = winnerIndex === 0 ? 1 : 0;
+
+            // 贏家的燃燒值為5-15之間的隨機數
+            const winnerBurn = Math.floor(Math.random() * 11) + 5;
+
+            // 輸家的燃燒值為贏家燃燒值的1.5-2.5倍
+            const loserBurnMultiplier = 1.5 + Math.random();
+            const loserBurn = Math.floor(winnerBurn * loserBurnMultiplier);
+
+            // 更新戰鬥數據
+            const updatedBattle = {
+                ...battle,
+                status: 'completed',
+                winner: winner,
+                participants: battle.participants.map((p: any, index: number) => ({
+                    ...p,
+                    burned: index === winnerIndex ? winnerBurn : loserBurn,
+                })),
+            };
+
+            // 更新戰鬥列表
+            setBattles(battles.map((b) => (b.id === battle.id ? updatedBattle : b)));
+
+            // 如果當前選中的戰鬥是被更新的戰鬥，則更新選中的戰鬥
+            if (selectedBattle.id === battle.id) {
+                setSelectedBattle(updatedBattle);
+            }
+
+            // 顯示燃燒動畫
+            setShowBurnAnimation(true);
+            setTimeout(() => setShowBurnAnimation(false), 3000);
+
+            return updatedBattle;
+        }
+
+        return battle;
+    };
+
+    // 手動結束戰鬥並生成燃燒值
+    const endBattle = (battle: any) => {
+        if (battle.status === 'active') {
+            return generateBurnValues(battle);
+        }
+        return battle;
+    };
 
     // 如果未連接錢包，顯示加載中
     if (!isConnected) {
@@ -350,6 +440,16 @@ export default function BattlefieldPage() {
                                                         VOTED
                                                     </div>
                                                 )}
+                                                {selectedBattle.status === 'completed' && (
+                                                    <div
+                                                        className={`absolute -bottom-2 -right-2 ${selectedBattle.winner === selectedBattle.participants[0].id ? 'bg-yellow-500' : 'bg-red-500'} text-white text-xs px-1 minecraft-font flex items-center`}
+                                                    >
+                                                        {selectedBattle.winner ===
+                                                        selectedBattle.participants[0].id
+                                                            ? 'WINNER'
+                                                            : 'LOSER'}
+                                                    </div>
+                                                )}
                                             </div>
                                             <h3 className="text-md font-bold text-white minecraft-font text-center">
                                                 {selectedBattle.participants[0].name}
@@ -396,6 +496,16 @@ export default function BattlefieldPage() {
                                                 {votedFor === selectedBattle.participants[1].id && (
                                                     <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-1 minecraft-font">
                                                         VOTED
+                                                    </div>
+                                                )}
+                                                {selectedBattle.status === 'completed' && (
+                                                    <div
+                                                        className={`absolute -bottom-2 -right-2 ${selectedBattle.winner === selectedBattle.participants[1].id ? 'bg-yellow-500' : 'bg-red-500'} text-white text-xs px-1 minecraft-font flex items-center`}
+                                                    >
+                                                        {selectedBattle.winner ===
+                                                        selectedBattle.participants[1].id
+                                                            ? 'WINNER'
+                                                            : 'LOSER'}
                                                     </div>
                                                 )}
                                             </div>
@@ -457,14 +567,113 @@ export default function BattlefieldPage() {
                                         </div>
                                     )}
 
+                                    {/* 戰鬥結束後，顯示燃燒數值 */}
+                                    {selectedBattle.status === 'completed' && (
+                                        <div className="w-4/5 mt-8">
+                                            <div className="flex justify-between text-sm mb-1">
+                                                <span className="text-blue-300 minecraft-font">
+                                                    {selectedBattle.participants[0].votes} VOTES
+                                                </span>
+                                                <span className="text-green-300 minecraft-font">
+                                                    {selectedBattle.participants[1].votes} VOTES
+                                                </span>
+                                            </div>
+                                            <div className="relative h-6 bg-gray-800 border-2 border-gray-600">
+                                                <div
+                                                    className="absolute h-full bg-blue-600"
+                                                    style={{
+                                                        width: `${(selectedBattle.participants[0].votes / (selectedBattle.participants[0].votes + selectedBattle.participants[1].votes)) * 100}%`,
+                                                    }}
+                                                ></div>
+                                                <div
+                                                    className="absolute h-full bg-green-600 right-0"
+                                                    style={{
+                                                        width: `${(selectedBattle.participants[1].votes / (selectedBattle.participants[0].votes + selectedBattle.participants[1].votes)) * 100}%`,
+                                                    }}
+                                                ></div>
+                                            </div>
+
+                                            {/* 燃燒數值顯示 */}
+                                            <div className="flex justify-between mt-4 mb-2">
+                                                <div className="text-center relative">
+                                                    <span className="block text-red-500 minecraft-font text-xl font-bold">
+                                                        🔥 {selectedBattle.participants[0].burned}
+                                                        {showBurnAnimation &&
+                                                            selectedBattle.participants[0].burned >
+                                                                0 && (
+                                                                <span className="burn-animation-large">
+                                                                    🔥
+                                                                </span>
+                                                            )}
+                                                    </span>
+                                                    <span className="text-xs text-red-400 minecraft-font">
+                                                        BURNED
+                                                    </span>
+                                                </div>
+
+                                                <div className="text-center relative">
+                                                    <span className="block text-red-500 minecraft-font text-xl font-bold">
+                                                        🔥 {selectedBattle.participants[1].burned}
+                                                        {showBurnAnimation &&
+                                                            selectedBattle.participants[1].burned >
+                                                                0 && (
+                                                                <span className="burn-animation-large">
+                                                                    🔥
+                                                                </span>
+                                                            )}
+                                                    </span>
+                                                    <span className="text-xs text-red-400 minecraft-font">
+                                                        BURNED
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="relative h-4 bg-gray-800 border-2 border-gray-600 mt-1">
+                                                <div
+                                                    className="absolute h-full bg-red-600"
+                                                    style={{
+                                                        width: `${(selectedBattle.participants[0].burned / (selectedBattle.participants[0].burned + selectedBattle.participants[1].burned)) * 100}%`,
+                                                    }}
+                                                ></div>
+                                                <div
+                                                    className="absolute h-full bg-red-900 right-0"
+                                                    style={{
+                                                        width: `${(selectedBattle.participants[1].burned / (selectedBattle.participants[0].burned + selectedBattle.participants[1].burned)) * 100}%`,
+                                                    }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* 添加查看戰鬥詳情按鈕 */}
                                     <div className="mt-8 minecraft-font">
-                                        <Link
-                                            href={`/battlefield/${selectedBattle.id}`}
-                                            className="minecraft-btn-red minecraft-font"
-                                        >
-                                            ENTER BATTLE ARENA
-                                        </Link>
+                                        {selectedBattle.status === 'active' ? (
+                                            <Link
+                                                href={`/battlefield/${selectedBattle.id}`}
+                                                className="minecraft-btn-red minecraft-font"
+                                            >
+                                                ENTER BATTLE ARENA
+                                            </Link>
+                                        ) : selectedBattle.status === 'completed' ? (
+                                            <div className="text-center">
+                                                <div className="text-green-400 minecraft-font mb-2">
+                                                    BATTLE ENDED
+                                                </div>
+                                                <Link
+                                                    href={`/battlefield/${selectedBattle.id}`}
+                                                    className="minecraft-btn-blue minecraft-font"
+                                                >
+                                                    VIEW DETAILS
+                                                </Link>
+                                            </div>
+                                        ) : (
+                                            <Link
+                                                href={`/battlefield/${selectedBattle.id}`}
+                                                className="minecraft-btn-red minecraft-font"
+                                            >
+                                                ENTER BATTLE ARENA
+                                            </Link>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -511,6 +720,11 @@ export default function BattlefieldPage() {
                                             <th className="text-right py-2 text-xs text-gray-400 minecraft-font">
                                                 VOTES
                                             </th>
+                                            {activeTab === 'completed' && (
+                                                <th className="text-right py-2 text-xs text-red-400 minecraft-font">
+                                                    BURNED
+                                                </th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -531,6 +745,13 @@ export default function BattlefieldPage() {
                                                     <td className="py-2 text-sm text-white minecraft-font text-right">
                                                         {soldier.votes}
                                                     </td>
+                                                    {activeTab === 'completed' && (
+                                                        <td className="py-2 text-sm text-red-500 minecraft-font text-right">
+                                                            {soldier.burned > 0
+                                                                ? `🔥 ${soldier.burned}`
+                                                                : '-'}
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))}
                                     </tbody>
@@ -749,6 +970,89 @@ export default function BattlefieldPage() {
                     100% {
                         opacity: 0;
                         transform: translateX(-50%) translateY(-40px) scale(0.8);
+                    }
+                }
+
+                .burn-animation {
+                    position: absolute;
+                    top: -15px;
+                    left: 100%;
+                    font-size: 18px;
+                    animation: burn-flicker 2s ease-out infinite;
+                }
+
+                .burn-animation-large {
+                    position: absolute;
+                    top: -10px;
+                    left: 105%;
+                    font-size: 24px;
+                    animation: burn-flicker-large 3s ease-out infinite;
+                    z-index: 10;
+                }
+
+                @keyframes burn-flicker {
+                    0% {
+                        opacity: 0.5;
+                        transform: scale(0.8) rotate(-5deg);
+                        text-shadow: 0 0 5px #ff3700;
+                    }
+                    25% {
+                        opacity: 1;
+                        transform: scale(1.2) rotate(5deg);
+                        text-shadow:
+                            0 0 10px #ff5e00,
+                            0 0 20px #ff8c00;
+                    }
+                    50% {
+                        opacity: 0.8;
+                        transform: scale(1) rotate(-3deg);
+                        text-shadow: 0 0 15px #ff5e00;
+                    }
+                    75% {
+                        opacity: 1;
+                        transform: scale(1.1) rotate(3deg);
+                        text-shadow:
+                            0 0 10px #ff3700,
+                            0 0 15px #ff5e00;
+                    }
+                    100% {
+                        opacity: 0.7;
+                        transform: scale(0.9) rotate(-5deg);
+                        text-shadow: 0 0 5px #ff3700;
+                    }
+                }
+
+                @keyframes burn-flicker-large {
+                    0% {
+                        opacity: 0.7;
+                        transform: scale(1) rotate(-3deg);
+                        text-shadow:
+                            0 0 10px #ff3700,
+                            0 0 15px #ff5e00;
+                    }
+                    25% {
+                        opacity: 1;
+                        transform: scale(1.5) rotate(5deg);
+                        text-shadow:
+                            0 0 15px #ff5e00,
+                            0 0 30px #ff8c00;
+                    }
+                    50% {
+                        opacity: 0.9;
+                        transform: scale(1.2) rotate(-5deg);
+                        text-shadow: 0 0 20px #ff5e00;
+                    }
+                    75% {
+                        opacity: 1;
+                        transform: scale(1.4) rotate(3deg);
+                        text-shadow:
+                            0 0 15px #ff3700,
+                            0 0 25px #ff5e00;
+                    }
+                    100% {
+                        opacity: 0.8;
+                        transform: scale(1.1) rotate(-3deg);
+                        text-shadow: 0 0 10px #ff3700;
                     }
                 }
             `}</style>

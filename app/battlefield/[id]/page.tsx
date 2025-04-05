@@ -28,6 +28,7 @@ const MOCK_BATTLES = [
                 hp: 100,
                 power: 85,
                 defense: 70,
+                burned: 0,
             },
             {
                 id: 102,
@@ -38,6 +39,7 @@ const MOCK_BATTLES = [
                 hp: 100,
                 power: 75,
                 defense: 80,
+                burned: 0,
             },
         ],
         startTime: '2023-04-05T12:00:00Z',
@@ -70,6 +72,9 @@ export default function BattlePage({ params }: { params: { id: string } }) {
     const [fighter2HP, setFighter2HP] = useState(100);
     const [currentRound, setCurrentRound] = useState(0);
     const [battleEnded, setBattleEnded] = useState(false);
+    const [fighter1Burned, setFighter1Burned] = useState(0);
+    const [fighter2Burned, setFighter2Burned] = useState(0);
+    const [showBurnEffect, setShowBurnEffect] = useState(false);
 
     useEffect(() => {
         if (!isConnected) {
@@ -237,6 +242,25 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                 }
 
                 setWinner(battleWinner);
+
+                // 計算燃燒值 - 勝方燃燒值較少，輸方較多
+                const winnerBurn = Math.floor(Math.random() * 11) + 5; // 勝方燃燒值5-15
+                const loserBurnMultiplier = 1.5 + Math.random(); // 1.5-2.5倍
+                const loserBurn = Math.floor(winnerBurn * loserBurnMultiplier); // 輸方燃燒值是勝方的1.5-2.5倍
+
+                if (battleWinner === 0) {
+                    setFighter1Burned(winnerBurn);
+                    setFighter2Burned(loserBurn);
+                } else {
+                    setFighter1Burned(loserBurn);
+                    setFighter2Burned(winnerBurn);
+                }
+
+                // 顯示燃燒效果
+                setTimeout(() => {
+                    setShowBurnEffect(true);
+                    setTimeout(() => setShowBurnEffect(false), 3000);
+                }, 1000);
 
                 // 勝利者動畫
                 if (battleWinner === 0) {
@@ -415,8 +439,110 @@ export default function BattlePage({ params }: { params: { id: string } }) {
                                     START BATTLE!
                                 </button>
                             ) : winner !== null ? (
-                                <div className="text-4xl text-yellow-300 minecraft-font font-bold battle-pulse">
-                                    {battle.participants[winner].name} WINS!
+                                <div className="text-center">
+                                    <div className="text-4xl text-yellow-300 minecraft-font font-bold battle-pulse mb-4">
+                                        {battle.participants[winner].name} WINS!
+                                    </div>
+
+                                    {/* 燃燒值顯示 */}
+                                    {(fighter1Burned > 0 || fighter2Burned > 0) && (
+                                        <div className="mt-8 bg-black/80 p-4 pixel-border">
+                                            <div className="text-xl text-red-500 minecraft-font mb-3 flex items-center justify-center">
+                                                <span className="mx-1">🔥</span>
+                                                BURN RESULT
+                                                <span className="mx-1">🔥</span>
+                                            </div>
+
+                                            <div className="flex justify-between mb-3">
+                                                <div className="text-center relative">
+                                                    <span className="block text-red-500 minecraft-font text-xl font-bold">
+                                                        🔥 {fighter1Burned}
+                                                        {showBurnEffect && (
+                                                            <>
+                                                                <span className="burn-effect absolute -top-6 left-full">
+                                                                    🔥
+                                                                </span>
+                                                                <span
+                                                                    className="burn-effect absolute -top-6 left-1/4"
+                                                                    style={{
+                                                                        animationDelay: '0.3s',
+                                                                    }}
+                                                                >
+                                                                    🔥
+                                                                </span>
+                                                                <span
+                                                                    className="burn-effect absolute -top-8 left-1/2"
+                                                                    style={{
+                                                                        animationDelay: '0.6s',
+                                                                        fontSize: '20px',
+                                                                    }}
+                                                                >
+                                                                    🔥
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                    </span>
+                                                    <span className="text-xs text-red-400 minecraft-font">
+                                                        {battle.participants[0].name}
+                                                    </span>
+                                                    <span className="text-xs text-red-300 minecraft-font block mt-1">
+                                                        {winner === 0 ? 'WINNER' : 'LOSER'}
+                                                    </span>
+                                                </div>
+
+                                                <div className="text-center relative">
+                                                    <span className="block text-red-500 minecraft-font text-xl font-bold">
+                                                        🔥 {fighter2Burned}
+                                                        {showBurnEffect && (
+                                                            <>
+                                                                <span className="burn-effect absolute -top-6 left-full">
+                                                                    🔥
+                                                                </span>
+                                                                <span
+                                                                    className="burn-effect absolute -top-6 left-1/4"
+                                                                    style={{
+                                                                        animationDelay: '0.2s',
+                                                                    }}
+                                                                >
+                                                                    🔥
+                                                                </span>
+                                                                <span
+                                                                    className="burn-effect absolute -top-8 left-1/2"
+                                                                    style={{
+                                                                        animationDelay: '0.5s',
+                                                                        fontSize: '20px',
+                                                                    }}
+                                                                >
+                                                                    🔥
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                    </span>
+                                                    <span className="text-xs text-red-400 minecraft-font">
+                                                        {battle.participants[1].name}
+                                                    </span>
+                                                    <span className="text-xs text-red-300 minecraft-font block mt-1">
+                                                        {winner === 1 ? 'WINNER' : 'LOSER'}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="relative h-4 bg-gray-800 border-2 border-gray-600 mt-1">
+                                                <div
+                                                    className="absolute h-full bg-red-600"
+                                                    style={{
+                                                        width: `${(fighter1Burned / (fighter1Burned + fighter2Burned)) * 100}%`,
+                                                    }}
+                                                ></div>
+                                                <div
+                                                    className="absolute h-full bg-red-900 right-0"
+                                                    style={{
+                                                        width: `${(fighter2Burned / (fighter1Burned + fighter2Burned)) * 100}%`,
+                                                    }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="text-4xl text-red-500 minecraft-font font-bold battle-pulse">
@@ -563,6 +689,43 @@ export default function BattlePage({ params }: { params: { id: string } }) {
 
                 .battle-shake {
                     animation: battle-shake 0.5s infinite;
+                }
+
+                .burn-effect {
+                    font-size: 24px;
+                    animation: burn-anim 2s ease-out infinite;
+                }
+
+                @keyframes burn-anim {
+                    0% {
+                        opacity: 0.7;
+                        transform: translate(0, 0) scale(1) rotate(-5deg);
+                        text-shadow: 0 0 10px #ff3700;
+                    }
+                    25% {
+                        opacity: 1;
+                        transform: translate(5px, -10px) scale(1.5) rotate(5deg);
+                        text-shadow:
+                            0 0 15px #ff5e00,
+                            0 0 30px #ff8c00;
+                    }
+                    50% {
+                        opacity: 0.9;
+                        transform: translate(10px, -20px) scale(1.2) rotate(-5deg);
+                        text-shadow: 0 0 20px #ff5e00;
+                    }
+                    75% {
+                        opacity: 0.8;
+                        transform: translate(15px, -30px) scale(1.4) rotate(3deg);
+                        text-shadow:
+                            0 0 15px #ff3700,
+                            0 0 25px #ff5e00;
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translate(20px, -40px) scale(1.1) rotate(-3deg);
+                        text-shadow: 0 0 10px #ff3700;
+                    }
                 }
             `}</style>
         </div>
