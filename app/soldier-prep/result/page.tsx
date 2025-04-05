@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -16,8 +16,17 @@ const SOLDIER_ATTRIBUTES = {
     strength: 0,
 };
 
-export default function ResultPage() {
+// SearchParams組件包裝器
+function SearchParamsWrapper({
+    children,
+}: {
+    children: (params: URLSearchParams) => React.ReactNode;
+}) {
     const searchParams = useSearchParams();
+    return <>{children(searchParams)}</>;
+}
+
+export default function ResultPage() {
     const router = useRouter();
     const [prompt, setPrompt] = useState('');
     const [attributes, setAttributes] = useState(SOLDIER_ATTRIBUTES);
@@ -28,7 +37,8 @@ export default function ResultPage() {
         dispatcher: 'active' as CharacterState,
     });
 
-    useEffect(() => {
+    // 包裹在Suspense中的參數處理
+    const handleSearchParams = (searchParams: URLSearchParams) => {
         const promptParam = searchParams.get('prompt');
         if (promptParam) {
             setPrompt(decodeURIComponent(promptParam));
@@ -49,7 +59,9 @@ export default function ResultPage() {
             // If no prompt parameter, return to input page
             router.push('/soldier-prep');
         }
+    };
 
+    useEffect(() => {
         // Occasionally change character states to create more dynamic animations
         const animationInterval = setInterval(() => {
             setCharacterStates((prev) => {
@@ -67,7 +79,7 @@ export default function ResultPage() {
         return () => {
             clearInterval(animationInterval);
         };
-    }, [searchParams, router]);
+    }, []);
 
     const handleDeploy = () => {
         // Deploy to battlefield (should call smart contract in actual project)
@@ -109,194 +121,231 @@ export default function ResultPage() {
                     SOLDIER FORGED SUCCESSFULLY!
                 </h1>
 
-                {/* Three-column layout */}
-                <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                    {/* Left sidebar: Forging result - 30% width */}
-                    <div className="lg:w-[30%] order-3 lg:order-1">
-                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
-                            <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
-                                FORGING RESULT
-                            </h2>
+                <Suspense fallback={<div className="text-center text-white">載入中...</div>}>
+                    <SearchParamsWrapper>
+                        {(searchParams) => {
+                            // 立即處理searchParams
+                            handleSearchParams(searchParams);
 
-                            <div className="mb-4 p-3 bg-gray-800 border-2 border-gray-700 rounded">
-                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
-                                    CREATIVE PROMPT:
-                                </h3>
-                                <p className="text-gray-300 minecraft-font italic text-sm">
-                                    &quot;{prompt}&quot;
-                                </p>
-                            </div>
+                            return (
+                                // Three-column layout
+                                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                                    {/* Left sidebar: Forging result - 30% width */}
+                                    <div className="lg:w-[30%] order-3 lg:order-1">
+                                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                                            <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                                FORGING RESULT
+                                            </h2>
 
-                            <div className="mb-6 p-3 bg-green-900/40 border-2 border-green-700 rounded">
-                                <h3 className="text-sm font-semibold mb-1 text-green-400 minecraft-font uppercase">
-                                    GENERATION RESULT:
-                                </h3>
-                                <p className="text-gray-300 minecraft-font text-sm">
-                                    SUCCESSFULLY FORGED{' '}
-                                    <span className="text-yellow-300 font-bold">{tokenAmount}</span>{' '}
-                                    MEME TOKEN SOLDIERS!
-                                </p>
-                                <div className="mt-2 space-y-1">
-                                    <p className="text-gray-300 minecraft-font flex items-center text-sm">
-                                        <span className="text-yellow-500 mr-2">→</span>
-                                        <span>
-                                            {Math.floor(tokenAmount / 2)} SOLDIERS READY TO DEPLOY
-                                        </span>
-                                    </p>
-                                    <p className="text-gray-300 minecraft-font flex items-center text-sm">
-                                        <span className="text-yellow-500 mr-2">→</span>
-                                        <span>
-                                            {Math.ceil(tokenAmount / 2)} SOLDIERS FOR YOUR WALLET
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
+                                            <div className="mb-4 p-3 bg-gray-800 border-2 border-gray-700 rounded">
+                                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
+                                                    CREATIVE PROMPT:
+                                                </h3>
+                                                <p className="text-gray-300 minecraft-font italic text-sm">
+                                                    &quot;{prompt}&quot;
+                                                </p>
+                                            </div>
 
-                            <div className="mt-auto">
-                                <div className="flex flex-col space-y-3">
-                                    <button
-                                        onClick={handleDeploy}
-                                        className="minecraft-btn-red w-full text-sm"
-                                    >
-                                        DEPLOY TO BATTLEFIELD
-                                    </button>
+                                            <div className="mb-6 p-3 bg-green-900/40 border-2 border-green-700 rounded">
+                                                <h3 className="text-sm font-semibold mb-1 text-green-400 minecraft-font uppercase">
+                                                    GENERATION RESULT:
+                                                </h3>
+                                                <p className="text-gray-300 minecraft-font text-sm">
+                                                    SUCCESSFULLY FORGED{' '}
+                                                    <span className="text-yellow-300 font-bold">
+                                                        {tokenAmount}
+                                                    </span>{' '}
+                                                    MEME TOKEN SOLDIERS!
+                                                </p>
+                                                <div className="mt-2 space-y-1">
+                                                    <p className="text-gray-300 minecraft-font flex items-center text-sm">
+                                                        <span className="text-yellow-500 mr-2">
+                                                            →
+                                                        </span>
+                                                        <span>
+                                                            {Math.floor(tokenAmount / 2)} SOLDIERS
+                                                            READY TO DEPLOY
+                                                        </span>
+                                                    </p>
+                                                    <p className="text-gray-300 minecraft-font flex items-center text-sm">
+                                                        <span className="text-yellow-500 mr-2">
+                                                            →
+                                                        </span>
+                                                        <span>
+                                                            {Math.ceil(tokenAmount / 2)} SOLDIERS
+                                                            FOR YOUR WALLET
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
 
-                                    <button
-                                        onClick={handleKeep}
-                                        className="minecraft-btn w-full text-sm"
-                                    >
-                                        VIEW MY WALLET
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                            <div className="mt-auto">
+                                                <div className="flex flex-col space-y-3">
+                                                    <button
+                                                        onClick={handleDeploy}
+                                                        className="minecraft-btn-red w-full text-sm"
+                                                    >
+                                                        DEPLOY TO BATTLEFIELD
+                                                    </button>
 
-                    {/* Middle column: Forge canvas - 40% width */}
-                    <div className="lg:w-[40%] order-1 lg:order-2">
-                        <div
-                            className="relative pixel-border overflow-hidden"
-                            style={{ height: '70vh' }}
-                        >
-                            <div className="absolute inset-0">
-                                <Image
-                                    src="/images/forge.png"
-                                    alt="Meme Forge"
-                                    fill
-                                    className="object-cover pixelated"
-                                />
-                            </div>
-
-                            {/* MemeSoldier in the bottom-left corner */}
-                            <div className="absolute bottom-4 left-4 z-10">
-                                <Image
-                                    src="/images/meme-soldier.png"
-                                    alt="Meme Soldier"
-                                    width={64}
-                                    height={64}
-                                    className="pixelated"
-                                />
-                            </div>
-
-                            {/* Dispatcher in the bottom-right corner */}
-                            <div className="absolute bottom-4 right-4 z-10">
-                                <Image
-                                    src="/images/dispatcher.png"
-                                    alt="Dispatcher"
-                                    width={64}
-                                    height={64}
-                                    className="pixelated"
-                                />
-                            </div>
-
-                            {/* Completed teleport animation */}
-                            <div className="absolute right-10 bottom-40 flex items-center">
-                                <div className="teleport-pad"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right sidebar: Soldier attributes - 30% width */}
-                    <div className="lg:w-[30%] order-2 lg:order-3">
-                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
-                            <h3 className="text-center font-bold mb-4 text-green-400 minecraft-font uppercase">
-                                YOUR MEME SOLDIER
-                            </h3>
-
-                            <div className="mb-4 flex justify-center">
-                                <div className="pixel-soldier w-24 h-24 flex items-center justify-center">
-                                    <Image
-                                        src={soldierImage}
-                                        alt="Meme Soldier"
-                                        width={64}
-                                        height={64}
-                                        className="pixelated"
-                                        onError={() => {
-                                            // If image loading fails, use emoji instead
-                                            const element =
-                                                document.querySelector('.pixel-soldier');
-                                            if (element) {
-                                                element.innerHTML =
-                                                    '<div class="fallback-emoji">🐶</div>';
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="soldier-stats mt-2">
-                                <div className="stat-bar">
-                                    <span className="minecraft-font text-white">HUMOR</span>
-                                    <div className="bar-container">
-                                        <div
-                                            className="bar-fill"
-                                            style={{ width: `${attributes.humor}%` }}
-                                        ></div>
+                                                    <button
+                                                        onClick={handleKeep}
+                                                        className="minecraft-btn w-full text-sm"
+                                                    >
+                                                        VIEW MY WALLET
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="minecraft-font text-white">
-                                        {attributes.humor}
-                                    </span>
-                                </div>
-                                <div className="stat-bar">
-                                    <span className="minecraft-font text-white">VIRALITY</span>
-                                    <div className="bar-container">
+
+                                    {/* Middle column: Forge canvas - 40% width */}
+                                    <div className="lg:w-[40%] order-1 lg:order-2">
                                         <div
-                                            className="bar-fill"
-                                            style={{ width: `${attributes.virality}%` }}
-                                        ></div>
+                                            className="relative pixel-border overflow-hidden"
+                                            style={{ height: '70vh' }}
+                                        >
+                                            <div className="absolute inset-0">
+                                                <Image
+                                                    src="/images/forge.png"
+                                                    alt="Meme Forge"
+                                                    fill
+                                                    className="object-cover pixelated"
+                                                />
+                                            </div>
+
+                                            {/* MemeSoldier in the bottom-left corner */}
+                                            <div className="absolute bottom-4 left-4 z-10">
+                                                <Image
+                                                    src="/images/meme-soldier.png"
+                                                    alt="Meme Soldier"
+                                                    width={64}
+                                                    height={64}
+                                                    className="pixelated"
+                                                />
+                                            </div>
+
+                                            {/* Dispatcher in the bottom-right corner */}
+                                            <div className="absolute bottom-4 right-4 z-10">
+                                                <Image
+                                                    src="/images/dispatcher.png"
+                                                    alt="Dispatcher"
+                                                    width={64}
+                                                    height={64}
+                                                    className="pixelated"
+                                                />
+                                            </div>
+
+                                            {/* Completed teleport animation */}
+                                            <div className="absolute right-10 bottom-40 flex items-center">
+                                                <div className="teleport-pad"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="minecraft-font text-white">
-                                        {attributes.virality}
-                                    </span>
-                                </div>
-                                <div className="stat-bar">
-                                    <span className="minecraft-font text-white">ORIGINALITY</span>
-                                    <div className="bar-container">
-                                        <div
-                                            className="bar-fill"
-                                            style={{ width: `${attributes.originality}%` }}
-                                        ></div>
+
+                                    {/* Right sidebar: Soldier attributes - 30% width */}
+                                    <div className="lg:w-[30%] order-2 lg:order-3">
+                                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                                            <h3 className="text-center font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                                YOUR MEME SOLDIER
+                                            </h3>
+
+                                            <div className="mb-4 flex justify-center">
+                                                <div className="pixel-soldier w-24 h-24 flex items-center justify-center">
+                                                    <Image
+                                                        src={soldierImage}
+                                                        alt="Meme Soldier"
+                                                        width={64}
+                                                        height={64}
+                                                        className="pixelated"
+                                                        onError={() => {
+                                                            // If image loading fails, use emoji instead
+                                                            const element =
+                                                                document.querySelector(
+                                                                    '.pixel-soldier'
+                                                                );
+                                                            if (element) {
+                                                                element.innerHTML =
+                                                                    '<div class="fallback-emoji">🐶</div>';
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="soldier-stats mt-2">
+                                                <div className="stat-bar">
+                                                    <span className="minecraft-font text-white">
+                                                        HUMOR
+                                                    </span>
+                                                    <div className="bar-container">
+                                                        <div
+                                                            className="bar-fill"
+                                                            style={{
+                                                                width: `${attributes.humor}%`,
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="minecraft-font text-white">
+                                                        {attributes.humor}
+                                                    </span>
+                                                </div>
+                                                <div className="stat-bar">
+                                                    <span className="minecraft-font text-white">
+                                                        VIRALITY
+                                                    </span>
+                                                    <div className="bar-container">
+                                                        <div
+                                                            className="bar-fill"
+                                                            style={{
+                                                                width: `${attributes.virality}%`,
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="minecraft-font text-white">
+                                                        {attributes.virality}
+                                                    </span>
+                                                </div>
+                                                <div className="stat-bar">
+                                                    <span className="minecraft-font text-white">
+                                                        ORIGINALITY
+                                                    </span>
+                                                    <div className="bar-container">
+                                                        <div
+                                                            className="bar-fill"
+                                                            style={{
+                                                                width: `${attributes.originality}%`,
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="minecraft-font text-white">
+                                                        {attributes.originality}
+                                                    </span>
+                                                </div>
+                                                <div className="stat-bar">
+                                                    <span className="minecraft-font text-white">
+                                                        STRENGTH
+                                                    </span>
+                                                    <div className="bar-container">
+                                                        <div
+                                                            className="bar-fill"
+                                                            style={{
+                                                                width: `${attributes.strength}%`,
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="minecraft-font text-white">
+                                                        {attributes.strength}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="minecraft-font text-white">
-                                        {attributes.originality}
-                                    </span>
                                 </div>
-                                <div className="stat-bar">
-                                    <span className="minecraft-font text-white">STRENGTH</span>
-                                    <div className="bar-container">
-                                        <div
-                                            className="bar-fill"
-                                            style={{ width: `${attributes.strength}%` }}
-                                        ></div>
-                                    </div>
-                                    <span className="minecraft-font text-white">
-                                        {attributes.strength}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            );
+                        }}
+                    </SearchParamsWrapper>
+                </Suspense>
             </div>
 
             <style jsx>{`
