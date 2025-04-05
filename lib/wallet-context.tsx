@@ -45,7 +45,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     const accounts = await window.ethereum.request({
                         method: 'eth_accounts',
                     });
-                    
+
                     if (accounts.length > 0) {
                         const account = accounts[0];
                         setIsConnected(true);
@@ -53,13 +53,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                         await updateBalance(account);
                     }
                 } catch (error) {
-                    console.error("Error checking existing connection:", error);
+                    console.error('Error checking existing connection:', error);
                 }
             }
         };
-        
+
         checkConnection();
-        
+
         // Listen for account changes
         const handleAccountsChanged = async (accounts: string[]) => {
             if (accounts.length === 0) {
@@ -71,11 +71,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 await updateBalance(accounts[0]);
             }
         };
-        
+
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
         }
-        
+
         return () => {
             if (window.ethereum) {
                 window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
@@ -96,13 +96,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     method: 'eth_getBalance',
                     params: [address, 'latest'],
                 });
-                
+
                 // Convert balance from wei to ETH
                 const ethBalance = parseInt(balance, 16) / 1e18;
                 setBalance(parseFloat(ethBalance.toFixed(4)));
             }
         } catch (error) {
-            console.error("Error getting balance:", error);
+            console.error('Error getting balance:', error);
         }
     };
 
@@ -113,13 +113,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             alert('MetaMask is not installed! Please install MetaMask to connect your wallet.');
             return;
         }
-        
+
         try {
             // Request account access
             const accounts = await window.ethereum.request({
                 method: 'eth_requestAccounts',
             });
-            
+
             if (accounts.length > 0) {
                 const account = accounts[0];
                 setIsConnected(true);
@@ -127,7 +127,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 await updateBalance(account);
             }
         } catch (error) {
-            console.error("Error connecting wallet:", error);
+            console.error('Error connecting wallet:', error);
             alert('Failed to connect to MetaMask. Please try again.');
         }
 

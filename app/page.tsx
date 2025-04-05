@@ -17,7 +17,7 @@ export default function Home() {
             router.push('/soldier-prep');
         }
     };
-    
+
     return (
         <main className="flex min-h-screen flex-col items-center justify-between p-6 md:p-12">
             <div className="w-full max-w-4xl mx-auto text-center">
@@ -36,7 +36,7 @@ export default function Home() {
                         Build your meme army and conquer the pixel battlefields in this blocky
                         adventure!
                     </p>
-                    <button 
+                    <button
                         onClick={handleWalletConnect}
                         className="minecraft-btn text-white mb-4 mx-auto block"
                     >
