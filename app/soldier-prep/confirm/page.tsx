@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,24 +8,17 @@ import Link from 'next/link';
 // 角色狀態類型
 type CharacterState = 'idle' | 'active' | 'excited';
 
-// SearchParams組件包裝器
-function SearchParamsWrapper({
-    children,
-}: {
-    children: (params: URLSearchParams) => React.ReactNode;
-}) {
-    const searchParams = useSearchParams();
-    return <>{children(searchParams)}</>;
-}
-
 export default function ConfirmPage() {
+    const searchParams = useSearchParams();
     const router = useRouter();
     const [prompt, setPrompt] = useState('');
     const [isAgreed, setIsAgreed] = useState(false);
     const [blacksmithState, setBlacksmithState] = useState<CharacterState>('idle');
 
-    // 處理搜索參數
-    const handleSearchParams = (searchParams: URLSearchParams) => {
+    // 處理搜索參數，只在 searchParams 變化時執行
+    useEffect(() => {
+        if (!searchParams) return;
+
         const promptParam = searchParams.get('prompt');
         if (promptParam) {
             setPrompt(decodeURIComponent(promptParam));
@@ -33,7 +26,7 @@ export default function ConfirmPage() {
             // If no prompt parameter, return to input page
             router.push('/soldier-prep');
         }
-    };
+    }, [searchParams, router]);
 
     // Animate blacksmith when user agrees to terms
     useEffect(() => {
@@ -78,162 +71,138 @@ export default function ConfirmPage() {
                     CONFIRM SOLDIER GENERATION
                 </h1>
 
-                <Suspense fallback={<div className="text-center text-white">載入中...</div>}>
-                    <SearchParamsWrapper>
-                        {(searchParams) => {
-                            // 立即處理searchParams
-                            handleSearchParams(searchParams);
+                {/* Three-column layout */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                    {/* Left sidebar: Blacksmith dialogue - 30% width */}
+                    <div className="lg:w-[30%] order-2 lg:order-1">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                            <div className="mb-4 flex justify-center flex-col items-center">
+                                <Image
+                                    src="/images/blacksmith.png"
+                                    alt="Blacksmith"
+                                    width={120}
+                                    height={120}
+                                    className="pixelated"
+                                />
+                            </div>
+                            <div className={`minecraft-dialog w-full ${isAgreed ? 'active' : ''}`}>
+                                <p className="minecraft-font text-white text-sm">
+                                    {isAgreed
+                                        ? 'READY TO FORGE! PLEASE CONFIRM THE DETAILS...'
+                                        : 'ARE YOU SURE YOU WANT TO FORGE THIS SOLDIER? 50% WILL BE DEPLOYED TO THE BATTLEFIELD!'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-                            return (
-                                // Three-column layout
-                                <div className="flex flex-col lg:flex-row gap-4 mb-8">
-                                    {/* Left sidebar: Blacksmith dialogue - 30% width */}
-                                    <div className="lg:w-[30%] order-2 lg:order-1">
-                                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
-                                            <div className="mb-4 flex justify-center flex-col items-center">
-                                                <Image
-                                                    src="/images/blacksmith.png"
-                                                    alt="Blacksmith"
-                                                    width={120}
-                                                    height={120}
-                                                    className="pixelated"
-                                                />
-                                            </div>
-                                            <div
-                                                className={`minecraft-dialog w-full ${isAgreed ? 'active' : ''}`}
-                                            >
-                                                <p className="minecraft-font text-white text-sm">
-                                                    {isAgreed
-                                                        ? 'READY TO FORGE! PLEASE CONFIRM THE DETAILS...'
-                                                        : 'ARE YOU SURE YOU WANT TO FORGE THIS SOLDIER? 50% WILL BE DEPLOYED TO THE BATTLEFIELD!'}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+                    {/* Middle column: Forge canvas - 40% width */}
+                    <div className="lg:w-[40%] order-1 lg:order-2">
+                        <div
+                            className="relative pixel-border overflow-hidden"
+                            style={{ height: '70vh' }}
+                        >
+                            <div className="absolute inset-0">
+                                <Image
+                                    src="/images/forge.png"
+                                    alt="Meme Forge"
+                                    fill
+                                    className="object-cover pixelated"
+                                />
+                            </div>
 
-                                    {/* Middle column: Forge canvas - 40% width */}
-                                    <div className="lg:w-[40%] order-1 lg:order-2">
-                                        <div
-                                            className="relative pixel-border overflow-hidden"
-                                            style={{ height: '70vh' }}
-                                        >
-                                            <div className="absolute inset-0">
-                                                <Image
-                                                    src="/images/forge.png"
-                                                    alt="Meme Forge"
-                                                    fill
-                                                    className="object-cover pixelated"
-                                                />
-                                            </div>
+                            {/* Blacksmith in the top-right corner */}
+                            <div className="absolute top-32 right-8 z-10 z-10">
+                                <Image
+                                    src="/images/blacksmith.png"
+                                    alt="Blacksmith"
+                                    width={64}
+                                    height={64}
+                                    className="pixelated"
+                                />
+                            </div>
 
-                                            {/* Blacksmith in the top-right corner */}
-                                            <div className="absolute top-32 right-8 z-10 z-10">
-                                                <Image
-                                                    src="/images/blacksmith.png"
-                                                    alt="Blacksmith"
-                                                    width={64}
-                                                    height={64}
-                                                    className="pixelated"
-                                                />
-                                            </div>
-
-                                            {/* Animation effect when agreed */}
-                                            {isAgreed && (
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className="forge-prepare-animation"></div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Right sidebar: Confirmation details - 30% width */}
-                                    <div className="lg:w-[30%] order-3">
-                                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
-                                            <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
-                                                CONFIRM DETAILS
-                                            </h2>
-
-                                            <div className="mb-4 p-3 bg-gray-800 border-2 border-gray-700 rounded">
-                                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
-                                                    YOUR PROMPT:
-                                                </h3>
-                                                <p className="text-gray-300 minecraft-font italic text-sm">
-                                                    &quot;{prompt}&quot;
-                                                </p>
-                                            </div>
-
-                                            <div className="mb-6 p-3 bg-yellow-900/40 border-2 border-yellow-700 rounded">
-                                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
-                                                    PLEASE NOTE:
-                                                </h3>
-                                                <ul className="list-none pl-0 space-y-1 text-xs text-gray-300 minecraft-font">
-                                                    <li className="flex items-start">
-                                                        <span className="text-yellow-500 mr-2">
-                                                            →
-                                                        </span>
-                                                        <span>
-                                                            50% OF TOKENS DEPLOYED TO BATTLEFIELD
-                                                        </span>
-                                                    </li>
-                                                    <li className="flex items-start">
-                                                        <span className="text-yellow-500 mr-2">
-                                                            →
-                                                        </span>
-                                                        <span>
-                                                            DEPLOYED SOLDIERS MAY BE LOST IN BATTLE
-                                                        </span>
-                                                    </li>
-                                                    <li className="flex items-start">
-                                                        <span className="text-yellow-500 mr-2">
-                                                            →
-                                                        </span>
-                                                        <span>50% SAVED IN YOUR WALLET</span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <div className="mb-4">
-                                                <label className="flex items-start cursor-pointer group">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={isAgreed}
-                                                        onChange={() => setIsAgreed(!isAgreed)}
-                                                        className="mt-1 mr-3 h-4 w-4 cursor-pointer"
-                                                    />
-                                                    <span className="text-xs text-gray-300 group-hover:text-gray-200 minecraft-font">
-                                                        I AGREE TO DEPLOY 50% OF TOKENS TO
-                                                        BATTLEFIELD
-                                                    </span>
-                                                </label>
-                                            </div>
-
-                                            <div className="mt-auto flex flex-col space-y-3">
-                                                <button
-                                                    onClick={handleConfirm}
-                                                    disabled={!isAgreed}
-                                                    className={
-                                                        isAgreed
-                                                            ? 'minecraft-btn w-full'
-                                                            : 'minecraft-btn-disabled w-full'
-                                                    }
-                                                >
-                                                    CONFIRM AND GENERATE →
-                                                </button>
-
-                                                <Link
-                                                    href="/soldier-prep"
-                                                    className="minecraft-btn-secondary w-full text-center"
-                                                >
-                                                    ← BACK TO EDIT
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
+                            {/* Animation effect when agreed */}
+                            {isAgreed && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="forge-prepare-animation"></div>
                                 </div>
-                            );
-                        }}
-                    </SearchParamsWrapper>
-                </Suspense>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Right sidebar: Confirmation details - 30% width */}
+                    <div className="lg:w-[30%] order-3">
+                        <div className="pixel-border bg-black/80 p-4 h-full flex flex-col">
+                            <h2 className="text-xl font-bold mb-4 text-green-400 minecraft-font uppercase">
+                                CONFIRM DETAILS
+                            </h2>
+
+                            <div className="mb-4 p-3 bg-gray-800 border-2 border-gray-700 rounded">
+                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
+                                    YOUR PROMPT:
+                                </h3>
+                                <p className="text-gray-300 minecraft-font italic text-sm">
+                                    &quot;{prompt}&quot;
+                                </p>
+                            </div>
+
+                            <div className="mb-6 p-3 bg-yellow-900/40 border-2 border-yellow-700 rounded">
+                                <h3 className="text-sm font-semibold mb-1 text-yellow-300 minecraft-font uppercase">
+                                    PLEASE NOTE:
+                                </h3>
+                                <ul className="list-none pl-0 space-y-1 text-xs text-gray-300 minecraft-font">
+                                    <li className="flex items-start">
+                                        <span className="text-yellow-500 mr-2">→</span>
+                                        <span>50% OF TOKENS DEPLOYED TO BATTLEFIELD</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-yellow-500 mr-2">→</span>
+                                        <span>DEPLOYED SOLDIERS MAY BE LOST IN BATTLE</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-yellow-500 mr-2">→</span>
+                                        <span>50% SAVED IN YOUR WALLET</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="flex items-start cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        checked={isAgreed}
+                                        onChange={() => setIsAgreed(!isAgreed)}
+                                        className="mt-1 mr-3 h-4 w-4 cursor-pointer"
+                                    />
+                                    <span className="text-xs text-gray-300 group-hover:text-gray-200 minecraft-font">
+                                        I AGREE TO DEPLOY 50% OF TOKENS TO BATTLEFIELD
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div className="mt-auto flex flex-col space-y-3">
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={!isAgreed}
+                                    className={
+                                        isAgreed
+                                            ? 'minecraft-btn w-full'
+                                            : 'minecraft-btn-disabled w-full'
+                                    }
+                                >
+                                    CONFIRM AND GENERATE →
+                                </button>
+
+                                <Link
+                                    href="/soldier-prep"
+                                    className="minecraft-btn-secondary w-full text-center"
+                                >
+                                    ← BACK TO EDIT
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <style jsx>{`

@@ -30,19 +30,19 @@ export default function Navbar() {
                     <nav className="hidden md:flex space-x-4">
                         <Link
                             href="/soldier-prep"
-                            className={`px-3 py-1 font-['Minecraft'] ${pathname.includes('/soldier-prep') ? 'bg-blue-600' : 'hover:bg-gray-700'} rounded`}
+                            className={`px-3 py-1 font-['Minecraft'] ${pathname && pathname.includes('/soldier-prep') ? 'bg-blue-600' : 'hover:bg-gray-700'} rounded`}
                         >
                             Create Soldier
                         </Link>
                         <Link
                             href="/battlefield"
-                            className={`px-3 py-1 font-['Minecraft'] ${pathname.includes('/battlefield') ? 'bg-blue-600' : 'hover:bg-gray-700'} rounded`}
+                            className={`px-3 py-1 font-['Minecraft'] ${pathname && pathname.includes('/battlefield') ? 'bg-blue-600' : 'hover:bg-gray-700'} rounded`}
                         >
                             Battlefield
                         </Link>
                         <Link
                             href="/wallet"
-                            className={`px-3 py-1 font-['Minecraft'] ${pathname.includes('/wallet') ? 'bg-blue-600' : 'hover:bg-gray-700'} rounded`}
+                            className={`px-3 py-1 font-['Minecraft'] ${pathname && pathname.includes('/wallet') ? 'bg-blue-600' : 'hover:bg-gray-700'} rounded`}
                         >
                             My Wallet
                         </Link>
