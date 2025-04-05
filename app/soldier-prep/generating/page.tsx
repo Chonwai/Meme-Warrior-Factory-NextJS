@@ -34,6 +34,8 @@ function GeneratingContent() {
         dispatcher: 'active' as CharacterState,
         memeSoldier: 'idle' as CharacterState,
     });
+    const [generatedSoldiers, setGeneratedSoldiers] = useState<any[]>([]);
+    const [isApiError, setIsApiError] = useState(false);
 
     // 處理搜索參數，只在 searchParams 變化時執行
     useEffect(() => {
@@ -48,76 +50,184 @@ function GeneratingContent() {
         }
     }, [searchParams, router]);
 
+    // 調用生成API獲取Meme戰士
     useEffect(() => {
-        // 計算每個對話應該對應的進度百分比
-        const progressPerDialogue = 100 / (AI_DIALOGUE.length - 1);
+        let isApiCompleted = false;
+        let apiCleanupFunction: (() => void) | null = null;
 
-        // Simulate AI generation process
-        const dialogueInterval = setInterval(() => {
-            setDialogueIndex((prev) => {
-                const newIndex = prev < AI_DIALOGUE.length - 1 ? prev + 1 : prev;
+        const fetchMemeWarriors = async () => {
+            if (!prompt) return;
 
-                // 同步更新進度條 - 每個對話對應一個進度段
-                setProgress(Math.min(Math.round(newIndex * progressPerDialogue), 100));
+            // 開始模擬生成進度，不等待API響應
+            apiCleanupFunction = simulateGenerationProgress();
 
-                if (newIndex === AI_DIALOGUE.length - 1) {
-                    clearInterval(dialogueInterval);
-                    // Set completion status after last dialogue
-                    setTimeout(() => {
-                        setIsComplete(true);
-                        // Change character states when complete
-                        setCharacterStates({
-                            blacksmith: 'idle' as CharacterState,
-                            dispatcher: 'active' as CharacterState,
-                            memeSoldier: 'excited' as CharacterState,
-                        });
-                    }, 1500);
+            try {
+                // 調用API生成Meme戰士
+                const response = await fetch(
+                    'https://meme-warrior-factory-backend.vercel.app/meme/generate',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ prompt }),
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('API請求失敗');
                 }
-                return newIndex;
-            });
-        }, 2000);
 
-        // Update character states based on progress
-        const characterUpdateInterval = setInterval(() => {
-            const currentProgress = Math.min(dialogueIndex * progressPerDialogue, 100);
+                // 解析API返回結果
+                const data = await response.json();
 
-            if (currentProgress < 30) {
-                setCharacterStates({
-                    blacksmith: 'active' as CharacterState,
-                    dispatcher: 'idle' as CharacterState,
-                    memeSoldier: 'idle' as CharacterState,
-                });
-            } else if (currentProgress < 60) {
-                setCharacterStates({
-                    blacksmith: 'excited' as CharacterState,
-                    dispatcher: 'active' as CharacterState,
-                    memeSoldier: 'idle' as CharacterState,
-                });
-            } else if (currentProgress < 90) {
-                setCharacterStates({
-                    blacksmith: 'active' as CharacterState,
-                    dispatcher: 'excited' as CharacterState,
-                    memeSoldier: 'active' as CharacterState,
-                });
-            } else {
+                if (data.success && data.items && data.items.length > 0) {
+                    console.log('API返回的Meme戰士:', data.items);
+                    setGeneratedSoldiers(data.items);
+
+                    // API完成，標記狀態
+                    isApiCompleted = true;
+
+                    // 確保顯示100%進度
+                    completeGenerationProcess();
+                } else {
+                    throw new Error('API返回數據無效');
+                }
+            } catch (error) {
+                console.error('生成Meme戰士時出錯:', error);
+                setIsApiError(true);
+
+                // 即使出錯也標記為完成
+                isApiCompleted = true;
+
+                // 確保顯示100%進度，但有延遲讓用戶能看到進度動畫
+                setTimeout(() => {
+                    completeGenerationProcess();
+                }, 2000);
+            }
+        };
+
+        fetchMemeWarriors();
+
+        // 完成生成過程
+        const completeGenerationProcess = () => {
+            // 設置進度為100%
+            setProgress(100);
+
+            // 設置最後一個對話
+            setDialogueIndex(AI_DIALOGUE.length - 1);
+
+            // 延遲一下，然後設置完成狀態
+            setTimeout(() => {
+                setIsComplete(true);
+                // 角色狀態變化
                 setCharacterStates({
                     blacksmith: 'idle' as CharacterState,
                     dispatcher: 'active' as CharacterState,
                     memeSoldier: 'excited' as CharacterState,
                 });
-            }
-        }, 5000); // Update character states every 5 seconds
+            }, 1500);
+        };
 
-        // Clear all intervals on component unmount
+        // 組件卸載時清理
+        return () => {
+            if (apiCleanupFunction) {
+                apiCleanupFunction();
+            }
+        };
+    }, [prompt]);
+
+    // 模擬生成進度
+    const simulateGenerationProgress = () => {
+        // 計算每個對話應該對應的進度百分比
+        const progressPerDialogue = 100 / (AI_DIALOGUE.length - 1);
+
+        // 設置初始值
+        let currentIndex = 0;
+        setDialogueIndex(0);
+        setProgress(5); // 從5%開始
+
+        // 模擬AI生成過程
+        const dialogueInterval = setInterval(() => {
+            currentIndex++;
+
+            if (currentIndex >= AI_DIALOGUE.length - 1) {
+                // 保留最後一個對話，讓API完成後顯示
+                clearInterval(dialogueInterval);
+                return;
+            }
+
+            // 更新對話索引和進度
+            setDialogueIndex(currentIndex);
+
+            // 進度增加，但不會立即達到100%
+            // 保留最後10%的進度，直到API響應結束
+            const progressLimit = Math.min(Math.round(currentIndex * progressPerDialogue), 90);
+            setProgress(progressLimit);
+
+            // 更新角色狀態
+            updateCharacterStates(Math.round(currentIndex * progressPerDialogue));
+        }, 2000);
+
+        // 角色動畫效果，獨立於對話進度
+        const characterInterval = setInterval(() => {
+            // 隨機改變角色動畫狀態
+            const randomValue = Math.random();
+            if (randomValue > 0.7) {
+                setCharacterStates((prev) => ({
+                    ...prev,
+                    blacksmith: prev.blacksmith === 'active' ? 'excited' : 'active',
+                }));
+            } else if (randomValue > 0.4) {
+                setCharacterStates((prev) => ({
+                    ...prev,
+                    dispatcher: prev.dispatcher === 'idle' ? 'active' : 'idle',
+                }));
+            }
+        }, 1500);
+
+        // 返回清理函數
         return () => {
             clearInterval(dialogueInterval);
-            clearInterval(characterUpdateInterval);
+            clearInterval(characterInterval);
         };
-    }, []);
+    };
+
+    // 更新角色狀態
+    const updateCharacterStates = (currentProgress: number) => {
+        if (currentProgress < 30) {
+            setCharacterStates({
+                blacksmith: 'active' as CharacterState,
+                dispatcher: 'idle' as CharacterState,
+                memeSoldier: 'idle' as CharacterState,
+            });
+        } else if (currentProgress < 60) {
+            setCharacterStates({
+                blacksmith: 'excited' as CharacterState,
+                dispatcher: 'active' as CharacterState,
+                memeSoldier: 'idle' as CharacterState,
+            });
+        } else if (currentProgress < 90) {
+            setCharacterStates({
+                blacksmith: 'active' as CharacterState,
+                dispatcher: 'excited' as CharacterState,
+                memeSoldier: 'active' as CharacterState,
+            });
+        } else {
+            setCharacterStates({
+                blacksmith: 'idle' as CharacterState,
+                dispatcher: 'active' as CharacterState,
+                memeSoldier: 'excited' as CharacterState,
+            });
+        }
+    };
 
     const handleContinue = () => {
-        // After completion, navigate to result page
-        router.push(`/soldier-prep/result?prompt=${encodeURIComponent(prompt)}`);
+        // After completion, navigate to result page with generated soldiers data
+        const soldierData = JSON.stringify(generatedSoldiers);
+        router.push(
+            `/soldier-prep/result?prompt=${encodeURIComponent(prompt)}&soldiers=${encodeURIComponent(soldierData)}`
+        );
     };
 
     // Helper functions to get animation classes

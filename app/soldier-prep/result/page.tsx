@@ -24,6 +24,8 @@ function ResultContent() {
     const [attributes, setAttributes] = useState(SOLDIER_ATTRIBUTES);
     const [tokenAmount, setTokenAmount] = useState(0);
     const [soldierImage, setSoldierImage] = useState('/images/soldier-placeholder.png');
+    const [soldiersData, setSoldiersData] = useState<any[]>([]);
+    const [selectedSoldierIndex, setSelectedSoldierIndex] = useState(0);
     const [characterStates, setCharacterStates] = useState({
         memeSoldier: 'excited' as CharacterState,
         dispatcher: 'active' as CharacterState,
@@ -34,21 +36,55 @@ function ResultContent() {
         if (!searchParams) return;
 
         const promptParam = searchParams.get('prompt');
+        const soldiersParam = searchParams.get('soldiers');
+
         if (promptParam) {
             setPrompt(decodeURIComponent(promptParam));
 
-            // Simulate generating soldier attributes (should actually be obtained from AI service)
-            setAttributes({
-                humor: Math.floor(Math.random() * 100),
-                virality: Math.floor(Math.random() * 100),
-                originality: Math.floor(Math.random() * 100),
-                strength: Math.floor(Math.random() * 100),
-            });
-
-            // Simulate token amount (should actually be obtained from smart contract)
+            // 設置默認令牌數量
             setTokenAmount(Math.floor(Math.random() * 1000) + 100);
 
-            // In an actual project, we would get the real image URL here
+            // 解析soldiers參數
+            if (soldiersParam) {
+                try {
+                    const soldiers = JSON.parse(decodeURIComponent(soldiersParam));
+
+                    if (Array.isArray(soldiers) && soldiers.length > 0) {
+                        console.log('收到的戰士數據:', soldiers);
+                        setSoldiersData(soldiers);
+
+                        // 設置第一個戰士為默認選中
+                        setSelectedSoldierIndex(0);
+
+                        // 設置第一個戰士的圖像，並確保圖像URL可用
+                        if (soldiers[0].image_url) {
+                            // 預加載圖像以檢查URL是否有效
+                            const preloadImage = new (window as any).Image();
+                            preloadImage.src = soldiers[0].image_url;
+                            preloadImage.onload = () => {
+                                setSoldierImage(soldiers[0].image_url);
+                            };
+                            preloadImage.onerror = () => {
+                                console.error('圖像URL無效，使用默認圖像');
+                                setSoldierImage('/images/meme-soldier.png');
+                            };
+                        } else {
+                            setSoldierImage('/images/meme-soldier.png');
+                        }
+
+                        // 基於戰士名稱生成隨機屬性
+                        // 在實際項目中，這些屬性應該來自API
+                        setAttributes({
+                            humor: Math.floor(Math.random() * 70) + 30,
+                            virality: Math.floor(Math.random() * 70) + 30,
+                            originality: Math.floor(Math.random() * 70) + 30,
+                            strength: Math.floor(Math.random() * 70) + 30,
+                        });
+                    }
+                } catch (error) {
+                    console.error('解析戰士數據時出錯:', error);
+                }
+            }
         } else {
             // If no prompt parameter, return to input page
             router.push('/soldier-prep');
@@ -76,12 +112,129 @@ function ResultContent() {
         };
     }, []);
 
+    // 選擇不同的戰士
+    const selectSoldier = (index: number) => {
+        if (index >= 0 && index < soldiersData.length) {
+            setSelectedSoldierIndex(index);
+
+            // 更新選中戰士的圖像，並確保圖像URL可用
+            if (soldiersData[index].image_url) {
+                // 預加載圖像以檢查URL是否有效
+                const preloadImage = new (window as any).Image();
+                preloadImage.src = soldiersData[index].image_url;
+                preloadImage.onload = () => {
+                    setSoldierImage(soldiersData[index].image_url);
+                };
+                preloadImage.onerror = () => {
+                    console.error('圖像URL無效，使用默認圖像');
+                    setSoldierImage('/images/meme-soldier.png');
+                };
+            } else {
+                setSoldierImage('/images/meme-soldier.png');
+            }
+
+            // 更新選中戰士的屬性
+            // 在實際項目中，這些屬性應該來自API
+            setAttributes({
+                humor: Math.floor(Math.random() * 70) + 30,
+                virality: Math.floor(Math.random() * 70) + 30,
+                originality: Math.floor(Math.random() * 70) + 30,
+                strength: Math.floor(Math.random() * 70) + 30,
+            });
+        }
+    };
+
     const handleDeploy = () => {
+        // 保存選中的戰士到localStorage
+        const selectedSoldier = getCurrentSoldier();
+        if (selectedSoldier) {
+            try {
+                // 確保在瀏覽器環境中執行
+                if (typeof window !== 'undefined') {
+                    // 保存選中的戰士數據
+                    const warriorToSave = {
+                        id: selectedSoldier.id || Math.floor(Math.random() * 10000),
+                        name: selectedSoldier.name || 'Unnamed Warrior',
+                        prompt: selectedSoldier.prompt || prompt,
+                        image_url: soldierImage, // 使用當前顯示的圖像URL (可能是本地備用圖像)
+                        attributes: attributes,
+                    };
+
+                    localStorage.setItem('selectedMemeWarrior', JSON.stringify(warriorToSave));
+                    console.log('保存戰士數據成功', warriorToSave);
+                }
+            } catch (err) {
+                console.error('保存戰士數據失敗', err);
+                // 硬編碼備用方案 - 如果localStorage失敗，使用全局變量
+                if (typeof window !== 'undefined') {
+                    (window as any).__selectedMemeWarrior = {
+                        id: selectedSoldier.id || 999,
+                        name: selectedSoldier.name || 'Backup Warrior',
+                        prompt: selectedSoldier.prompt || prompt,
+                        image_url: '/images/meme-soldier.png',
+                        attributes: attributes,
+                    };
+                }
+            }
+        }
+
         // Deploy to battlefield (should call smart contract in actual project)
         router.push('/battlefield');
     };
 
     const handleKeep = () => {
+        // 保存選中的戰士到localStorage
+        const selectedSoldier = getCurrentSoldier();
+        if (selectedSoldier) {
+            try {
+                // 確保在瀏覽器環境中執行
+                if (typeof window !== 'undefined') {
+                    // 獲取現有的戰士列表
+                    let currentWarriors = [];
+                    try {
+                        const savedWarriors = localStorage.getItem('walletMemeWarriors');
+                        if (savedWarriors) {
+                            currentWarriors = JSON.parse(savedWarriors);
+                            if (!Array.isArray(currentWarriors)) {
+                                currentWarriors = []; // 重置為空數組，如果解析結果不是數組
+                            }
+                        }
+                    } catch (e) {
+                        console.error('獲取現有戰士列表失敗', e);
+                    }
+
+                    // 添加新戰士
+                    const newWarrior = {
+                        id: selectedSoldier.id || Math.floor(Math.random() * 10000),
+                        name: selectedSoldier.name || 'Unnamed Warrior',
+                        prompt: selectedSoldier.prompt || prompt,
+                        image_url: soldierImage, // 使用當前顯示的圖像URL
+                        attributes: attributes,
+                    };
+
+                    currentWarriors.push(newWarrior);
+
+                    // 保存更新後的列表
+                    localStorage.setItem('walletMemeWarriors', JSON.stringify(currentWarriors));
+                    console.log('保存戰士數據到錢包成功', newWarrior);
+                }
+            } catch (err) {
+                console.error('保存戰士數據失敗', err);
+                // 硬編碼備用方案
+                if (typeof window !== 'undefined') {
+                    (window as any).__walletMemeWarriors = [
+                        {
+                            id: selectedSoldier.id || 999,
+                            name: selectedSoldier.name || 'Backup Warrior',
+                            prompt: selectedSoldier.prompt || prompt,
+                            image_url: '/images/meme-soldier.png',
+                            attributes: attributes,
+                        },
+                    ];
+                }
+            }
+        }
+
         // Save to wallet (should call smart contract in actual project)
         router.push('/wallet');
     };
@@ -107,6 +260,11 @@ function ResultContent() {
             default:
                 return 'sprite-idle';
         }
+    };
+
+    // 獲取當前選中的戰士
+    const getCurrentSoldier = () => {
+        return soldiersData.length > 0 ? soldiersData[selectedSoldierIndex] : null;
     };
 
     return (
@@ -154,6 +312,47 @@ function ResultContent() {
                             </div>
                         </div>
 
+                        {soldiersData.length > 0 && (
+                            <div className="mb-6 p-3 bg-blue-900/40 border-2 border-blue-700 rounded">
+                                <h3 className="text-sm font-semibold mb-2 text-blue-400 minecraft-font uppercase">
+                                    YOUR MEME WARRIORS:
+                                </h3>
+                                <div className="flex flex-wrap gap-2 justify-center">
+                                    {soldiersData.map((soldier, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => selectSoldier(index)}
+                                            className={`w-16 h-16 relative cursor-pointer transition-all duration-200 ${selectedSoldierIndex === index ? 'border-2 border-yellow-400 scale-110' : 'border border-gray-700'}`}
+                                        >
+                                            <Image
+                                                src={
+                                                    soldier.image_url ||
+                                                    '/images/soldier-placeholder.png'
+                                                }
+                                                alt={soldier.name || 'Meme Warrior'}
+                                                width={64}
+                                                height={64}
+                                                className="pixelated object-cover w-full h-full"
+                                                onError={(e) => {
+                                                    // 縮略圖加載失敗時使用默認圖像
+                                                    console.error('縮略圖加載失敗，使用默認圖像');
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.onerror = null; // 防止無限循環
+                                                    target.src = '/images/meme-soldier.png'; // 使用本地備用圖像
+                                                }}
+                                                unoptimized={true} // 禁用Next.js圖像優化，直接使用原始URL
+                                            />
+                                            {selectedSoldierIndex === index && (
+                                                <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-1 minecraft-font">
+                                                    SELECTED
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="mt-auto">
                             <div className="flex flex-col space-y-3">
                                 <button
@@ -200,15 +399,40 @@ function ResultContent() {
                             />
                         </div>
 
-                        {/* Dispatcher in the bottom-right corner */}
-                        <div className="absolute bottom-4 right-4 z-10">
-                            <Image
-                                src="/images/dispatcher.png"
-                                alt="Dispatcher"
-                                width={64}
-                                height={64}
-                                className="pixelated"
-                            />
+                        {/* 中央展示當前選擇的戰士 */}
+                        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                            {getCurrentSoldier() && (
+                                <div className="flex flex-col items-center">
+                                    <div
+                                        className="pixel-border overflow-hidden bg-black/50 mb-3"
+                                        style={{ width: '180px', height: '180px' }}
+                                    >
+                                        <Image
+                                            src={soldierImage}
+                                            alt={getCurrentSoldier()?.name || 'Meme Warrior'}
+                                            width={180}
+                                            height={180}
+                                            className="pixelated object-cover"
+                                            onError={(e) => {
+                                                // 圖像加載失敗時使用默認圖像
+                                                console.error('圖像加載失敗，使用默認圖像');
+                                                const target = e.target as HTMLImageElement;
+                                                target.onerror = null; // 防止無限循環
+                                                target.src = '/images/meme-soldier.png'; // 使用本地備用圖像
+                                            }}
+                                            unoptimized={true} // 禁用Next.js圖像優化，直接使用原始URL
+                                        />
+                                    </div>
+                                    <div className="text-center">
+                                        <h4 className="text-xl font-bold text-yellow-300 minecraft-font">
+                                            {getCurrentSoldier()?.name || 'Unknown Warrior'}
+                                        </h4>
+                                        <p className="text-sm text-gray-300 minecraft-font mt-1">
+                                            {getCurrentSoldier()?.prompt || prompt}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Completed teleport animation */}
@@ -229,21 +453,32 @@ function ResultContent() {
                             <div className="pixel-soldier w-24 h-24 flex items-center justify-center">
                                 <Image
                                     src={soldierImage}
-                                    alt="Meme Soldier"
-                                    width={64}
-                                    height={64}
-                                    className="pixelated"
-                                    onError={() => {
-                                        // If image loading fails, use emoji instead
-                                        const element = document.querySelector('.pixel-soldier');
-                                        if (element) {
-                                            element.innerHTML =
-                                                '<div class="fallback-emoji">🐶</div>';
-                                        }
+                                    alt={getCurrentSoldier()?.name || 'Meme Soldier'}
+                                    width={96}
+                                    height={96}
+                                    className="pixelated object-cover"
+                                    onError={(e) => {
+                                        // 圖像加載失敗時使用默認圖像
+                                        console.error('右側面板圖像加載失敗，使用默認圖像');
+                                        const target = e.target as HTMLImageElement;
+                                        target.onerror = null; // 防止無限循環
+                                        target.src = '/images/meme-soldier.png'; // 使用本地備用圖像
                                     }}
+                                    unoptimized={true} // 禁用Next.js圖像優化，直接使用原始URL
                                 />
                             </div>
                         </div>
+
+                        {getCurrentSoldier() && (
+                            <div className="text-center mb-4">
+                                <h4 className="text-lg text-yellow-300 minecraft-font">
+                                    {getCurrentSoldier().name}
+                                </h4>
+                                <p className="text-xs text-gray-300 minecraft-font mt-1">
+                                    {getCurrentSoldier().prompt || prompt}
+                                </p>
+                            </div>
+                        )}
 
                         <div className="soldier-stats mt-2">
                             <div className="stat-bar">
